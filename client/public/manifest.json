@@ -1,0 +1,22 @@
+{
+  "name": "yah.mobile — Japan eSIM",
+  "short_name": "yah.mobile",
+  "description": "Instant Japan eSIM for travelers. No SIM card needed.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["travel", "utilities"],
+  "prefer_related_applications": false
+}

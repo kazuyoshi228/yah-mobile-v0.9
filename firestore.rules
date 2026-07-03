@@ -1,0 +1,201 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ────────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Admin check via Firebase Custom Claims (set by Admin SDK)
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    function isFreshAuth() {
+      // Require auth_time to be within the last 10 minutes (600 seconds)
+      return (request.time.toMillis() / 1000) - request.auth.token.auth_time < 600;
+    }
+
+    // Invite check: user's email must be registered in allowed_emails collection
+    // This enables invite-only purchasing while keeping registration open to all.
+    function isInvited() {
+      return isAuthenticated()
+        && request.auth.token.email != null
+        && (isAdmin() || exists(/databases/$(database)/documents/allowed_emails/$(request.auth.token.email.lower())));
+    }
+
+    // ─── users ───────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      // フロントエンドでの初回ログイン時に、本人による初期化ドキュメント作成を許可
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == request.auth.uid  // UIDの本人確認
+        && request.resource.data.role == "user"
+        && request.resource.data.loginMethod == "google"
+        && request.resource.data.keys().hasAll(['name', 'email', 'loginMethod', 'role', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'email', 'loginMethod', 'role', 'status', 'createdAt', 'lastSignedIn', 'updatedAt', 'marketing', 'demographics', 'device', 'preferences'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100 // 空文字防止と文字数制限
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.createdAt == request.time // 作成日時の偽装防止
+        && request.resource.data.updatedAt == request.time;
+      // 所有者本人は更新可能だが、ロール(role)やステータス(status)など機密情報の不正書き換えはブロック
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'email', 'uid', 'stripeCustomerId', 'metrics', 'marketing'])
+        && (
+             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['updatedAt']) || 
+             request.resource.data.updatedAt == request.time // 更新時はupdatedAtを強制
+           );
+      // 管理者は強制ログアウトのリクエストのみ可能（かつ認証が10分以内で新しいこと）
+      allow update: if isAdmin() && isFreshAuth()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sessionRevokedAt']);
+      allow delete: if false;
+    }
+
+    // ─── plans ───────────────────────────────────────────────────────────────────
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── currency_rates ──────────────────────────────────────────────────────────
+    match /currency_rates/{docId} {
+      allow read: if true;   // 誰でも読み取り可（参考表示用）
+      allow write: if false; // Cloud Functions（Admin SDK）のみ書き込み
+    }
+
+    // ─── orders ──────────────────────────────────────────────────────────────────
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      // Orders are now created exclusively via Cloud Functions (Callable).
+      // Direct creation from the client is disabled to enforce a single write path.
+      allow create: if isAdmin();
+      // Regular users cannot update orders (Cloud Functions / Admin SDK only)
+      // Exception: users can hide their own orders (hiddenByUser + updatedAt only)
+      allow update: if isAdmin()
+        || (isAuthenticated()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hiddenByUser', 'updatedAt'])
+          && request.resource.data.hiddenByUser is bool // 型チェック
+          && request.resource.data.updatedAt == request.time);
+      allow delete: if false;
+    }
+
+    // ─── esim_links ──────────────────────────────────────────────────────────────
+    match /esim_links/{esimLinkId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      // データ残量同期の要求フラグ（syncRequestedAt）の更新のみ許可
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['syncRequestedAt', 'updatedAt'])
+        && request.resource.data.syncRequestedAt == request.time
+        && request.resource.data.updatedAt == request.time
+        // レート制限：syncRequestedAtが存在する場合、前回から60秒経過しているか？
+        && (
+          !("syncRequestedAt" in resource.data) || 
+          request.time.toMillis() > resource.data.syncRequestedAt.toMillis() + (60 * 1000)
+        );
+      allow create, delete: if false; // Provisioned purely by Cloud Functions
+      
+      // サブコレクション: usage_logs
+      match /usage_logs/{logId} {
+        allow read: if isAuthenticated() &&
+          (get(/databases/$(database)/documents/esim_links/$(esimLinkId)).data.userId == request.auth.uid || isAdmin());
+        allow write: if false;
+      }
+    }
+
+    // ─── promotions ──────────────────────────────────────────────────────────────
+    match /promotions/{promoId} {
+      // ユーザーは存在確認や内容の読み取りが可能
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ─── esim_activations ────────────────────────────────────────────────────────
+    match /esim_activations/{activationId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+
+    // ─── notifications ───────────────────────────────────────────────────────────
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() &&
+        resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'readAt']);
+      allow create, delete: if false;
+    }
+
+    // ─── contact_inquiries ───────────────────────────────────────────────────────
+    match /contact_inquiries/{inquiryId} {
+      // スパム対策のため、Cloud Functions 経由でのみ書き込みを許可する
+      allow create: if false; 
+      allow read: if isAdmin();
+      allow update: if isAdmin(); // status update, etc.
+      allow delete: if isAdmin() && isFreshAuth();
+    }
+
+    // ─── analytics_events ────────────────────────────────────────────────────────
+    match /analytics_events/{eventId} {
+      allow create: if false; // Only Cloud Functions can create events now
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+
+
+    // ─── allowed_emails ──────────────────────────────────────────────────────────
+    match /allowed_emails/{email} {
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.token.email.lower() == email);
+      allow create: if isAdmin() && isFreshAuth();
+      allow update: if isAdmin() && isFreshAuth();
+      allow delete: if isAdmin() && isFreshAuth();
+    }
+
+    // ─── competitorPlans ───────────────────────────────────────
+    match /competitorPlans/{tableId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+
+
+    // ─── esim_retry_jobs ─────────────────────────────────────────────────────────
+    match /esim_retry_jobs/{jobId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+
+
+    // ─── System collections (Cloud Functions only) ───────────────────────────────
+    match /bappy_token_cache/{docId} {
+      allow read, write: if false;
+    }
+
+    match /stripe_events/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+
+
+    // ─── Default: deny all unmatched paths ───────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
