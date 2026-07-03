@@ -134,3 +134,33 @@ describe("PurchaseDrawer — 購入フロー", () => {
     expect(window.location.href).toBe("");
   });
 });
+
+// 各ステップがクラッシュせず描画されることを担保する smoke テスト。
+// ステップ部品化のリファクタで描画が壊れていないかを検知するためのセーフティネット。
+describe("PurchaseDrawer — 各ステップの描画 (smoke)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockMutateAsync.mockResolvedValue({ checkoutUrl: "https://checkout.stripe.com/test", orderId: "order-123" });
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      writable: true,
+      value: { href: "", origin: "https://yah.mobi" },
+    });
+  });
+
+  for (const step of [0, 1, 2, 3, 4, 5, 6]) {
+    it(`step ${step} がクラッシュせず描画される`, async () => {
+      render(
+        <PurchaseDrawer
+          open={true}
+          onOpenChange={vi.fn()}
+          initialPlanId="JP_7D_1GB"
+          initialStep={step}
+          initialOrderId="order-123"
+        />,
+      );
+      // クラッシュせず描画されていれば、Drawer 内にボタンが1つ以上存在する
+      await waitFor(() => expect(screen.getAllByRole("button").length).toBeGreaterThan(0));
+    });
+  }
+});
