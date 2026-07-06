@@ -20,6 +20,7 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  Timestamp,
 } from "firebase/firestore";
 
 let testEnv: RulesTestEnvironment;
@@ -217,6 +218,39 @@ describe("esim_links", () => {
 
   it("クライアントから eSIM を作成できない", async () => {
     await assertFails(setDoc(doc(alice(), "esim_links/e2"), { userId: "alice", bappyLinkUuid: "uuid-2", status: "active" }));
+  });
+
+  // ── 同期要求（syncRequestedAt/updatedAt を serverTimestamp で更新）──
+  const syncUpdate = { syncRequestedAt: serverTimestamp(), updatedAt: serverTimestamp() };
+
+  it("本人は syncRequestedAt 未設定の eSIM に同期要求できる", async () => {
+    await seed("esim_links/e1", { userId: "alice", bappyLinkUuid: "uuid-1", status: "active" });
+    await assertSucceeds(updateDoc(doc(alice(), "esim_links/e1"), syncUpdate));
+  });
+
+  it("syncRequestedAt が数値（レガシー）でも拒否されない（.toMillis クラッシュ回避）", async () => {
+    await seed("esim_links/e1", { userId: "alice", bappyLinkUuid: "uuid-1", status: "active", syncRequestedAt: 1700000000000 });
+    await assertSucceeds(updateDoc(doc(alice(), "esim_links/e1"), syncUpdate));
+  });
+
+  it("syncRequestedAt が Timestamp かつ60秒以内は拒否（レート制限）", async () => {
+    await seed("esim_links/e1", { userId: "alice", bappyLinkUuid: "uuid-1", status: "active", syncRequestedAt: Timestamp.now() });
+    await assertFails(updateDoc(doc(alice(), "esim_links/e1"), syncUpdate));
+  });
+
+  it("syncRequestedAt が Timestamp かつ60秒超なら許可", async () => {
+    await seed("esim_links/e1", { userId: "alice", bappyLinkUuid: "uuid-1", status: "active", syncRequestedAt: Timestamp.fromMillis(Date.now() - 120000) });
+    await assertSucceeds(updateDoc(doc(alice(), "esim_links/e1"), syncUpdate));
+  });
+
+  it("syncRequestedAt/updatedAt 以外のフィールドを混ぜると拒否", async () => {
+    await seed("esim_links/e1", { userId: "alice", bappyLinkUuid: "uuid-1", status: "active" });
+    await assertFails(updateDoc(doc(alice(), "esim_links/e1"), { ...syncUpdate, status: "expired" }));
+  });
+
+  it("他人は他ユーザーの eSIM に同期要求できない（IDOR）", async () => {
+    await seed("esim_links/e1", { userId: "alice", bappyLinkUuid: "uuid-1", status: "active" });
+    await assertFails(updateDoc(doc(bob(), "esim_links/e1"), syncUpdate));
   });
 });
 

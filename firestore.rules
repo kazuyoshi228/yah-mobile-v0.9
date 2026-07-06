@@ -112,10 +112,13 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['syncRequestedAt', 'updatedAt'])
         && request.resource.data.syncRequestedAt == request.time
         && request.resource.data.updatedAt == request.time
-        // レート制限：syncRequestedAtが存在する場合、前回から60秒経過しているか？
+        // レート制限：syncRequestedAt が Timestamp のとき、前回から60秒経過しているか？
+        // 非Timestamp値（レガシー/数値）では .toMillis() がエラーになり全体が拒否されるため、
+        // 型チェックでスキップしてクラッシュを回避する（次回書き込みで正しい Timestamp に上書きされる）。
         && (
-          !("syncRequestedAt" in resource.data) || 
-          request.time.toMillis() > resource.data.syncRequestedAt.toMillis() + (60 * 1000)
+          !("syncRequestedAt" in resource.data)
+          || !(resource.data.syncRequestedAt is timestamp)
+          || request.time.toMillis() > resource.data.syncRequestedAt.toMillis() + (60 * 1000)
         );
       allow create, delete: if false; // Provisioned purely by Cloud Functions
       
