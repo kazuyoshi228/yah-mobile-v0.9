@@ -131,8 +131,10 @@ functions/lib/
 # Claude Code session scratch
 .claude/
 
-# CI workflows: workflowスコープ付きトークンで別途追加する（初回pushで弾かれるため一旦除外）
-.github/workflows/
+# CI workflows: 自動デプロイ用（firebase-hosting-*.yml）は除外のまま。
+# テスト用の ci.yml だけ追跡する（本番自動デプロイは行わない方針）。
+.github/workflows/*
+!.github/workflows/ci.yml
 
 # Playwright
 /test-results/
