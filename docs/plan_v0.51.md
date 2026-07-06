@@ -1,28 +1,35 @@
-# yah.mobile v5.1 実装計画書
+# yah.mobile v0.51 実装計画書
 
-作成: 2026-07-06 ／ 更新: 2026-07-06（v5.0本番リリース反映）／ 基準コミット: `008063e`（main=dev）／ ステータス: **提案（各実装フェーズは着手前に個別承認）**
-評価: 現行 v5.0 = **A−（89/100）**・招待制でソフトローンチ可
-リリース: **v5.0 を本番リリース済み**（`dev`→`main` FFマージ `008063e`、`firebase deploy --only hosting,firestore:rules` 完了）。functions は今セッションで本番反映済み。
+作成: 2026-07-06 ／ 更新: 2026-07-06（v0.5本番リリース反映）／ 基準コミット: `008063e`（main=dev）／ ステータス: **提案（各実装フェーズは着手前に個別承認）**
+評価: 現行 v0.5 = **A−（89/100）**・招待制でソフトローンチ可
+リリース: **v0.5 を本番リリース済み**（`dev`→`main` FFマージ `008063e`、`firebase deploy --only hosting,firestore:rules` 完了）。functions は今セッションで本番反映済み。
 
-> 🚨 本書は v5.1 全体の**計画レイヤ**。CLAUDE.md の実装フローに従い、`functions/`・`firestore.rules`・本番/hosting デプロイは**各フェーズ着手前にユーザー承認**を得る。本書は「何を・なぜ・どの順で」を確定するためのもの。
+> 🚨 本書は v0.51 全体の**計画レイヤ**。CLAUDE.md の実装フローに従い、`functions/`・`firestore.rules`・本番/hosting デプロイは**各フェーズ着手前にユーザー承認**を得る。本書は「何を・なぜ・どの順で」を確定するためのもの。
 
 ---
 
 ## 0. このバージョンの位置づけ
 
-- **v5.0（現行）**：主要機能・セキュリティ・SEO/i18n は商用水準。招待制（`allowed_emails`）でコントロール付きローンチが可能。
-- **v5.1 のテーマ**：**「一般公開（GA）に耐える堅牢性」＝“お金と障害”の砦を固める。**
-- そのため v5.1 は次の **2本柱**を実装の中心に据える：
+- **v0.5（現行）**：主要機能・セキュリティ・SEO/i18n は商用水準。招待制（`allowed_emails`）でコントロール付きローンチが可能。
+- **v0.51 のテーマ**：**「一般公開（GA）に耐える堅牢性」＝“お金と障害”の砦を固める。**
+- そのため v0.51 は次の **2本柱**を実装の中心に据える：
   1. **Webhook の確認**（Bappy 受信認証の結論＋多層防御の確立）
   2. **eSIMAccess を並走プロバイダとして契約を進める**（Provider 抽象で2社目導入）
 
 > この2本柱は、リリース評価で残った Must-fix（**プロバイダSPOF / 手動返金**）と保留（**Bappy Webhook受信認証**）を**まとめて解消**する。eSIMAccess は返金API・状態取得・再インストールを備えるため、SPOF緩和と返金自動化を同時に前進させられる。
 
+### 0.1 Solo運用（一人保守）の前提
+本システムは **BaaS-first・ミニマル・ドキュメント整備**により、**一人保守に向いた土台**を持つ（インフラ運用ほぼゼロ／型・テスト・shared schema／デプロイ規律）。一方で **障害対応・返金・サポートが個人に集中**する構造が残る。
+→ **v0.51 の2本柱は「機能改善」であると同時に「一人運用を成立させる運用投資」**でもある：
+- **柱2（プロバイダ冗長＋自動返金）**：Bappy障害時の深夜対応と手動返金を激減＝**solo運用の最重要スイッチ**。
+- **柱1（Webhook確認）＋S1（可観測性）**：「本当に対応が要る時だけ鳴る」アラート体制の確立。
+- **支援WSに solo運用向け項目を追加**（S7ランブック／S8依存自動更新／S9アラート最適化。§4）。運用手順そのものは **別ドキュメント `docs/runbook_solo_ops.md`**（恒久・生きた文書）として計画書と分離し、相互リンクで連携する。
+
 ---
 
 ## 1. 現状サマリ（このセッションの全レポート集約）
 
-### 1.1 v5.0 で完了済み（**本番リリース済み `008063e`**）
+### 1.1 v0.5 で完了済み（**本番リリース済み `008063e`**）
 | 区分 | 内容 | 反映 |
 |---|---|---|
 | Manus①ファネル3イベント | plan_tab_click/checkout_start/order_complete 発火 | **本番hosting ✅** |
@@ -49,7 +56,7 @@
 | i18n/SEO | A |
 | **総合** | **A−（89/100）** |
 
-### 1.3 GAに向けた宿題（v5.1 スコープ）
+### 1.3 GAに向けた宿題（v0.51 スコープ）
 - 🚨 Must-fix：**①返金経路の確立**／**②プロバイダSPOF緩和** → いずれも**柱2（eSIMAccess）**で本質解決。
 - ⏸ 確認中：**Bappy Webhook 受信認証** → **柱1**で結論を出す。
 - 🟡 早期：**可観測性（Error Reporting通知＋フロントエラー収集）**／**テストゲート付きCI**／**a11y**／**PWAキャッシュ**／**lastSignedIn毎ログイン更新**。
@@ -58,13 +65,13 @@
 ### 1.4 参照ドキュメント
 - [esimaccess_parallel_introduction.md](./esimaccess_parallel_introduction.md)（並走設計）
 - [esimaccess_api_notes.md](./esimaccess_api_notes.md)（確定API仕様）
-- [design_manus_report_fixes.md](./design_manus_report_fixes.md)（v5.0対応）
+- [design_manus_report_fixes.md](./design_manus_report_fixes.md)（v0.5対応）
 - [design_user_doc_consolidation.md](./design_user_doc_consolidation.md)
 - [api_functions.md](./api_functions.md) / [firestore_schema.md](./firestore_schema.md) / [screen_flow.md](./screen_flow.md)
 
 ---
 
-## 2. 柱1：Webhook の確認 【v5.1 中心-1】
+## 2. 柱1：Webhook の確認 【v0.51 中心-1】
 
 ### 2.1 現状
 | Webhook | 受信認証 |
@@ -91,9 +98,9 @@
 
 ---
 
-## 3. 柱2：eSIMAccess 並走プロバイダ契約 【v5.1 中心-2】
+## 3. 柱2：eSIMAccess 並走プロバイダ契約 【v0.51 中心-2】
 
-詳細設計は [esimaccess_parallel_introduction.md](./esimaccess_parallel_introduction.md)。ここでは v5.1 の実行計画として要約。
+詳細設計は [esimaccess_parallel_introduction.md](./esimaccess_parallel_introduction.md)。ここでは v0.51 の実行計画として要約。
 
 ### 3.1 目的
 - **SPOF緩和**（Bappy単一依存の解消）＋**返金自動化**（eSIMAccess は cancel/返金API・状態取得・再インストールを備える）を同時に達成。
@@ -200,6 +207,9 @@ plans/{id}: {
 | S3 | アクセシビリティ | aria/キーボード点検（購入・問い合わせフォーム優先） | フロント |
 | S4 | PWA キャッシュ | デプロイ時の stale バンドル対策（バージョニング/更新導線） | フロント |
 | S5 | lastSignedIn | 毎ログインで更新する仕組み（現状ほぼ未更新） | functions or client |
+| **S7（solo）** | **運用ランブック** | 障害/返金/手動発行/デプロイ/復旧/バックアップ手順を **別doc `docs/runbook_solo_ops.md`** に整備（バス係数=1対策・恒久文書） | ドキュメント |
+| **S8（solo）** | **依存自動更新** | Dependabot/Renovate で npm/pnpm・Firebase SDK の更新PRを自動化（脆弱化・手作業を防止） | CI/設定 |
+| **S9（solo）** | **アラート最適化** | 「本当に対応が要る時だけ鳴る」よう Error Reporting/Slack 通知の閾値・粒度を調整（一人＝オンコール交代なしのため誤報を最小化） | 設定 |
 | S6（任意） | 型/テスト | 管理画面 `any` 削減・E2E（Playwright）拡充 | フロント |
 
 ---
@@ -220,12 +230,13 @@ plans/{id}: {
 
 ## 6. GA（一般公開）ゲート
 
-v5.1 完了＝以下を満たせば GA 可と判定：
+v0.51 完了＝以下を満たせば GA 可と判定：
 - [ ] **Must-fix「返金」クローズ**（自動返金 or 確実な手動ランブック＋アラート）
 - [ ] **Must-fix「SPOF」緩和**（eSIMAccess 並走 or 販売停止ガード＋監視＋手動発行手順）
 - [ ] **柱1 Webhook 受信認証の結論**（署名検証 or 多層防御を実装）
 - [ ] **可観測性 最低限**（Error Reporting通知＋フロントエラー収集）
-- [ ] **サポート/チャット整合**（→ [design_support_ai_chat_copy.md](./design_support_ai_chat_copy.md)）：**(a) AIチャット実装・稼働** または **(b) チャット表記のフォーム主導への修正**（"24/7 chat" 暫定化・CTAをフォームへ・`Terms/Privacy/Cookie` 連絡先の有効化）のいずれか。※人的チーム含意の除去(A)・応答SLAの実値化(B)は v5.0 で対応済み
+- [ ] **サポート/チャット整合**（→ [design_support_ai_chat_copy.md](./design_support_ai_chat_copy.md)）：**(a) AIチャット実装・稼働** または **(b) チャット表記のフォーム主導への修正**（"24/7 chat" 暫定化・CTAをフォームへ・`Terms/Privacy/Cookie` 連絡先の有効化）のいずれか。※人的チーム含意の除去(A)・応答SLAの実値化(B)は v0.5 で対応済み
+- [ ] **Solo運用の最低限**（S7ランブック `docs/runbook_solo_ops.md` ＋ S9アラート最適化）＝一人でも「鳴ったら手順どおり対応」できる状態。※交代要員なしのため GA前に必須級
 - [ ] 全検証（tsc/vitest/rules/build）＋dev確認＋カナリア観測OK
 
 > それまでは**招待制でGO継続**し、実データを取りながら上記を潰す。
@@ -241,7 +252,7 @@ v5.1 完了＝以下を満たせば GA 可と判定：
 
 ---
 
-## 8. 非対象（v5.1 スコープ外）
+## 8. 非対象（v0.51 スコープ外）
 - Google ログイン同意画面の遷移先ドメイン（`...firebaseapp.com`→`yah.mobi`）変更＝別テーマ・別途設計。
 - 大規模な管理画面リファクタ／新規機能追加。
 - 本番デプロイ（各フェーズ完了後にユーザー明示指示で実施）。
