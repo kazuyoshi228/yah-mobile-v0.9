@@ -23,9 +23,14 @@ queryClient.getQueryCache().subscribe(event => {
     const error = event.query.state.error as Error | null;
     if (!error) return;
     console.error("[API Query Error]", error);
-    // Firebase Callable Functions の未認証エラー
+    // Firebase Callable Functions の未認証エラー → その場でポップアップログイン
     if (error.message?.includes("unauthenticated") || error.message?.includes("UNAUTHENTICATED")) {
-      window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+      const fallback = "/login?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+      // ※ queryCache のコールバックはユーザーの直接操作ではないため、
+      //   ブラウザによってはポップアップがブロックされる。その場合は /login へフォールバック。
+      import("./lib/firebase")
+        .then(({ signInWithGoogle }) => signInWithGoogle().catch(() => { window.location.href = fallback; }))
+        .catch(() => { window.location.href = fallback; });
     }
     if (error.message?.includes("EMAIL_NOT_ALLOWED") || error.message?.includes("email-not-allowed")) {
       window.location.href = "/unauthorized";

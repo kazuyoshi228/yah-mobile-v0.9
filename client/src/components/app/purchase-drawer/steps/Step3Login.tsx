@@ -1,12 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { LogIn, CheckCircle2 } from "lucide-react";
 import { usePurchaseDrawerCtx } from "../context";
+import { useGoogleLogin } from "@/hooks/useGoogleLogin";
 
 export function Step3Login() {
   const { t } = useTranslation();
   const { loading, isAuthenticated, user, setStep, initialPlanId, currentOpt, drawerDays, drawerGb } = usePurchaseDrawerCtx();
 
   // ログイン往復で選択プランが失われないよう、plan/days/gb を redirect URL に含める
+  // （ポップアップがブロックされた場合のフォールバック先。通常はページ遷移なしでログイン）
   const loginHref = (() => {
     const p = new URLSearchParams({ open: "true" });
     if (initialPlanId) p.set("plan", initialPlanId);
@@ -14,6 +16,10 @@ export function Step3Login() {
     if (drawerGb) p.set("gb", drawerGb);
     return `/login?redirect=${encodeURIComponent(`/app?${p.toString()}`)}`;
   })();
+
+  // その場で Google ポップアップログイン。成功後は isAuthenticated が true になり、
+  // ページ遷移なしでこの画面がログイン済み表示（→ 支払い）に切り替わる（＝プラン選択が保持される）。
+  const { handleLogin, pending } = useGoogleLogin({ fallbackHref: loginHref });
 
   return (
     <div>
@@ -73,12 +79,14 @@ export function Step3Login() {
             </div>
             <p className="font-sans font-medium text-black text-[0.9375rem] mb-1">{t("drawer.signInWithAccount")}</p>
             <p className="font-sans text-black/45 text-[0.875rem] leading-[1.7] mb-6">{t("drawer.secureLogin")}</p>
-            <a
-              href={loginHref}
-              className="flex items-center justify-center gap-3 w-full py-3.5 bg-black text-white hover:bg-black/80 transition-colors duration-200 active:scale-[0.97] text-center"
+            <button
+              type="button"
+              onClick={handleLogin}
+              disabled={pending}
+              className="flex items-center justify-center gap-3 w-full py-3.5 bg-black text-white hover:bg-black/80 transition-colors duration-200 active:scale-[0.97] text-center cursor-pointer disabled:opacity-60"
             >
               <span className="font-sans text-[0.875rem] font-medium tracking-[0.1em]">{t("drawer.signInBtn")}</span>
-            </a>
+            </button>
             <p className="font-sans text-black/35 text-[0.6875rem] leading-[1.6] mt-3 text-center">
               {t("drawer.loginConsent")}{" "}
               <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-black/60 transition-colors">{t("footer.terms")}</a>

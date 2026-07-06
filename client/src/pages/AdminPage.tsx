@@ -21,6 +21,7 @@ import {
   CommunicationTab,
 } from "@/components/admin";
 import { YahLogo } from "@/components/YahLogo";
+import { useGoogleLogin } from "@/hooks/useGoogleLogin";
 
 const TABS: { id: AdminTab; label: string }[] = [
   { id: "ai_first", label: "AI First" },
@@ -40,6 +41,7 @@ const VALID_TABS: AdminTab[] = ["ai_first", "analytics", "orders", "inquiries", 
 export default function AdminPage() {
   const { user, loading, isAdmin } = useAuth();
   const [location, setLocation] = useLocation();
+  const { handleLogin, pending: loginPending } = useGoogleLogin({ fallbackHref: "/login?redirect=%2Fadmin" });
 
   // パス形式（/admin/comparison）とクエリ形式（/admin?tab=comparison）の両方を解釈
   const pathName = location.split("?")[0];
@@ -72,12 +74,14 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6">
         <p className="font-sans text-black/50">Login required</p>
-        <a
-          href="/login?redirect=%2Fadmin"
-          className="text-label text-[0.75rem] inline-block bg-black text-white px-8 py-3 hover:bg-black/80 transition-colors duration-200 active:scale-[0.97]"
+        <button
+          type="button"
+          onClick={handleLogin}
+          disabled={loginPending}
+          className="text-label text-[0.75rem] inline-block bg-black text-white px-8 py-3 hover:bg-black/80 transition-colors duration-200 active:scale-[0.97] cursor-pointer disabled:opacity-60"
         >
           Sign in
-        </a>
+        </button>
         <button onClick={() => setLocation("/app")} className="font-sans text-black/40 hover:text-black underline transition-colors text-[0.8125rem]">
           Back to home
         </button>

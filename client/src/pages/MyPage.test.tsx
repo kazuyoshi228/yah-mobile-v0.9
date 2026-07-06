@@ -19,7 +19,7 @@ vi.mock("react-i18next", () => ({
 }));
 
 // Firebase / Firestore を無害化（onSnapshot はコールバックを呼ばない）
-vi.mock("@/lib/firebase", () => ({ getFirebaseDb: () => ({}), getFirebaseApp: () => ({}) }));
+vi.mock("@/lib/firebase", () => ({ getFirebaseDb: () => ({}), getFirebaseApp: () => ({}), signInWithGoogle: vi.fn() }));
 vi.mock("firebase/firestore", () => ({
   collection: () => ({}),
   query: () => ({}),
@@ -58,8 +58,8 @@ describe("MyPage — 認証ガード", () => {
     render(<MyPage />);
 
     expect(screen.getByText(/Sign in to view your orders/i)).toBeInTheDocument();
-    // ログインへの導線があること
-    expect(screen.getByRole("link", { name: /sign in/i })).toHaveAttribute("href", expect.stringContaining("/login"));
+    // ログイン導線（ポップアップ化により link ではなく button）
+    expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
   });
 
   it("ログイン済み状態のときサインイン画面は表示されない", () => {

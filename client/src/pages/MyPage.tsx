@@ -10,11 +10,14 @@ import { ActiveEsimSummary } from "@/components/mypage/ActiveEsimSummary";
 import { OrderList } from "@/components/mypage/OrderList";
 import { ProfileSection } from "@/components/mypage/ProfileSection";
 import { useMyPageData } from "@/components/mypage/useMyPageData";
+import { useGoogleLogin } from "@/hooks/useGoogleLogin";
 
 export default function MyPage() {
   const { user, loading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
+  // 未ログイン画面のサインインをポップアップ化（ブロック時のみ /login へ）
+  const { handleLogin, pending: loginPending } = useGoogleLogin({ fallbackHref: "/login?redirect=%2Fmypage" });
 
   // 注文・eSIM のリアルタイム購読と派生データ
   const { orders, ordersLoading, esimByOrderId, activeEsimList } = useMyPageData(user?.uid);
@@ -49,12 +52,14 @@ export default function MyPage() {
           <p className="font-sans text-black/40 mb-8 max-w-sm text-sm leading-[1.75]">
             Log in to access your purchase history, eSIM QR codes, and account details.
           </p>
-          <a
-            href="/login?redirect=%2Fmypage"
-            className="text-label text-[0.75rem] inline-block bg-black text-white px-8 py-3.5 hover:bg-black/80 transition-colors duration-200 active:scale-[0.97]"
+          <button
+            type="button"
+            onClick={handleLogin}
+            disabled={loginPending}
+            className="text-label text-[0.75rem] inline-block bg-black text-white px-8 py-3.5 hover:bg-black/80 transition-colors duration-200 active:scale-[0.97] cursor-pointer disabled:opacity-60"
           >
             Sign in
-          </a>
+          </button>
         </div>
         <Footer />
       </div>

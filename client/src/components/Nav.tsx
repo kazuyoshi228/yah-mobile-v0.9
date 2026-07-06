@@ -8,6 +8,7 @@ import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogOut, ShoppingBag, User } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useGoogleLogin } from "@/hooks/useGoogleLogin";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { YahLogo } from "@/components/YahLogo";
@@ -70,6 +71,8 @@ function AuthButton({
 }) {
   const { t } = useTranslation();
   const [location] = useLocation();
+  // ページ遷移せずその場で Google ポップアップログイン（ブロック時のみ /login へフォールバック）
+  const { handleLogin, pending } = useGoogleLogin({ fallbackHref: `/login?redirect=${encodeURIComponent(location)}` });
 
   const initialsBtn = (
     <div
@@ -83,11 +86,13 @@ function AuthButton({
 
   if (!user) {
     return (
-      <a
-        href={`/login?redirect=${encodeURIComponent(location)}`}
-        className={`font-sans font-medium text-[0.625rem] tracking-[0.16em] uppercase transition-colors duration-300 ${
+      <button
+        type="button"
+        onClick={handleLogin}
+        disabled={pending}
+        className={`font-sans font-medium text-[0.625rem] tracking-[0.16em] uppercase transition-colors duration-300 bg-transparent cursor-pointer disabled:opacity-60 ${
           isMobile
-            ? isLight ? "text-black" : "text-white"
+            ? `p-0 border-0 ${isLight ? "text-black" : "text-white"}`
             : `text-label inline-flex items-center gap-1.5 border px-4 py-2 transition-colors duration-200 hover:opacity-70 ${
                 isLight ? "border-black/20 text-black hover:border-black" : "border-white/30 text-white hover:border-white"
               }`
@@ -95,7 +100,7 @@ function AuthButton({
       >
         {!isMobile && <User size={11} />}
         {t("nav.login")}
-      </a>
+      </button>
     );
   }
 
