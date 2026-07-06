@@ -30,7 +30,7 @@ const zhTW = {
   },
   "support": {
     "heading": "需要協助嗎？",
-    "subheading": "我們的團隊全天候待命——旅行前後皆可聯絡。",
+    "subheading": "全天候支援——旅行前後皆可聯絡。",
     "cta": "開始對話"
   },
   "features": {
@@ -47,7 +47,7 @@ const zhTW = {
       },
       "support": {
         "title": "24/7 多語言客服",
-        "desc": "日本在地客服團隊，全天候提供多語言服務。"
+        "desc": "全天候多語言支援，隨時為您服務。"
       },
       "activation": {
         "title": "一鍵啟用",
@@ -167,7 +167,7 @@ const zhTW = {
       },
       {
         "q": "設定需要幫助怎麼辦？",
-        "a": "我們的支援團隊24小時提供聊天服務。我們會逐步帶領您完成安裝，通常不到 3 分鐘。"
+        "a": "24小時線上聊天為您逐步指導安裝，通常不到 3 分鐘。"
       },
       {
         "q": "有速度限制嗎？",
@@ -188,7 +188,7 @@ const zhTW = {
   "contact": {
     "sectionLabel": "聯絡我們",
     "title": "與我們聯絡。",
-    "subtitle": "購買前有疑問嗎？我們將在 2 小時內回覆您。",
+    "subtitle": "購買前有疑問嗎？我們將在 1 個工作天內回覆您。",
     "namePlaceholder": "您的姓名",
     "emailPlaceholder": "your@email.com",
     "notePlaceholder": "其他補充資訊...",
@@ -260,7 +260,7 @@ const zhTW = {
       "exportMyData": "我們將以機器可讀格式（JSON）備妥您的個人資料副本，並於 30 天內寄送至您註冊的電子郵件地址。",
       "correctMyData": "請說明您認為哪些資料有誤，以及正確資訊應為何。我們將於 30 天內審核並更新。",
       "optOutMarketing": "我們將立即將您從所有行銷通訊中移除。請注意：交易類郵件（訂單確認、eSIM 寄送）為提供服務所必需，將會繼續寄送。",
-      "notListedAbove": "提示：請在下方盡可能詳細描述您的問題。我們的客服團隊通常於 1–2 小時內回覆。"
+      "notListedAbove": "提示：請在下方盡可能詳細描述您的問題。我們通常於 1 個工作天內回覆。"
     }
   },
   "ctaBanner": {

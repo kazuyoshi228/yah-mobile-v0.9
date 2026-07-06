@@ -29,7 +29,7 @@ const en = {
   },
   support: {
     heading: "Need support?",
-    subheading: "Our team is available 24/7 — before and after your trip.",
+    subheading: "Support is available 24/7 — before and after your trip.",
     cta: "Start a chat",
   },
   features: {
@@ -38,7 +38,7 @@ const en = {
     items: {
       bestPrice: { title: "Best price guaranteed", desc: "We promise the best price per GB comparing with our competitors." },
       coverage: { title: "Nationwide coverage", desc: "Powered by Japan's major carrier network (KDDI). City centers to rural destinations." },
-      support: { title: "24/7 multilingual support", desc: "Japan-based support team, available 24/7 in multiple languages." },
+      support: { title: "24/7 multilingual support", desc: "24/7 support in multiple languages, before and during your trip." },
       activation: { title: "1-tap activation", desc: "On iOS 17.4+, activate your eSIM with a single tap — no QR scan required." },
       tracking: { title: "Real-time usage tracking", desc: "Monitor remaining data and expiry in real time. Top up instantly when needed." },
       account: { title: "Manage your account", desc: "View purchase history, active eSIMs, and support history all in one place." },
@@ -108,7 +108,7 @@ const en = {
       { q: "Can I use it on multiple devices?", a: "Each eSIM is tied to one device. If you need data on multiple devices, you'll need to purchase a separate plan for each." },
       { q: "Will it work on the bullet train (Shinkansen)?", a: "Yes. yah.mobile runs on KDDI, one of Japan's largest networks. Coverage is excellent on Shinkansen routes and in major cities. Some rural tunnels may have limited signal." },
       { q: "How do I receive my eSIM?", a: "After purchase, your QR code is delivered instantly to your registered email and is also available in your account under My Orders. No waiting, no shipping." },
-      { q: "What if I need help setting it up?", a: "Our support team is available 24/7 via chat. We'll walk you through the installation step by step — usually takes under 3 minutes." },
+      { q: "What if I need help setting it up?", a: "24/7 chat support can guide you through installation step by step — it usually takes under 3 minutes." },
       { q: "Is there a speed limit?", a: "No speed throttling. You get full 4G LTE / 5G speeds for the duration of your plan. Speeds depend on network conditions and your device's capabilities." },
       { q: "Can I use tethering (hotspot)?", a: "Yes. Tethering and mobile hotspot are supported. You can share your Japan data connection with laptops, tablets, or other devices." },
     ],
@@ -122,7 +122,7 @@ const en = {
   contact: {
     sectionLabel: "Contact",
     title: "Get in touch.",
-    subtitle: "Have a question before you buy? We'll get back to you within 2 hours.",
+    subtitle: "Have a question before you buy? We'll reply within 1 business day.",
     namePlaceholder: "Your name",
     emailPlaceholder: "your@email.com",
     notePlaceholder: "Any additional details...",
@@ -194,7 +194,7 @@ const en = {
       exportMyData: "We will prepare a copy of your personal data in a machine-readable format (JSON) and send it to your registered email address within 30 days.",
       correctMyData: "Please describe which data you believe is inaccurate and what the correct information should be. We will review and update within 30 days.",
       optOutMarketing: "We will remove you from all marketing communications immediately. Note: transactional emails (order confirmations, eSIM delivery) will continue as they are required for service delivery.",
-      notListedAbove: "Tip: Please describe your issue in as much detail as possible below. Our support team typically replies within 1–2 hours.",
+      notListedAbove: "Tip: Please describe your issue in as much detail as possible below. We typically reply within 1 business day.",
     },
   },
   ctaBanner: {
