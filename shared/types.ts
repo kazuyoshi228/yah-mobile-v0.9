@@ -42,7 +42,8 @@ export interface FsUser {
     lastPurchaseDate?: number;
   } | null;
   stripeCustomerId?: string | null;
-  sessionRevokedAt?: unknown | null;
+  // Firestore Timestamp（クライアントが serverTimestamp() で書き込み、functions は .toMillis() で読む）
+  sessionRevokedAt?: { toMillis(): number } | null;
   lastSignedIn?: number;
   lastLoginAt?: number | null;
   createdAt: number;

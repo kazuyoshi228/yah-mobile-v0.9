@@ -2,103 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
+  <!-- ルーティングは /{lang}/app（en はデフォルトで無印）。対応言語: en, ko, zh-CN, zh-TW, th -->
+
   <!-- Main purchase page (English / default) -->
   <url>
     <loc>https://yah.mobi/app</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en"       href="https://yah.mobi/app"/>
-    <xhtml:link rel="alternate" hreflang="zh-CN"    href="https://yah.mobi/app/zh"/>
-    <xhtml:link rel="alternate" hreflang="zh-Hans"  href="https://yah.mobi/app/zh"/>
-    <xhtml:link rel="alternate" hreflang="ko"       href="https://yah.mobi/app/ko"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://yah.mobi/ko/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN"     href="https://yah.mobi/zh-CN/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW"     href="https://yah.mobi/zh-TW/app"/>
+    <xhtml:link rel="alternate" hreflang="th"        href="https://yah.mobi/th/app"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://yah.mobi/app"/>
   </url>
 
-  <!-- Korean language page -->
+  <!-- Korean -->
   <url>
-    <loc>https://yah.mobi/app/ko</loc>
+    <loc>https://yah.mobi/ko/app</loc>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
-    <xhtml:link rel="alternate" hreflang="en"       href="https://yah.mobi/app"/>
-    <xhtml:link rel="alternate" hreflang="zh-CN"    href="https://yah.mobi/app/zh"/>
-    <xhtml:link rel="alternate" hreflang="zh-Hans"  href="https://yah.mobi/app/zh"/>
-    <xhtml:link rel="alternate" hreflang="ko"       href="https://yah.mobi/app/ko"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://yah.mobi/ko/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN"     href="https://yah.mobi/zh-CN/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW"     href="https://yah.mobi/zh-TW/app"/>
+    <xhtml:link rel="alternate" hreflang="th"        href="https://yah.mobi/th/app"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://yah.mobi/app"/>
   </url>
 
-  <!-- Simplified Chinese language page -->
+  <!-- Simplified Chinese -->
   <url>
-    <loc>https://yah.mobi/app/zh</loc>
+    <loc>https://yah.mobi/zh-CN/app</loc>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
-    <xhtml:link rel="alternate" hreflang="en"       href="https://yah.mobi/app"/>
-    <xhtml:link rel="alternate" hreflang="zh-CN"    href="https://yah.mobi/app/zh"/>
-    <xhtml:link rel="alternate" hreflang="zh-Hans"  href="https://yah.mobi/app/zh"/>
-    <xhtml:link rel="alternate" hreflang="ko"       href="https://yah.mobi/app/ko"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://yah.mobi/ko/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN"     href="https://yah.mobi/zh-CN/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW"     href="https://yah.mobi/zh-TW/app"/>
+    <xhtml:link rel="alternate" hreflang="th"        href="https://yah.mobi/th/app"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://yah.mobi/app"/>
   </url>
 
-  <!-- Plans section (English) -->
+  <!-- Traditional Chinese -->
   <url>
-    <loc>https://yah.mobi/app#plans</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <loc>https://yah.mobi/zh-TW/app</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://yah.mobi/ko/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN"     href="https://yah.mobi/zh-CN/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW"     href="https://yah.mobi/zh-TW/app"/>
+    <xhtml:link rel="alternate" hreflang="th"        href="https://yah.mobi/th/app"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://yah.mobi/app"/>
   </url>
 
-  <!-- Plans section (Korean) -->
+  <!-- Thai -->
   <url>
-    <loc>https://yah.mobi/app/ko#plans</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
+    <loc>https://yah.mobi/th/app</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://yah.mobi/ko/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN"     href="https://yah.mobi/zh-CN/app"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW"     href="https://yah.mobi/zh-TW/app"/>
+    <xhtml:link rel="alternate" hreflang="th"        href="https://yah.mobi/th/app"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://yah.mobi/app"/>
   </url>
 
-  <!-- Plans section (Simplified Chinese) -->
-  <url>
-    <loc>https://yah.mobi/app/zh#plans</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
-  </url>
+  <!-- Plans section (per language) -->
+  <url><loc>https://yah.mobi/app#plans</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://yah.mobi/ko/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/zh-CN/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/zh-TW/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/th/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
 
-  <!-- FAQ section (English) -->
-  <url>
-    <loc>https://yah.mobi/app#faq</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+  <!-- FAQ section (per language) -->
+  <url><loc>https://yah.mobi/app#faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yah.mobi/ko/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/zh-CN/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/zh-TW/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/th/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
 
-  <!-- FAQ section (Korean) -->
-  <url>
-    <loc>https://yah.mobi/app/ko#faq</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
-  <!-- FAQ section (Simplified Chinese) -->
-  <url>
-    <loc>https://yah.mobi/app/zh#faq</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
-  <!-- Compatibility section -->
-  <url>
-    <loc>https://yah.mobi/app#compatibility</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <!-- Contact section -->
-  <url>
-    <loc>https://yah.mobi/app#contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
+  <!-- Other sections (English) -->
+  <url><loc>https://yah.mobi/app#compatibility</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://yah.mobi/app#contact</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 
   <!-- Machine-readable plan data for AI agents -->
-  <url>
-    <loc>https://yah.mobi/llms.txt</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <url><loc>https://yah.mobi/llms.txt</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 </urlset>
