@@ -102,6 +102,42 @@
 
 ---
 
+---
+
+## 2026-07-07 追記（公式ドキュメント実確認 — console登録後）
+
+### 認証・環境（確定）
+- **ベースURL**：`https://api.esimaccess.com/api/v1/open/`（画像は `https://p.qrsim.net/`）。
+- **認証ヘッダ**：`RT-AccessCode: <accessCode>`（オンラインアカウントで発行）。
+  - ただしエラーコードに `101001 timestamp expired` / `101003 signature mismatch` / `101002 IP blocklist` があり、**署名（HMAC）＋タイムスタンプが必要な操作がある可能性**。→ **write系で署名要否を要確認**（balance/query の例は RT-AccessCode のみ）。
+- 🔴 **Sandbox は存在しない**。「Cancel as needed in live environment. Request funds for testing」＝**本番で実資金を入金し、cancel可能な注文でテスト**する。→ Phase 0 は「入金＋cancel前提の実テスト」に変わる。
+- **レート制限**：8 req/秒。時刻はUTC、国コードはAlpha-2、データはBytes。
+
+### 主要エンドポイント（確認済み path）
+| 用途 | Method / Path | 備考 |
+|---|---|---|
+| 残高照会 | `POST /balance/query` | 最終更新日時付き |
+| データ使用量 | `POST /esim/usage/query` | `esimTranNoList`（最大10）。**更新は2-3時間遅延** |
+| 対応地域/コード | `POST /location/list` | 日本=`JP`（type1 単国）。多国コード例 `AS-12`（日本含む）等 |
+| 発行済プロファイル照会 | `POST /esim/query` | ORDER_STATUS=GOT_RESOURCE後に `orderNo` で ICCID/QR 取得 |
+| 発行 / topup / cancel等 | Order Profiles / `/esim/topup` / cancel・suspend・revoke | （上部参照） |
+
+### Webhook（確定・詳細）
+- **共通エンベロープ**：`{ notifyType, notifyId, eventGenerateTime, content }`。**`notifyId` で重複排除（冪等）**。
+- **イベント種別**：`SMDP_EVENT`(超高頻度・診断用) / `ESIM_STATUS`(高・業務ロジックの主軸) / `ORDER_STATUS`(中) / `DATA_USAGE` / `VALIDITY_USAGE` / `CHECK_HEALTH`(設定時1回・200を返す)。
+- **発行完了の主信号**＝`ORDER_STATUS: GOT_RESOURCE` → **ICCIDは含まれない**ので `/esim/query` を叩いて取得。topupはORDER_STATUSを発火しない。届かない時は query をポーリング。
+- **ライフサイクル**は `ESIM_STATUS`（`IN_USE`/`USED_UP`/`USED_EXPIRED`/`UNUSED_EXPIRED`/`CANCEL`/`REVOKED`/`SUSPENDED` × `smdpStatus`）で追う。`IN_USE+ENABLED`＝有効化成功。
+- 🟢 **署名の記載はないが、送信元IPホワイトリストが公式提供**：`3.1.131.226 / 54.254.74.88 / 18.136.190.97 / 18.136.60.197 / 18.136.19.137`。→ **柱1の多層防御に直結**（IP許可＋notifyId冪等＋`/esim/query`裏取り）。
+- 秘密トークン付きURLも併用推奨。CHECK_HEALTH には 200 を返す。
+
+### 我々の設計への影響（要点）
+1. **Phase 0（契約）**：Sandbox無し → **入金＋cancel前提の実テスト**（日本パッケージを実機で発行→cancel/返金確認）。
+2. **柱1 Webhook 認証**：eSIMAccess は **公開IPホワイトリスト**があるので、`bappyWebhook` と同じ多層防御（IP許可＋秘密トークンURL＋`/esim/query`裏取り＋notifyId冪等）で確実に固められる。→ 柱1の結論に使える。
+3. **発行フロー**：`ORDER_STATUS(GOT_RESOURCE)` → `/esim/query` で ICCID/QR。Bappyの `createLink`→`getLinkDetail` と同型なので **Provider抽象に綺麗に載る**。
+4. **返金**：cancel（未使用は残高返金）→ その上に Stripe refund を重ねる（既存 `executeRefund`）。
+
+---
+
 ## ソース
 
 - Making an eSIM purchase with the API — https://esimaccess.com/making-an-esim-purchase-with-the-api/
