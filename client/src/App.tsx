@@ -19,6 +19,7 @@ const Unauthorized = lazy(() => import("./pages/Unauthorized"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // ページ切り替え中のフォールバック
@@ -52,6 +53,7 @@ function I18nRouter() {
           <Route path="/"><Redirect to="/app" /></Route>
           <Route path="/login" component={LoginPage} />
           <Route path="/app"><AppPage /></Route>
+          <Route path="/contact" component={ContactPage} />
           <Route path="/mypage" component={MyPage} />
           <Route path="/mypage/orders/:orderId" component={OrderDetailPage} />
           <Route path="/mypage/topup/:esimLinkId" component={TopupPage} />
