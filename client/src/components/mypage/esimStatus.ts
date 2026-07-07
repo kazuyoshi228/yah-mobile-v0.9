@@ -9,7 +9,7 @@ export interface EsimStatusInput {
   lastActiveAt?: number | null;
   dataRemainingMb?: number | null;
   dataTotalMb?: number | null;
-  expiryDate?: Date | string | null;
+  expiryDate?: number | Date | string | null;
 }
 
 export interface EsimStatusResult {
@@ -56,7 +56,7 @@ export function deriveEsimStatus(esim: EsimStatusInput): EsimStatusResult {
  *   （実eSIMの期限は有効化時にBappyが付与するため、未有効化では日付が存在しない）
  */
 export function formatEsimExpiry(
-  esim: { expiryDate?: Date | string | null },
+  esim: { expiryDate?: number | Date | string | null },
   validityDays?: number | null,
 ): string | null {
   if (esim.expiryDate) {

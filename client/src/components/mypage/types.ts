@@ -10,7 +10,7 @@ export type EsimLink = {
   androidActivationUrl: string | null;
   dataRemainingMb: number | null;
   dataTotalMb: number | null;
-  expiryDate: Date | string | null;
+  expiryDate: number | Date | string | null;
   status: string | null;
   lastActiveAt?: number | null;
 };
@@ -27,7 +27,7 @@ export type OrderRow = {
 export type EsimPreview = {
   dataRemainingMb: number | null;
   dataTotalMb: number | null;
-  expiryDate: Date | string | null;
+  expiryDate: number | Date | string | null;
 } | null;
 
 export type EsimPreviewMap = Map<string, EsimPreview>;

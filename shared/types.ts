@@ -108,7 +108,7 @@ export interface FsEsimLink {
   androidActivationUrl?: string | null;
   dataRemainingMb?: number | null;
   dataTotalMb?: number | null;
-  expiryDate?: string | null;
+  expiryDate?: number | null;   // epoch ms（Bappy の ISO は書込直前に変換）※旧データは string の場合あり（移行対象）
   status: "active" | "inactive" | "expired" | "provisioning" | "failed";
   qrCodeUrl?: string | null;
   lastActiveAt?: number | null;
@@ -224,12 +224,9 @@ export interface FsIncidentLog {
 export interface FsUserConsent {
   id: string;
   userId: string;
-  consentType?: string | null;
+  consentType?: string | null;   // "terms" | "privacy" | "marketing" | "purchase"
   version?: string | null;
   granted?: boolean;
-  termsVersion?: string;
-  privacyVersion?: string;
-  marketingOptIn?: boolean;
   ipAddress?: string | null;
   userAgent?: string | null;
   consentedAt?: number;

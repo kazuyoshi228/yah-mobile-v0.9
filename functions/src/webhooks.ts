@@ -235,7 +235,8 @@ async function fulfillEsim(orderData: FsOrder) {
         androidActivationUrl: link.androidActivationUrl ?? null,
         dataRemainingMb: link.dataRemainingMb ?? null,
         dataTotalMb: link.dataTotalMb ?? null,
-        expiryDate: link.expiryDate ?? null,
+        // DB-04: Bappy の ISO 文字列を epoch ms に変換して保存（NaN は null）
+        expiryDate: link.expiryDate && !Number.isNaN(Date.parse(link.expiryDate)) ? Date.parse(link.expiryDate) : null,
         status: "active",
         planId: planDoc?.id ?? null,
         planName: planData?.name ?? null,

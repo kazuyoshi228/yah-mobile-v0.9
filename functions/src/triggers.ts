@@ -100,7 +100,8 @@ export const onEsimSyncRequested = onDocumentUpdated(
         status: detail.status,
         dataRemainingMb: detail.dataRemainingMb ?? null,
         dataTotalMb: detail.dataTotalMb ?? null,
-        expiryDate: detail.expiryDate ?? null,
+        // DB-04: Bappy の ISO 文字列を epoch ms に変換して保存（NaN は null）
+        expiryDate: detail.expiryDate && !Number.isNaN(Date.parse(detail.expiryDate)) ? Date.parse(detail.expiryDate) : null,
       });
       logger.info(`[onEsimSyncRequested] Sync complete for linkId: ${linkId}`);
     } catch (err) {
