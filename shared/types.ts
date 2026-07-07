@@ -90,6 +90,8 @@ export interface FsOrder {
   planName?: string | null;
   esimLinkUuid?: string | null;
   orderType?: string | null;
+  /** 発行プロバイダ（柱2）。未設定は "bappy" 互換。新規販売は "esimaccess"。 */
+  provider?: "esimaccess" | "bappy" | null;
   userEmail?: string | null;
   userName?: string | null;
   discountPercentage?: number | null;
@@ -111,6 +113,10 @@ export interface FsEsimLink {
   orderId: string;
   userId: string;
   bappyLinkUuid: string;
+  /** 発行プロバイダ（柱2）。未設定は "bappy" 互換。 */
+  provider?: "esimaccess" | "bappy" | null;
+  /** プロバイダ非依存の安定参照（bappy=uuid／esimaccess=esimTranNo）。既存は bappyLinkUuid を継続利用。 */
+  providerRef?: string | null;
   iccid: string;
   lpaProfile: string;
   appleActivationUrl?: string | null;
