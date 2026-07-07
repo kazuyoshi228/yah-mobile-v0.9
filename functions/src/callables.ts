@@ -174,7 +174,7 @@ yah.mobile Analytics Summary (${period}):
 
 // ─── Incident (Read APIs Removed: pure BaaS) ──────────────────────────────────
 
-export const incidentRunRetryNow = onCall({ region: REGION, enforceAppCheck: true, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl] }, async (request) => {
+export const incidentRunRetryNow = onCall({ region: REGION, enforceAppCheck: true, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey] }, async (request) => {
   await requireAdmin(request);
   const result = await processPendingRetries();
   return { success: true, ...result };

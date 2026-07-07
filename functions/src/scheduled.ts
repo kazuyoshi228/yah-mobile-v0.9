@@ -16,13 +16,15 @@ const gmailPass = defineSecret("GMAIL_PASS");
 // リトライ結果のオーナー通知（Forge/Slack）で使用
 const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
 const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
+// 最終失敗時の Lane A 自動返金（executeRefund→Stripe）で使用
+const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 
 export const esimRetryJob = onSchedule(
   {
     schedule: "every 5 minutes",
     region: "asia-northeast1",
     timeoutSeconds: 300,
-    secrets: [omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl],
+    secrets: [omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey],
   },
   async () => {
     logger.info("[esimRetryJob] Starting eSIM retry job...");
