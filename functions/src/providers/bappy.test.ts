@@ -62,10 +62,10 @@ describe("bappyProvider — EsimProvider 委譲・正規化（P1）", () => {
     expect(r.dataRemainingMb).toBe(1024);
   });
 
-  it("getProvider: 未設定/'bappy' は bappyProvider、'esimaccess' は未実装で例外", () => {
+  it("getProvider: 未設定/'bappy' は bappyProvider、'esimaccess' は esimaccessProvider", () => {
     expect(getProvider()).toBe(bappyProvider);
     expect(getProvider("bappy")).toBe(bappyProvider);
     expect(getProvider(null)).toBe(bappyProvider);
-    expect(() => getProvider("esimaccess")).toThrow(/not implemented/);
+    expect(getProvider("esimaccess").name).toBe("esimaccess"); // P2で実装済み
   });
 });

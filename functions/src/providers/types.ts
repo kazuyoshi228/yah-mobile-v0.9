@@ -52,17 +52,15 @@ export interface EsimProvider {
 }
 
 import { bappyProvider } from "./bappy";
+import { esimaccessProvider } from "./esimaccess";
 
 /**
- * order/esim_link の provider で分岐。未設定/未知は "bappy"（既存互換）。
- * Phase2 で "esimaccess" を追加する。
+ * order/esim_link の provider で分岐。未設定/未知は "bappy"（既存互換・後方互換の既定値）。
  */
 export function getProvider(name?: string | null): EsimProvider {
   switch (name) {
     case "esimaccess":
-      // Phase2 で esimaccessProvider を返す。現状は未実装のため Bappy にフォールバックしない
-      // よう、明示的にエラーにする（誤って esimaccess 指定の注文が Bappy で発行されるのを防ぐ）。
-      throw new Error("[getProvider] esimaccess provider is not implemented yet (Phase2)");
+      return esimaccessProvider;
     case "bappy":
     default:
       return bappyProvider;
