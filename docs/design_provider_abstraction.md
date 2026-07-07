@@ -120,7 +120,9 @@ export function getProvider(name?: string | null): EsimProvider;
 - `FsPlan`（拡張）：
   - `provider`（既定 esimaccess）＋ `providerPlanId`（packageCode/slug）＋ 既存 `planType`（initial/topup）。
   - **価格2種を保持**（下記 §6.1）：`priceJpy`（自社**小売JPY**・既存）＋ **`wholesalePriceUsd`**（eSIMAccess **卸USD**・`price/10000`）。
-  - メタ：`dataGb`/`validityDays`/`network`(IIJ等)/`speed`/`locationCode`/`supportTopUpType`/`fupPolicy`。
+  - **キャリア識別（§6.4）**：`network`（実キャリア。例 `"IIJ"`）／`networkType`（`"4G/5G"` 等）／`ipExport`（データ出口国。`"HK"`/`"JP"`…／`nonhkip = ipExport!=="HK"`）。
+  - メタ：`dataGb`/`validityDays`/`speed`/`locationCode`/`supportTopUpType`/`fupPolicy`。
+  - `name`（既存）は **人間向け表示ラベル**（例 `"Japan 10GB 30Days (IIJ)"`）として**そのまま保持**。判定/絞り込みは `name` をパースせず `network`/`ipExport` で行う。
 - rules：esim_links/orders は既存どおり Cloud Functions 専用書込。**新フィールド追加のみ**。plans の provider/providerPlanId のバリデーションは Phase2 で最小追加（**要承認**）。
 
 ### 6.1 価格モデル（卸USD ＋ 小売JPY の2本立て）
@@ -137,7 +139,24 @@ export function getProvider(name?: string | null): EsimProvider;
 5. **活性プランのSKU生存チェック**：活性の `providerPlanId` が eSIMAccess カタログに存在するか軽く定期確認（or /admin「活性プラン検証」ボタン）。廃止SKU（310241）を指さないように。
 
 ### 6.3 取り込みスクリプト
-`scripts/import-esimaccess-plans.mjs`（読み取り→書き込み）：`POST /package/list`（`locationCode=JP`／`type=TOPUP`）→ `plans` へ写像投入（`provider:"esimaccess"`・`providerPlanId`・`planType`・`wholesalePriceUsd`・メタ・**`isActive:false`**）。冪等（`providerPlanId` で upsert）・`--dry` 対応。実行後は /admin PlansTab で活性化＋JPY設定。
+`scripts/import-esimaccess-plans.mjs`（読み取り→書き込み）：`POST /package/list`（`locationCode=JP`／`type=TOPUP`）→ `plans` へ写像投入（`isActive:false`）。冪等（`providerPlanId` で upsert）・`--dry` 対応。実行後は /admin PlansTab で活性化＋JPY設定。写像：
+```
+name                         → name（そのまま・表示用）
+packageCode / slug           → providerPlanId
+operatorList[0].operatorName → network      （実キャリア。IIJ/無印の識別）
+operatorList[0].networkType  → networkType  （4G/5G）
+ipExport                     → ipExport      （出口国。nonhkip判定）
+price / 10000                → wholesalePriceUsd（卸USD）
+volume(bytes)→dataGb, duration→validityDays, speed, supportTopUpType, fupPolicy, location→locationCode
+provider = "esimaccess", isActive = false
+```
+
+### 6.4 キャリア識別（IIJ / 無印 / nonhkip）
+- **目的**：「Japan 10GB (IIJ)」「同 無印」「同 (nonhkip)」等の**似て非なるプランを構造的に区別**する。判定は `network`/`ipExport` で行い、`name` はパースしない。
+- **意味**：`network`＝実キャリア（IIJ＝ドコモ網）。`ipExport`＝データ出口国（`"HK"` だと香港経由、`nonhkip` は非香港＝日本旅行者に好適）。
+- **用途**：(1) /admin で「ドコモ系」「非HK-IP」を絞って選定。(2) 将来の**同一eSIMAccess内キャリア・フェイルオーバー**（IIJ発注失敗→別キャリアpackageCodeへ）に使う。
+- **リスク整理（キャリア冗長 vs アグリゲーター冗長）**：別キャリアのJPプランを持てば **①日本キャリア障害（例ドコモ広域ダウン）には有効**（別キャリアは無事）。ただし **②eSIMAccessプラットフォーム障害は全プラン一律ダウン**（同一API経由）＝販売停止ガード＋自動返金で受容。→ 詳細は本節の判断材料として保持。
+- **⚠️ 検証**：実機テスト済みは **IIJ(ドコモ) のみ**。無印/nonhkip 等を採用する場合は**実機で日本品質を確認**してから活性化する（`ipExport`・`operatorList` を併せて確認）。
 
 ---
 
