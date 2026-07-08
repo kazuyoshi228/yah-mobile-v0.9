@@ -76,8 +76,8 @@ erDiagram
         string bappyLinkUuid
         string lpaProfile "QRをクライアント生成"
         string status "active=発行済マーカー"
-        number lastActiveAt "端末での実有効化"
-        string expiryDate "有効化時にBappyが付与"
+        number lastActiveAt "端末での実有効化(IN_USE検知)"
+        number expiryDate "eSIMAccess=発行時に付与(未有効化=インストール期限/有効化後=実期限)"
     }
     esim_activations {
         string esimLinkId FK
@@ -91,10 +91,12 @@ erDiagram
 
 - **`orders.status`**: `pending`→`paid`→`provisioning`→`fulfilled`（失敗系: `pending_retry`/`failed`/`refunded`/`cancelled`）。
 - **`esim_links.status = "active"`** は **「発行済み」マーカー**であり、**端末での実有効化ではない**。
-  実有効化の判定は `lastActiveAt != null`、またはデータ消費（`dataRemainingMb < dataTotalMb`）で行う。
-  UI 判定は `client/src/components/mypage/esimStatus.ts` の `deriveEsimStatus` に集約。
-- **`esim_links.expiryDate`** は未有効化では `null`（有効化時にBappyが付与）。
-  未有効化カードは plan の `validityDays` から「Valid for N days · from activation」を表示（嘘の日付を出さない）。
+  実有効化の判定は `lastActiveAt != null`、またはデータ消費（`dataRemainingMb < dataTotalMb`）で行う（`esimStatus.ts` の `isEsimActivated`）。
+  eSIMAccess は有効化(`esimStatus=IN_USE`)を webhook/同期で検知し `lastActiveAt` を記録する。UI判定は `deriveEsimStatus` に集約。
+- 🔴 **`esim_links.expiryDate`（重要・2026-07-08訂正）**: eSIMAccess は**発行時点で必ず付与**（≒null にならない）。
+  **未有効化**＝この値は**インストール期限**（購入から約6ヶ月。データ有効期限ではない）。**有効化後**＝実期限に更新される。
+  → UI は expiryDate の有無ではなく **`isEsimActivated()` で分岐**（`esimStatus.ts` の `esimExpiryLines`）：
+  未有効化=「Valid for N days · from activation」＋「Install by <日付>」／有効化後=「Expires <日時>」。詳細 [design_realorder_followups.md §①](./design_realorder_followups.md)。
 
 ---
 

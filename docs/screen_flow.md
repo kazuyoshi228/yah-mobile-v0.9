@@ -55,7 +55,7 @@ flowchart TD
 
 - データ取得: `client/src/components/mypage/useMyPageData.ts`（orders / esim_links / plans / notifications を購読、planName を補完）。
 - eSIM ステータス: `esimStatus.ts` の `deriveEsimStatus`（`Ready to Install` / `Active` / `Low Data`(≤10%) / `Expired`）。
-- 期限表示: `formatEsimExpiry`（有効化済み=実 `expiryDate`、未有効化=「Valid for N days · from activation」）。
+- 期限表示: `esimExpiryLines`（`isEsimActivated` で分岐。有効化済み=実 `expiryDate`「Expires <日時>」／未有効化=「Valid for N days · from activation」＋「Install by <日付>」＝eSIMAccess のインストール期限）。
 - 通知: `Notifications.tsx`（`type` ごとに i18n。5言語。未知 type は保存済みテキストへフォールバック）。
 
 詳細な API 仕様は [api_functions.md](./api_functions.md)、データ構造は [firestore_schema.md](./firestore_schema.md) を参照。
