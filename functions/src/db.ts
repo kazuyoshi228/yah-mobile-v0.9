@@ -644,6 +644,7 @@ export async function createRetryJob(data: {
   orderId: string;
   userId: string;
   bappyPlanId: string;
+  provider?: "esimaccess" | "bappy" | null;
   stripeSessionId: string;
   isTopup: boolean;
   parentOrderId?: string | null;

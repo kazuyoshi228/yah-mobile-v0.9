@@ -1,0 +1,233 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "yah.mobile" [ref=e6] [cursor=pointer]:
+          - /url: /app
+          - img "yah.mobile" [ref=e7]
+        - navigation [ref=e21]:
+          - button "HOME" [ref=e22] [cursor=pointer]
+          - button "BUY" [ref=e23] [cursor=pointer]
+          - button "PLANS" [ref=e24] [cursor=pointer]
+          - button "FAQ" [ref=e25] [cursor=pointer]
+          - button "CHAT" [ref=e26] [cursor=pointer]
+          - button "CONTACT" [ref=e27] [cursor=pointer]
+          - button "Change language" [ref=e29] [cursor=pointer]:
+            - generic [ref=e30]: 🇬🇧
+            - generic [ref=e31]: EN
+            - img [ref=e32]
+    - main [ref=e34]:
+      - generic [ref=e38]:
+        - paragraph [ref=e39]: Local Brand. Global Support.
+        - heading "Log in, Step Out." [level=1] [ref=e40]:
+          - generic [ref=e41]: Log in,
+          - text: Step Out.
+        - paragraph [ref=e42]: yah.mobile is the local eSIM provider in Japan. No SIM swap. No store pickup. Just scan a QR code and you're online across Japan from the moment you land.
+        - button "Buy Japan eSIM — opens plan selection" [ref=e44] [cursor=pointer]: Buy eSIM
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - img [ref=e51]
+            - img [ref=e53]
+            - img [ref=e55]
+            - img [ref=e57]
+            - img [ref=e59]
+            - generic [ref=e61]: "5.0"
+          - paragraph [ref=e62]: 5 star reviews
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - img [ref=e67]
+              - img [ref=e69]
+              - img [ref=e71]
+              - img [ref=e73]
+              - img [ref=e75]
+            - paragraph [ref=e77]: “Set up in 2 minutes. Connected the moment I landed at Narita.”
+            - paragraph [ref=e78]: 🇺🇸 Sarah M.
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - img [ref=e81]
+              - img [ref=e83]
+              - img [ref=e85]
+              - img [ref=e87]
+              - img [ref=e89]
+            - paragraph [ref=e91]: “Best eSIM I've used in Japan. Fast network, no hassle.”
+            - paragraph [ref=e92]: 🇫🇷 Lucas B.
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - img [ref=e95]
+              - img [ref=e97]
+              - img [ref=e99]
+              - img [ref=e101]
+              - img [ref=e103]
+            - paragraph [ref=e105]: “Scanned the QR and I was online before leaving the airport.”
+            - paragraph [ref=e106]: 🇦🇺 Yuki T.
+      - generic [ref=e109]:
+        - generic [ref=e110]:
+          - paragraph [ref=e111]: Need support?
+          - paragraph [ref=e112]: Support is available 24/7 — before and after your trip.
+        - button "Start a support chat — scroll to chat section" [ref=e113] [cursor=pointer]:
+          - img [ref=e114]
+          - text: Start a chat
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - paragraph [ref=e119]: Why yah.mobile
+          - heading "Designed for the modern traveler." [level=2] [ref=e120]
+        - generic [ref=e121]:
+          - generic [ref=e123]:
+            - img [ref=e125]
+            - heading "Best price guaranteed" [level=3] [ref=e128]
+            - paragraph [ref=e129]: We promise the best price per GB comparing with our competitors.
+          - generic [ref=e131]:
+            - img [ref=e133]
+            - heading "Nationwide coverage" [level=3] [ref=e134]
+            - paragraph [ref=e135]: Powered by Japan's major carrier network (KDDI). City centers to rural destinations.
+          - generic [ref=e137]:
+            - img [ref=e139]
+            - heading "24/7 multilingual support" [level=3] [ref=e141]
+            - paragraph [ref=e142]: 24/7 support in multiple languages, before and during your trip.
+          - generic [ref=e144]:
+            - img [ref=e146]
+            - heading "1-tap activation" [level=3] [ref=e148]
+            - paragraph [ref=e149]: On iOS 17.4+, activate your eSIM with a single tap — no QR scan required.
+          - generic [ref=e151]:
+            - img [ref=e153]
+            - heading "Real-time usage tracking" [level=3] [ref=e154]
+            - paragraph [ref=e155]: Monitor remaining data and expiry in real time. Top up instantly when needed.
+          - generic [ref=e157]:
+            - img [ref=e159]
+            - heading "Manage your account" [level=3] [ref=e163]
+            - paragraph [ref=e164]: View purchase history, active eSIMs, and support history all in one place.
+      - generic [ref=e166]:
+        - img "Tokyo" [ref=e167]
+        - paragraph [ref=e171]: Japan's major and fast network (KDDI), in your pocket.
+      - generic [ref=e174]:
+        - paragraph [ref=e175]: Compatibility
+        - heading "Is your device compatible?" [level=2] [ref=e176]
+        - paragraph [ref=e177]: Check if your device supports eSIM before you buy. Works with any SIM-unlocked eSIM-compatible device.
+      - generic [ref=e182]:
+        - paragraph [ref=e183]: Price Comparison
+        - heading "How we compare." [level=2] [ref=e184]
+        - paragraph [ref=e185]: Comparing leading Japan-bound eSIM services on the same "10GB / 30-day" tier. Official prices as of April 2026.
+      - generic [ref=e187]:
+        - img "Mount Fuji" [ref=e188]
+        - generic [ref=e192]:
+          - paragraph [ref=e193]: Japan awaits
+          - paragraph [ref=e194]:
+            - generic [ref=e195]: Arrive ready.
+            - text: Explore freely.
+      - generic [ref=e197]:
+        - generic [ref=e198]:
+          - paragraph [ref=e199]: FAQ
+          - heading "Common questions." [level=2] [ref=e200]
+        - generic [ref=e201]:
+          - generic [ref=e203]:
+            - button "What is an eSIM? +" [ref=e204] [cursor=pointer]:
+              - generic [ref=e205]: What is an eSIM?
+              - generic [ref=e206]: +
+            - paragraph [ref=e207]: An eSIM (embedded SIM) is a digital SIM built into your device. There's no physical card to swap — just scan a QR code or tap a button to start using mobile data.
+          - generic [ref=e209]:
+            - button "When should I set it up? +" [ref=e210] [cursor=pointer]:
+              - generic [ref=e211]: When should I set it up?
+              - generic [ref=e212]: +
+            - paragraph [ref=e213]: We recommend installing your eSIM on Wi-Fi before you depart. Once installed, it connects automatically when you arrive in Japan — no setup needed at the airport.
+          - generic [ref=e215]:
+            - button "When does my data plan start? +" [ref=e216] [cursor=pointer]:
+              - generic [ref=e217]: When does my data plan start?
+              - generic [ref=e218]: +
+            - paragraph [ref=e219]: Your plan validity period begins from the moment your eSIM first connects to the network in Japan. Days do not count while you are outside Japan.
+          - generic [ref=e221]:
+            - button "Is my device compatible? +" [ref=e222] [cursor=pointer]:
+              - generic [ref=e223]: Is my device compatible?
+              - generic [ref=e224]: +
+            - paragraph [ref=e225]: Compatible devices include iPhone XS and later, Google Pixel 3 and later, and Samsung Galaxy S20 and later. Your device must also be SIM-unlocked.
+          - generic [ref=e227]:
+            - button "What happens when I run out of data? +" [ref=e228] [cursor=pointer]:
+              - generic [ref=e229]: What happens when I run out of data?
+              - generic [ref=e230]: +
+            - paragraph [ref=e231]: You can top up with additional data anytime from the app or your account page. You'll also receive an email alert when your data is running low.
+          - generic [ref=e233]:
+            - button "Does it include a phone number? +" [ref=e234] [cursor=pointer]:
+              - generic [ref=e235]: Does it include a phone number?
+              - generic [ref=e236]: +
+            - paragraph [ref=e237]: yah.mobile is a data-only eSIM. Voice calls and SMS are not supported, but app-based calls via LINE, WhatsApp, and similar services work fine.
+          - generic [ref=e239]:
+            - button "Can I get a refund? +" [ref=e240] [cursor=pointer]:
+              - generic [ref=e241]: Can I get a refund?
+              - generic [ref=e242]: +
+            - paragraph [ref=e243]: eSIM is a digital product. Once your payment is completed, cancellations and refunds are not available. You confirm this policy via a checkbox before completing your purchase. If you have any questions, please contact us via chat before buying.
+          - generic [ref=e245]:
+            - button "Can I use it on multiple devices? +" [ref=e246] [cursor=pointer]:
+              - generic [ref=e247]: Can I use it on multiple devices?
+              - generic [ref=e248]: +
+            - paragraph [ref=e249]: Each eSIM is tied to one device. If you need data on multiple devices, you'll need to purchase a separate plan for each.
+          - generic [ref=e251]:
+            - button "Will it work on the bullet train (Shinkansen)? +" [ref=e252] [cursor=pointer]:
+              - generic [ref=e253]: Will it work on the bullet train (Shinkansen)?
+              - generic [ref=e254]: +
+            - paragraph [ref=e255]: Yes. yah.mobile runs on KDDI, one of Japan's largest networks. Coverage is excellent on Shinkansen routes and in major cities. Some rural tunnels may have limited signal.
+          - generic [ref=e257]:
+            - button "How do I receive my eSIM? +" [ref=e258] [cursor=pointer]:
+              - generic [ref=e259]: How do I receive my eSIM?
+              - generic [ref=e260]: +
+            - paragraph [ref=e261]: After purchase, your QR code is delivered instantly to your registered email and is also available in your account under My Orders. No waiting, no shipping.
+          - generic [ref=e263]:
+            - button "What if I need help setting it up? +" [ref=e264] [cursor=pointer]:
+              - generic [ref=e265]: What if I need help setting it up?
+              - generic [ref=e266]: +
+            - paragraph [ref=e267]: 24/7 chat support can guide you through installation step by step — it usually takes under 3 minutes.
+          - generic [ref=e269]:
+            - button "Is there a speed limit? +" [ref=e270] [cursor=pointer]:
+              - generic [ref=e271]: Is there a speed limit?
+              - generic [ref=e272]: +
+            - paragraph [ref=e273]: No speed throttling. You get full 4G LTE / 5G speeds for the duration of your plan. Speeds depend on network conditions and your device's capabilities.
+          - generic [ref=e275]:
+            - button "Can I use tethering (hotspot)? +" [ref=e276] [cursor=pointer]:
+              - generic [ref=e277]: Can I use tethering (hotspot)?
+              - generic [ref=e278]: +
+            - paragraph [ref=e279]: Yes. Tethering and mobile hotspot are supported. You can share your Japan data connection with laptops, tablets, or other devices.
+      - generic [ref=e282]:
+        - paragraph [ref=e283]: 24/7 Chat Support
+        - heading "Always here when you need us." [level=2] [ref=e284]:
+          - generic [ref=e285]: Always here
+          - text: when you need us.
+        - paragraph [ref=e286]: 24/7 chat support, wherever your journey takes you. From setup questions to connection issues, we're here — quietly and reliably.
+        - button "Open live chat support" [ref=e287] [cursor=pointer]: Start a chat
+      - generic [ref=e293]:
+        - heading "Ready for Japan?" [level=2] [ref=e294]
+        - paragraph [ref=e295]: Get connected before you board. Setup takes less than 2 minutes.
+        - button "Get your Japan eSIM — opens plan selection" [ref=e296] [cursor=pointer]: Buy eSIM Now
+      - generic [ref=e298]:
+        - generic [ref=e299]:
+          - paragraph [ref=e300]: Legal
+          - heading "Legal Information." [level=2] [ref=e301]
+        - generic [ref=e302]:
+          - button "Specified Commercial Transactions Act" [ref=e305] [cursor=pointer]:
+            - generic [ref=e306]: Specified Commercial Transactions Act
+            - img [ref=e307]
+          - button "Privacy Policy" [ref=e311] [cursor=pointer]:
+            - generic [ref=e312]: Privacy Policy
+            - img [ref=e313]
+          - button "Terms of Service" [ref=e317] [cursor=pointer]:
+            - generic [ref=e318]: Terms of Service
+            - img [ref=e319]
+          - button "Network Provider Agreement" [ref=e323] [cursor=pointer]:
+            - generic [ref=e324]: Network Provider Agreement
+            - img [ref=e325]
+    - contentinfo [ref=e327]:
+      - generic [ref=e328]:
+        - generic [ref=e329]:
+          - generic [ref=e330]:
+            - link "yah.mobile" [ref=e331] [cursor=pointer]:
+              - /url: /app
+              - img "yah.mobile" [ref=e332]
+            - paragraph [ref=e346]: Log in, Step out.
+          - navigation [ref=e347]:
+            - link "Terms of Service" [ref=e348] [cursor=pointer]:
+              - /url: /terms
+            - link "Privacy Policy" [ref=e349] [cursor=pointer]:
+              - /url: /privacy
+            - link "Contact" [ref=e350] [cursor=pointer]:
+              - /url: /app#contact
+        - paragraph [ref=e352]: © 2026 Bonfire Inc. All rights reserved.

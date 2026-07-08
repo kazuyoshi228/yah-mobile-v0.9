@@ -444,6 +444,8 @@ export const ordersInitCheckout = onCall(
       userId: uid,
       planId: planDoc.id,
       bappyPlanId: plan.bappyPlanId,
+      // 柱2: プラン由来のプロバイダで発注を routing（未設定の既存Bappyプランは "bappy"）
+      provider: plan.provider ?? "bappy",
       status: "pending",
       amountJpy: plan.priceJpy,
       planName: plan.name,
@@ -555,6 +557,8 @@ export const ordersInitTopupCheckout = onCall(
       planId: planDocId,
       bappyPlanId: bappyPlanId,
       esimLinkUuid,
+      // 柱2: topup は対象eSIMのプロバイダに合わせる（無ければプラン→bappy の順でフォールバック）
+      provider: targetEsim.provider ?? topupPlan.provider ?? "bappy",
       status: "pending",
       amountJpy,
       planName,

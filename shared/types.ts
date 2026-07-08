@@ -67,6 +67,19 @@ export interface FsPlan {
   description?: string | null;
   createdAt: number;
   updatedAt: number;
+  // ── プロバイダ抽象化（柱2 / eSIMAccess）。既存Bappyプランでは未設定（=bappy扱い） ──
+  provider?: "esimaccess" | "bappy" | null;
+  providerPlanId?: string | null; // eSIMAccess packageCode（発注時に使用）
+  slug?: string | null;
+  wholesalePriceUsd?: number | null; // 卸価格（USD）。JPY小売は priceJpy に設定する
+  network?: string | null; // 例: "NTT docomo"
+  networkType?: string | null; // 例: "5G"/"4G"
+  ipExport?: string | null; // 出口IP。例: "JP"/"HK"/"SG"
+  speed?: string | null;
+  supportTopUpType?: number | null;
+  fupPolicy?: string | null;
+  activeType?: number | null;
+  topupForBase?: string[] | null; // planType==="topup" のとき、対応するベース packageCode 群
 }
 
 export interface FsOrder {
@@ -199,6 +212,7 @@ export interface FsEsimRetryJob {
   orderId: string;
   userId: string;
   bappyPlanId: string;
+  provider?: "esimaccess" | "bappy" | null; // 柱2: 再試行を正しいプロバイダで実行するため
   stripeSessionId: string;
   isTopup: boolean;
   parentOrderId?: string | null;

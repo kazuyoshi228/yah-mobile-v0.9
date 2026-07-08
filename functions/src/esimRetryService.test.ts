@@ -75,6 +75,7 @@ describe("esimRetryService", () => {
         orderId: "order_123",
         userId: "user_123",
         bappyPlanId: "plan_123",
+        provider: "bappy", // ctx.provider 未設定時のフォールバック（柱2）
         stripeSessionId: "cs_test_123",
         isTopup: false,
         parentOrderId: null,
@@ -96,6 +97,20 @@ describe("esimRetryService", () => {
           title: expect.stringContaining("order_123"),
           content: expect.stringContaining("Bappy API is down")
         })
+      );
+    });
+
+    it("柱2: ctx.provider を retry job に伝播する（esimaccess）", async () => {
+      (db.createRetryJob as any).mockResolvedValue("job_ea");
+      (db.createIncidentLog as any).mockResolvedValue("incident_ea");
+
+      await handleProvisioningFailure(
+        { orderId: "o_ea", userId: "u", bappyPlanId: "PYTKZG843", provider: "esimaccess", stripeSessionId: "cs", isTopup: false },
+        new Error("timeout"),
+      );
+
+      expect(db.createRetryJob).toHaveBeenCalledWith(
+        expect.objectContaining({ orderId: "o_ea", provider: "esimaccess" }),
       );
     });
   });

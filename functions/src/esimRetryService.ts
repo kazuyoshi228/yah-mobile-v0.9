@@ -49,6 +49,7 @@ export interface ProvisioningContext {
   orderId: string;
   userId: string;
   bappyPlanId: string;
+  provider?: "esimaccess" | "bappy" | null;
   stripeSessionId: string;
   isTopup: boolean;
   parentOrderId?: string | null;
@@ -73,6 +74,7 @@ export async function handleProvisioningFailure(
       orderId: ctx.orderId,
       userId: ctx.userId,
       bappyPlanId: ctx.bappyPlanId,
+      provider: ctx.provider ?? "bappy",
       stripeSessionId: ctx.stripeSessionId,
       isTopup: ctx.isTopup,
       parentOrderId: ctx.parentOrderId ?? null,
@@ -184,7 +186,7 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
         if (!job.parentOrderId || !job.esimLinkUuid) {
           throw new Error("Missing parentOrderId or esimLinkUuid for topup retry");
         }
-        const activation = await getProvider().topup({ providerRef: job.esimLinkUuid, providerPlanId: job.bappyPlanId, transactionId: job.orderId });
+        const activation = await getProvider(job.provider).topup({ providerRef: job.esimLinkUuid, providerPlanId: job.bappyPlanId, transactionId: job.orderId });
         const esimLink = await getEsimLinkByOrderId(job.parentOrderId);
         if (!esimLink) throw new Error("Parent eSIM link not found");
         // bappyPlanId はドキュメントIDではなくフィールドで検索（ID規約の二重化に依存しない）
@@ -203,11 +205,11 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
         });
       } else {
         // New eSIM retry
-        const detail = await getProvider().createEsim({ providerPlanId: job.bappyPlanId, orderId: job.orderId, transactionId: job.orderId });
+        const detail = await getProvider(job.provider).createEsim({ providerPlanId: job.bappyPlanId, orderId: job.orderId, transactionId: job.orderId });
         await createEsimLink({
           orderId: job.orderId,
           userId: job.userId,
-          provider: "bappy",
+          provider: job.provider ?? "bappy",
           providerRef: detail.providerRef,
           bappyLinkUuid: detail.providerRef,
           iccid: detail.iccid ?? "",

@@ -349,6 +349,7 @@ async function fulfillEsim(orderData: FsOrder) {
         orderId,
         userId,
         bappyPlanId,
+        provider: orderData.provider ?? "bappy",
         stripeSessionId: orderData.stripeSessionId ?? "",
         isTopup,
         parentOrderId: isTopup ? orderData.esimLinkUuid : undefined,
