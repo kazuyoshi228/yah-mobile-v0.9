@@ -26,6 +26,11 @@ import { getFirestore } from "firebase-admin/firestore";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE = "https://api.esimaccess.com/api/v1/open";
 const WRITE = process.argv.includes("--write");
+// --only=CODE,CODE... を付けると、その packageCode だけ取り込む（未指定なら全件）。
+const ONLY = (process.argv.find((a) => a.startsWith("--only="))?.split("=")[1] ?? "")
+  .split(",").map((s) => s.trim()).filter(Boolean);
+// --topup-match=IIJ を付けると、topup は名前にその文字列を含むものだけ取り込む（未指定なら全topup）。
+const TOPUP_MATCH = process.argv.find((a) => a.startsWith("--topup-match="))?.split("=")[1] ?? "";
 
 function loadEnv() {
   const env = { ...process.env };
@@ -107,20 +112,54 @@ function mapPackage(p, planType) {
 async function main() {
   console.log(`[import-esimaccess-plans] ${WRITE ? "WRITE" : "DRY-RUN"} / AccessCode 末尾4: ...${ACCESS_CODE.slice(-4)}`);
 
+  // 1) BASE（JP初期プラン）を取得し、--only 指定があれば選抜。
   const base = await fetchPackages("BASE");
-  const topup = await fetchPackages("TOPUP");
-  console.log(`取得: BASE=${base.length}件 / TOPUP=${topup.length}件（locationCode=JP）`);
+  let baseMapped = base.map((p) => mapPackage(p, "initial"));
+  if (ONLY.length) {
+    baseMapped = baseMapped.filter((m) => ONLY.includes(m.docId));
+    const found = new Set(baseMapped.map((m) => m.docId));
+    const missing = ONLY.filter((c) => !found.has(c));
+    console.log(`--only 指定: ${ONLY.length}件中 ${baseMapped.length}件が一致` + (missing.length ? ` / 見つからない: ${missing.join(", ")}` : ""));
+  }
 
-  const mapped = [
-    ...base.map((p) => mapPackage(p, "initial")),
-    ...topup.map((p) => mapPackage(p, "topup")),
-  ];
+  // 2) TOPUP は「全件リスト」不可（要 packageCode 等）。選んだ各ベースに対して topup を照会し、
+  //    planType:"topup" ＋ topupForBase:<baseコード> で取り込む（重複コードは対応ベースを配列で集約）。
+  const topupById = new Map();
+  for (const b of baseMapped) {
+    try {
+      const obj = await esimaccessPost("/package/list", { packageCode: b.docId, type: "TOPUP" });
+      const list = obj?.packageList ?? [];
+      for (const p of list) {
+        const id = String(p.packageCode);
+        if (topupById.has(id)) {
+          topupById.get(id).data.topupForBase.push(b.docId);
+        } else {
+          const m = mapPackage(p, "topup");
+          m.data.topupForBase = [b.docId];
+          topupById.set(id, m);
+        }
+      }
+      console.log(`  topup照会 ${b.docId}: ${list.length}件`);
+    } catch (e) {
+      console.log(`  (topup照会失敗 ${b.docId}): ${e.message}`);
+    }
+  }
+  let topupMapped = [...topupById.values()];
+  if (TOPUP_MATCH) {
+    const before = topupMapped.length;
+    topupMapped = topupMapped.filter((m) => String(m.data.name).toLowerCase().includes(TOPUP_MATCH.toLowerCase()));
+    console.log(`--topup-match "${TOPUP_MATCH}": ${before}件中 ${topupMapped.length}件を採用`);
+  }
+  console.log(`取得: BASE(選抜)=${baseMapped.length}件 / TOPUP=${topupMapped.length}件`);
+
+  const mapped = [...baseMapped, ...topupMapped];
 
   for (const m of mapped) {
     const d = m.data;
     console.log(
       `  ${d.planType.padEnd(7)} ${m.docId.padEnd(14)} ${String(d.name).slice(0, 34).padEnd(34)} ` +
-      `${d.dataGb}GB/${d.validityDays}d $${d.wholesalePriceUsd} net=${d.network ?? "?"} ip=${d.ipExport ?? "?"} topup=${d.supportTopUpType ?? "?"}`,
+      `${d.dataGb}GB/${d.validityDays}d $${d.wholesalePriceUsd} net=${d.network ?? "?"} ip=${d.ipExport ?? "?"} topup=${d.supportTopUpType ?? "?"}` +
+      (d.topupForBase ? ` ←topupFor:${d.topupForBase.join(",")}` : ""),
     );
   }
 
@@ -129,7 +168,7 @@ async function main() {
     return;
   }
 
-  initializeApp({ credential: applicationDefault() });
+  initializeApp({ credential: applicationDefault(), projectId: "yah-mobile-v1-3ed24" });
   const db = getFirestore();
   let created = 0, updated = 0;
   for (const m of mapped) {
