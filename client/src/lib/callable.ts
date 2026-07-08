@@ -13,15 +13,11 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getFirebaseApp } from "./firebase";
 
 export const CALLABLE = {
-
   analyticsGetAiInsights: "analyticsGetAiInsights",
-  incidentRunRetryNow: "incidentRunRetryNow",
   orderRetryPayment: "orderRetryPayment",
   ordersInitCheckout: "ordersInitCheckout",
   ordersInitTopupCheckout: "ordersInitTopupCheckout",
   adminRefundOrder: "adminRefundOrder",
-  // 一回限りの移行用（実行後に関数ごと削除してよい）
-  adminMigrateIsActiveToBoolean: "adminMigrateIsActiveToBoolean",
 } as const;
 
 export type CallableName = (typeof CALLABLE)[keyof typeof CALLABLE];

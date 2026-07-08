@@ -66,7 +66,7 @@
 
 ### 2.2 eSIM発行が失敗している
 1. `/admin → Orders` で該当注文の `status` 確認（`pending_retry`/`failed`）。
-2. 自動リトライ（`esimRetryJob` 5分）を待つ。急ぐなら `/admin` の「今すぐリトライ」（`incidentRunRetryNow`）。
+2. 自動リトライ（`esimRetryJob` 5分毎）を待つ（※旧 `/admin` 障害タブの「今すぐリトライ」は 2026-07-08 リファクタ P1-3 で廃止。リトライ状況は Firestore Console の `esim_retry_jobs` / `incident_logs` で確認）。
 3. 恒久失敗なら §2.1（プロバイダ認証）か Bappy 側障害を疑う。課金済みで提供不能なら**返金**（§3）。
 
 ### 2.3 Stripe webhook 不達（課金されたのに反映されない）

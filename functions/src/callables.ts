@@ -3,7 +3,6 @@ import * as logger from "firebase-functions/logger";
  * functions/src/callables.ts — Consolidated Firebase HTTPS Callable Functions (APIs)
  */
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
 import { requireAuth, requireAdmin, zodError } from "./_helpers";
 import {
   collections,
@@ -14,21 +13,17 @@ import {
   getUserByUid,
 } from "./db";
 import { invokeLLM } from "./llm";
-import { processPendingRetries } from "./esimRetryService";
 import { createCheckoutSession, validateOrigin } from "./stripe";
 import { enforceRateLimit } from "./rateLimit";
 
-const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
-const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
-const gmailUser = defineSecret("GMAIL_USER");
-const gmailPass = defineSecret("GMAIL_PASS");
-const omaxClientId = defineSecret("OMAX_CLIENT_ID");
-const omaxClientSecret = defineSecret("OMAX_CLIENT_SECRET");
-// LLM / オーナー通知の鍵は Secret Manager 管理（process.env ではなく defineSecret）
-const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
-const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
-// オーナー通知のメール到達フォールバック（S9）で使用
-const ownerEmail = defineSecret("OWNER_EMAIL");
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import {
+  stripeSecretKey,
+  stripeWebhookSecret,
+  omaxClientId,
+  omaxClientSecret,
+  forgeApiKey,
+} from "./secrets";
 
 const REGION = "asia-northeast1";
 
@@ -44,7 +39,7 @@ import {
 } from "../../shared/schemas";
 import { executeRefund } from "./refund";
 import { assertProviderAvailable } from "./salesStopGuard";
-import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
+import { esimAccessCode, esimSecretKey } from "./secrets";
 
 // Admin APIs are fully removed and replaced by direct BaaS + Firestore Rules
 
@@ -174,78 +169,9 @@ yah.mobile Analytics Summary (${period}):
 
 // ─── Exchange Rates (Removed: pure BaaS) ──────────────────────────────────────
 
-// ─── Incident ─────────────────────────────────────────────────────────────────
-
-// ─── Incident (Read APIs Removed: pure BaaS) ──────────────────────────────────
-
-export const incidentRunRetryNow = onCall({ region: REGION, enforceAppCheck: true, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey, ownerEmail, esimAccessCode, esimSecretKey] }, async (request) => {
-  await requireAdmin(request);
-  const result = await processPendingRetries();
-  return { success: true, ...result };
-});
-
-// ─── One-shot Migration ───────────────────────────────────────────────────────
-// plans / competitorPlans に残る文字列 "true"/"false" の isActive・isHighlight を
-// boolean に正規化する（管理者専用・冪等）。移行完了後はこの関数を削除してよい。
-// Cloud Functions は Admin SDK 権限で動くため、サービスアカウント鍵は不要。
-export const adminMigrateIsActiveToBoolean = onCall({ region: REGION, enforceAppCheck: true }, async (request) => {
-  await requireAdmin(request);
-
-  const toBool = (v: unknown): boolean | undefined => {
-    if (typeof v === "boolean") return v;
-    if (v === "true") return true;
-    if (v === "false") return false;
-    return undefined;
-  };
-
-  // plans
-  let plansUpdated = 0;
-  const plansSnap = await db.collection("plans").get();
-  for (const planDoc of plansSnap.docs) {
-    const v = planDoc.data().isActive;
-    if (typeof v === "string") {
-      const b = toBool(v);
-      if (b !== undefined) {
-        await planDoc.ref.update({ isActive: b });
-        plansUpdated++;
-      }
-    }
-  }
-
-  // competitorPlans/main（列・行の isActive / isHighlight）
-  let competitorUpdated = false;
-  const compRef = db.collection("competitorPlans").doc("main");
-  const compSnap = await compRef.get();
-  if (compSnap.exists) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = compSnap.data() as any;
-    let touched = false;
-    const columns = Array.isArray(data.columns)
-      ? data.columns.map((c: Record<string, unknown>) => {
-          const b = toBool(c.isActive);
-          if (b !== undefined && b !== c.isActive) { touched = true; return { ...c, isActive: b }; }
-          return c;
-        })
-      : data.columns;
-    const rows = Array.isArray(data.rows)
-      ? data.rows.map((r: Record<string, unknown>) => {
-          const next = { ...r };
-          const a = toBool(r.isActive);
-          const h = toBool(r.isHighlight);
-          if (a !== undefined && a !== r.isActive) { next.isActive = a; touched = true; }
-          if (h !== undefined && h !== r.isHighlight) { next.isHighlight = h; touched = true; }
-          return next;
-        })
-      : data.rows;
-    if (touched) {
-      await compRef.update({ columns, rows });
-      competitorUpdated = true;
-    }
-  }
-
-  logger.info(`[adminMigrateIsActiveToBoolean] plans updated: ${plansUpdated}, competitor updated: ${competitorUpdated}`);
-  return { success: true, plansUpdated, competitorUpdated };
-});
+// ─── Incident（P1-3 で incidentRunRetryNow を削除）────────────────────────────
+// 手動リトライUI（旧 /admin/incident）は廃止。リトライは esimRetryJob（5分毎）が自動実行する。
+// 一回限りの移行 adminMigrateIsActiveToBoolean も移行完了により削除（P1-2）。
 
 // ─── orderRetryPayment ────────────────────────────────────────────────────────
 // pending状態の注文に対して新しいStripe Checkoutセッションを発行し、

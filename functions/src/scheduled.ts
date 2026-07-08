@@ -7,21 +7,20 @@ import { processPendingRetries } from "./esimRetryService";
 import { db } from "./db";
 import { notifyOwner } from "./adapters/notify";
 import { esimaccessProvider } from "./providers/esimaccess";
-import { esimAccessCode, esimSecretKey, isEsimAccessConfigured } from "./esimaccess/auth";
-
-import { defineSecret } from "firebase-functions/params";
-
-const omaxClientId = defineSecret("OMAX_CLIENT_ID");
-const omaxClientSecret = defineSecret("OMAX_CLIENT_SECRET");
-const gmailUser = defineSecret("GMAIL_USER");
-const gmailPass = defineSecret("GMAIL_PASS");
-// リトライ結果のオーナー通知（Forge/Slack）で使用
-const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
-const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
-// 最終失敗時の Lane A 自動返金（executeRefund→Stripe）で使用
-const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
-// オーナーへの到達メール（S9）で使用
-const ownerEmail = defineSecret("OWNER_EMAIL");
+import { isEsimAccessConfigured } from "./esimaccess/auth";
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import {
+  omaxClientId,
+  omaxClientSecret,
+  gmailUser,
+  gmailPass,
+  forgeApiKey,
+  slackWebhookUrl,
+  stripeSecretKey,
+  ownerEmail,
+  esimAccessCode,
+  esimSecretKey,
+} from "./secrets";
 
 export const esimRetryJob = onSchedule(
   {

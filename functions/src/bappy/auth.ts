@@ -11,10 +11,8 @@ export const OMAX_TOKEN_URL =
 /** Bappy API ベースURL */
 export const BAPPY_BASE_URL = "https://api.omaxtelecom.com/bappy/v1";
 
-import { defineSecret } from "firebase-functions/params";
-
-const omaxClientId = defineSecret("OMAX_CLIENT_ID");
-const omaxClientSecret = defineSecret("OMAX_CLIENT_SECRET");
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import { omaxClientId, omaxClientSecret } from "../secrets";
 
 /** Bappy API が利用可能かどうか */
 export function isBappyConfigured(): boolean {

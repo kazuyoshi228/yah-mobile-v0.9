@@ -1,12 +1,9 @@
 import * as logger from "firebase-functions/logger";
 import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
 import { collections, updateEsimLink } from "./db";
 import { notifyOwner } from "./adapters/notify";
-
-// オーナー通知（Forge/Slack）用シークレット
-const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
-const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import { forgeApiKey, slackWebhookUrl } from "./secrets";
 
 // 受理する eventType の許可リスト（未知のイベントは無視してログのみ）
 const KNOWN_EVENT_TYPES = new Set([

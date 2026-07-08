@@ -3,20 +3,19 @@ import * as logger from "firebase-functions/logger";
  * functions/src/webhooks.ts — Unified external server callbacks / Stripe Webhook handlers
  */
 import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
 import { constructWebhookEvent } from "./stripe";
-
-const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
-const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
-const omaxClientId = defineSecret("OMAX_CLIENT_ID");
-const omaxClientSecret = defineSecret("OMAX_CLIENT_SECRET");
-const gmailUser = defineSecret("GMAIL_USER");
-const gmailPass = defineSecret("GMAIL_PASS");
-// 発券失敗時のオーナー通知（Forge/Slack）で使用
-const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
-const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
-// オーナー通知のメール到達フォールバック（S9）で使用
-const ownerEmail = defineSecret("OWNER_EMAIL");
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import {
+  stripeSecretKey,
+  stripeWebhookSecret,
+  omaxClientId,
+  omaxClientSecret,
+  gmailUser,
+  gmailPass,
+  forgeApiKey,
+  slackWebhookUrl,
+  ownerEmail,
+} from "./secrets";
 
 import {
   getOrderByStripeSessionId,
@@ -35,7 +34,7 @@ import {
 import { getProvider } from "./providers/types";
 import { sendEmail, buildEsimReadyEmail, buildPurchaseReceivedEmail, buildRefundCompletedEmail } from "./mailer";
 import { handleProvisioningFailure } from "./esimRetryService";
-import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
+import { esimAccessCode, esimSecretKey } from "./secrets";
 export const stripeWebhook = onRequest(
   {
     region: "asia-northeast1",

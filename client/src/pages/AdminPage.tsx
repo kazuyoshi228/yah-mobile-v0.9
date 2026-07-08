@@ -16,9 +16,6 @@ import {
   Period,
   PlansTab,
   CompetitorPlansTab,
-
-  IncidentTab,
-  CommunicationTab,
   RefundsTab,
 } from "@/components/admin";
 import { YahLogo } from "@/components/YahLogo";
@@ -32,13 +29,10 @@ const TABS: { id: AdminTab; label: string }[] = [
   { id: "plans", label: "Plans" },
   { id: "competitorPlans", label: "Competitor Plans" },
   { id: "access", label: "Access" },
-
-  { id: "incident", label: "障害" },
-  { id: "communication", label: "Communication" },
   { id: "refunds", label: "Refunds" },
 ];
 
-const VALID_TABS: AdminTab[] = ["ai_first", "analytics", "orders", "inquiries", "plans", "competitorPlans", "access", "incident", "communication", "refunds"];
+const VALID_TABS: AdminTab[] = ["ai_first", "analytics", "orders", "inquiries", "plans", "competitorPlans", "access", "refunds"];
 
 export default function AdminPage() {
   const { user, loading, isAdmin } = useAuth();
@@ -137,9 +131,6 @@ export default function AdminPage() {
       {activeTab === "competitorPlans" && <CompetitorPlansTab />}
       {activeTab === "inquiries" && <InquiriesTab />}
       {activeTab === "access" && <AccessTab />}
-
-      {activeTab === "incident" && <IncidentTab />}
-      {activeTab === "communication" && <CommunicationTab />}
       {activeTab === "refunds" && <RefundsTab />}
     </div>
   );

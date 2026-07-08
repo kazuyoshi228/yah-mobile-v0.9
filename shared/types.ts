@@ -230,8 +230,8 @@ export interface FsEsimRetryJob {
 
 export interface FsIncidentLog {
   id: string;
-  type?: string;
-  incidentType?: string;
+  type?: string; // 正規フィールド（新規書き込みはこちらを使う）
+  incidentType?: string; // 旧フィールド（過去ドキュメントの読み取り互換のため残置・新規では使わない）
   severity: string;
   title?: string;
   detail?: string | null;

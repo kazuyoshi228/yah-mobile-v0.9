@@ -6,11 +6,10 @@
  *       RT-Signature = HMAC_SHA256(signData, SecretKey).toLowerCase()（hex）
  * ※ RT-Timestamp はミリ秒（公式フィールド定義に準拠）。
  */
-import { defineSecret } from "firebase-functions/params";
 import { createHmac } from "node:crypto";
-
-export const esimAccessCode = defineSecret("ESIMACCESS_ACCESS_CODE");
-export const esimSecretKey = defineSecret("ESIMACCESS_SECRET_KEY");
+// シークレット宣言は secrets.ts に一元化（P1-1）。既存importer互換のため再エクスポート。
+import { esimAccessCode, esimSecretKey } from "../secrets";
+export { esimAccessCode, esimSecretKey };
 
 export function isEsimAccessConfigured(): boolean {
   try {

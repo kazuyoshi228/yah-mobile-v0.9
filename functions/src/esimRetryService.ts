@@ -31,7 +31,7 @@ import {
   getUserById,
   createRetryJob,
   createIncidentLog,
-  getPendingRetryJobs,
+  getPendingEsimRetryJobs,
   updateRetryJob,
   resolveIncident,
   markIncidentNotified,
@@ -168,7 +168,7 @@ export async function handleProvisioningFailure(
  * Called by the Heartbeat scheduler every 5 minutes.
  */
 export async function processPendingRetries(): Promise<{ processed: number; succeeded: number; failed: number }> {
-  const jobs = await getPendingRetryJobs();
+  const jobs = await getPendingEsimRetryJobs();
   let processed = 0;
   let succeeded = 0;
   let failed = 0;

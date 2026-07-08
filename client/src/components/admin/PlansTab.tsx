@@ -16,7 +16,6 @@ import {
 } from "firebase/firestore";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { callFunction, CALLABLE } from "@/lib/callable";
 import {
   EMPTY_PLAN_FORM,
   EditingCell,
@@ -489,21 +488,6 @@ export function PlansTab() {
   const [deletePlan, setDeletePlan] = useState<PlanRow | null>(null);
   const [toggleError, setToggleError] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
-  // 一回限りの移行用（実行後にこのボタンと Function を削除してよい）
-  const [migrating, setMigrating] = useState(false);
-  const handleMigrateIsActive = async () => {
-    setMigrating(true);
-    try {
-      const res = await callFunction<undefined, { plansUpdated: number; competitorUpdated: boolean }>(
-        CALLABLE.adminMigrateIsActiveToBoolean,
-      );
-      toast.success(`移行完了: plans ${res.plansUpdated}件 / 比較表 ${res.competitorUpdated ? "更新" : "変更なし"}`);
-    } catch (err: any) {
-      toast.error(err?.message || "移行に失敗しました");
-    } finally {
-      setMigrating(false);
-    }
-  };
 
   const handleToggle = async (plan: any) => {
     try {
@@ -603,16 +587,6 @@ export function PlansTab() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {/* 一回限りの移行ボタン（文字列 isActive → boolean）。実行後に削除してよい */}
-          <button
-            onClick={handleMigrateIsActive}
-            disabled={migrating}
-            className="border border-[#D7D7D7] text-black/60 px-3 py-2 hover:border-black transition-colors disabled:opacity-50"
-            style={{ fontSize: "0.6875rem" }}
-            title="plans/比較表の isActive を boolean に一括変換（移行用・一度だけ）"
-          >
-            {migrating ? "Migrating…" : "🔧 Migrate isActive"}
-          </button>
           <button
             onClick={() => setModalPlan("new")}
             className="bg-black text-white px-4 py-2 hover:bg-black/80 transition-colors"

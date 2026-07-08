@@ -4,26 +4,26 @@ import * as logger from "firebase-functions/logger";
  */
 import { auth } from "firebase-functions/v1";
 import { onDocumentCreated, onDocumentUpdated, onDocumentWritten } from "firebase-functions/v2/firestore";
-import { defineSecret } from "firebase-functions/params";
 import { getFirebaseDb, getFirebaseAuth } from "./firebase";
 import { ENV } from "./env";
 import { updateEsimLink, FsEsimLink } from "./db";
 
 import { getProvider } from "./providers/types";
-import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
 import { notifyOwner } from "./adapters/notify";
 import { sendEmail } from "./mailer";
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import {
+  omaxClientId,
+  omaxClientSecret,
+  gmailUser,
+  gmailPass,
+  forgeApiKey,
+  slackWebhookUrl,
+  esimAccessCode,
+  esimSecretKey,
+} from "./secrets";
 
 const REGION = "asia-northeast1";
-
-// Secret Manager references — makes secrets available as process.env in the function
-const omaxClientId = defineSecret("OMAX_CLIENT_ID");
-const omaxClientSecret = defineSecret("OMAX_CLIENT_SECRET");
-const gmailUser = defineSecret("GMAIL_USER");
-const gmailPass = defineSecret("GMAIL_PASS");
-// お問い合わせ通知のオーナー通知（Forge/Slack）で使用
-const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
-const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
 
 // ─── 1. Auth onCreate Trigger (onUserCreated) ────────────────────────────────
 

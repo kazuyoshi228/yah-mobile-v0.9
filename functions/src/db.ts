@@ -663,14 +663,7 @@ export async function createRetryJob(data: {
   return job.id;
 }
 
-export async function getPendingRetryJobs(): Promise<FsEsimRetryJob[]> {
-  return getPendingEsimRetryJobs();
-}
-
-export async function getRetryJobs(limit = 50): Promise<FsEsimRetryJob[]> {
-  const pending = await getPendingEsimRetryJobs();
-  return pending.slice(0, limit);
-}
+// P1-2: 単なるエイリアス getPendingRetryJobs / 未使用 getRetryJobs は削除（getPendingEsimRetryJobs に統一）
 
 export async function updateRetryJob(
   id: string,

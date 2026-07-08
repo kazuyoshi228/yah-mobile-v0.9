@@ -1,9 +1,9 @@
 import * as logger from "firebase-functions/logger";
 import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
 import { db, collections, updateEsimLink, getEsimLinkByOrderId, createNotification } from "./db";
 import { esimaccessProvider } from "./providers/esimaccess";
-import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
+// シークレット宣言は secrets.ts に一元化（P1-1）
+import { esimAccessCode, esimSecretKey, esimaccessWebhookToken, forgeApiKey, slackWebhookUrl } from "./secrets";
 import { notifyOwner } from "./adapters/notify";
 import type { FsEsimLink } from "../../shared/types";
 
@@ -17,11 +17,6 @@ import type { FsEsimLink } from "../../shared/types";
  *  3. 裏取り（/esim/query）— content を鵜呑みにせず権威データで Firestore 更新。
  *  4. notifyId 冪等 — 重複は無視。CHECK_HEALTH は 200。
  */
-
-// 秘密トークンURL（/webhook/save で推測不能URLを登録）。値は Secret Manager。
-const esimaccessWebhookToken = defineSecret("ESIMACCESS_WEBHOOK_TOKEN");
-const forgeApiKey = defineSecret("BUILT_IN_FORGE_API_KEY");
-const slackWebhookUrl = defineSecret("SLACK_WEBHOOK_URL");
 
 // 公式・送信元IPホワイトリスト（esimaccess_api_notes.md）
 const ALLOWED_IPS = new Set([

@@ -29,7 +29,7 @@ vi.mock("./db", () => ({
   getEsimLinkByOrderId: vi.fn(),
   createNotification: vi.fn(),
   getUserById: vi.fn(),
-  getPendingRetryJobs: vi.fn(),
+  getPendingEsimRetryJobs: vi.fn(),
   updateRetryJob: vi.fn(),
   resolveIncident: vi.fn(),
   markIncidentNotified: vi.fn(),
@@ -134,7 +134,7 @@ describe("esimRetryService", () => {
 
     it("最終試行(3回目)で失敗したらオーナー通知・失敗メール・失敗通知を出し注文をfailedにする", async () => {
       // retryCount:2 → attemptNum=3 = maxRetries（最終試行）
-      (db.getPendingRetryJobs as any).mockResolvedValue([newEsimJob({ retryCount: 2 })]);
+      (db.getPendingEsimRetryJobs as any).mockResolvedValue([newEsimJob({ retryCount: 2 })]);
       (bappy.createLink as any).mockRejectedValue(new Error("Bappy still down"));
       (db.getUserById as any).mockResolvedValue({ id: "user_1", email: "user@example.com" });
 
@@ -156,7 +156,7 @@ describe("esimRetryService", () => {
 
     it("2回目で回復したら注文をfulfilledにし成功メール・成功通知・回復通知を出す", async () => {
       // retryCount:1 → attemptNum=2（>1・最終前）で成功
-      (db.getPendingRetryJobs as any).mockResolvedValue([newEsimJob({ retryCount: 1 })]);
+      (db.getPendingEsimRetryJobs as any).mockResolvedValue([newEsimJob({ retryCount: 1 })]);
       (bappy.createLink as any).mockResolvedValue({
         uuid: "link_uuid",
         iccid: "8900000000000000000",
