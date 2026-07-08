@@ -308,10 +308,17 @@ export function buildPurchaseReceivedEmail(opts: { orderId: string; language?: s
   return { subject: c.subject, html: renderEmail(lang, { title: c.title, body: c.body, box: { tone: "info", html: c.box }, ctaLabel: c.cta, ctaHref: "https://yah.mobi/mypage" }) };
 }
 
+/** メール本文用の日付表示（言語別ロケール・日付のみ）。 */
+function fmtMailDate(epochMs: number, lang: MailLang): string {
+  const locale: Record<MailLang, string> = { ja: "ja-JP", en: "en-US", ko: "ko-KR", "zh-CN": "zh-CN", "zh-TW": "zh-TW", th: "th-TH" };
+  return new Date(epochMs).toLocaleDateString(locale[lang], { year: "numeric", month: "short", day: "numeric" });
+}
+
 /**
  * eSIM発行完了メール（復旧成功）
+ * installBy: インストール期限（epoch ms・eSIMAccess の expiredTime）。渡すと期限の注意書きを追記する。
  */
-export function buildEsimReadyEmail(opts: { orderId: string; language?: string | null }): { subject: string; html: string } {
+export function buildEsimReadyEmail(opts: { orderId: string; language?: string | null; installBy?: number | null }): { subject: string; html: string } {
   const lang = normalizeLang(opts.language);
   const copy: Record<MailLang, LifecycleCopy> = {
     ja: { subject: "【yah.mobile】eSIMの発行が完了しました", title: "eSIMの発行が完了しました ✓", body: "お待たせしました。eSIMの発行が完了しました。<br>マイページからQRコードをご確認いただき、設定を行ってください。", box: `✅ 注文番号 #${opts.orderId} のeSIMが発行されました。`, cta: "マイページでQRコードを確認する" },
@@ -321,6 +328,66 @@ export function buildEsimReadyEmail(opts: { orderId: string; language?: string |
     "zh-TW": { subject: "[yah.mobile] 您的 eSIM 已就緒", title: "您的 eSIM 已就緒 ✓", body: "久等了，您的 eSIM 已核發。<br>請在「我的頁面」查看 QR 碼並完成設定。", box: `✅ 訂單 #${opts.orderId} 的 eSIM 已核發。`, cta: "在我的頁面查看 QR 碼" },
     th: { subject: "[yah.mobile] eSIM ของคุณพร้อมแล้ว", title: "eSIM ของคุณพร้อมแล้ว ✓", body: "ขอบคุณที่รอ eSIM ของคุณออกให้เรียบร้อยแล้ว<br>เปิดหน้าของฉันเพื่อดู QR code และตั้งค่าให้เสร็จสมบูรณ์", box: `✅ ออก eSIM สำหรับคำสั่งซื้อ #${opts.orderId} แล้ว`, cta: "ดู QR code ในหน้าของฉัน" },
   };
+  // インストール期限（未使用のまま期限を過ぎると失効）— F: 期限コミュニケーション
+  const installLine: Record<MailLang, (d: string) => string> = {
+    ja: (d) => `⏰ <strong>${d} までにインストール</strong>してください。未使用のまま期限を過ぎると eSIM は失効します（データの有効期間は有効化した時点から始まります）。`,
+    en: (d) => `⏰ <strong>Install by ${d}</strong>. Unused eSIMs expire after this date (your data validity starts when you activate).`,
+    ko: (d) => `⏰ <strong>${d} 까지 설치</strong>해 주세요. 미사용 상태로 기한이 지나면 eSIM은 만료됩니다(데이터 유효기간은 활성화 시점부터 시작됩니다).`,
+    "zh-CN": (d) => `⏰ 请<strong>在 ${d} 前安装</strong>。逾期未使用的 eSIM 将失效（流量有效期从激活时开始计算）。`,
+    "zh-TW": (d) => `⏰ 請<strong>在 ${d} 前安裝</strong>。逾期未使用的 eSIM 將失效（數據有效期自啟用時開始計算）。`,
+    th: (d) => `⏰ <strong>ติดตั้งภายใน ${d}</strong> หากไม่ใช้งานภายในกำหนด eSIM จะหมดอายุ (อายุการใช้งานดาต้าเริ่มนับเมื่อเปิดใช้งาน)`,
+  };
   const c = copy[lang];
-  return { subject: c.subject, html: renderEmail(lang, { title: c.title, body: c.body, box: { tone: "success", html: c.box }, ctaLabel: c.cta, ctaHref: "https://yah.mobi/mypage" }) };
+  const box = opts.installBy
+    ? `${c.box}<br><br>${installLine[lang](fmtMailDate(opts.installBy, lang))}`
+    : c.box;
+  return { subject: c.subject, html: renderEmail(lang, { title: c.title, body: c.body, box: { tone: "success", html: box }, ctaLabel: c.cta, ctaHref: "https://yah.mobi/mypage" }) };
+}
+
+// ─── お問い合わせ自動返信（D: 6言語） ─────────────────────────────────────────
+
+function escapeHtmlMail(str: string | null | undefined): string {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+/**
+ * お問い合わせ自動返信メール。inquiry.language（フォームのUI言語）で6言語出し分け。
+ * name/message は内部でHTMLエスケープする（生値を渡してよい）。
+ */
+export function buildContactAutoReplyEmail(opts: { name?: string | null; message: string; language?: string | null }): { subject: string; html: string } {
+  const lang = normalizeLang(opts.language);
+  const copy: Record<MailLang, { subject: string; greeting: (n: string | null) => string; body: string; quoteLabel: string; note: string }> = {
+    ja: { subject: "【yah.mobile】お問い合わせを受け付けました", greeting: (n) => `${n ?? "お客様"} 様`, body: "お問い合わせありがとうございます。以下の内容で受け付けました。<br>担当者より順次ご返信いたしますので、今しばらくお待ちください。", quoteLabel: "【送信内容】", note: "※本メールは自動送信です。このメールに心当たりがない場合は破棄してください。" },
+    en: { subject: "[yah.mobile] We received your inquiry", greeting: (n) => `Dear ${n ?? "Customer"},`, body: "Thank you for contacting us. We've received your message below.<br>Our team will get back to you as soon as possible.", quoteLabel: "Your message:", note: "This is an automated message. If you did not submit this inquiry, please disregard this email." },
+    ko: { subject: "[yah.mobile] 문의가 접수되었습니다", greeting: (n) => `${n ?? "고객"}님`, body: "문의해 주셔서 감사합니다. 아래 내용으로 접수되었습니다.<br>담당자가 순차적으로 답변드리오니 잠시만 기다려 주세요.", quoteLabel: "보내신 내용:", note: "이 메일은 자동 발송되었습니다. 본인이 보낸 문의가 아닌 경우 이 메일을 무시해 주세요." },
+    "zh-CN": { subject: "[yah.mobile] 我们已收到您的咨询", greeting: (n) => `${n ?? "尊敬的客户"}：`, body: "感谢您的咨询。我们已收到以下内容。<br>我们的团队将尽快回复您，请稍候。", quoteLabel: "您的留言：", note: "这是一封自动发送的邮件。如果您没有提交此咨询，请忽略本邮件。" },
+    "zh-TW": { subject: "[yah.mobile] 我們已收到您的諮詢", greeting: (n) => `${n ?? "尊敬的客戶"}：`, body: "感謝您的諮詢。我們已收到以下內容。<br>我們的團隊將盡快回覆您，請稍候。", quoteLabel: "您的留言：", note: "這是一封自動發送的郵件。如果您沒有提交此諮詢，請忽略本郵件。" },
+    th: { subject: "[yah.mobile] เราได้รับข้อความของคุณแล้ว", greeting: (n) => `เรียนคุณ${n ?? "ลูกค้า"}`, body: "ขอบคุณที่ติดต่อเรา เราได้รับข้อความของคุณตามด้านล่างแล้ว<br>ทีมงานของเราจะติดต่อกลับโดยเร็วที่สุด", quoteLabel: "ข้อความของคุณ:", note: "อีเมลนี้ส่งโดยอัตโนมัติ หากคุณไม่ได้ส่งข้อความนี้ กรุณาละเว้นอีเมลฉบับนี้" },
+  };
+  const c = copy[lang];
+  const safeName = opts.name ? escapeHtmlMail(opts.name) : null;
+  const safeMessage = escapeHtmlMail(opts.message).replace(/\n/g, "<br>");
+  const html = `
+<!DOCTYPE html>
+<html lang="${lang}">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f8; margin: 0; padding: 20px;">
+  <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
+    <div style="background: #000; padding: 24px 32px;">
+      <h1 style="color: #fff; font-size: 20px; margin: 0; letter-spacing: 0.05em;">yah.mobile</h1>
+    </div>
+    <div style="padding: 32px;">
+      <p style="color: #111; font-size: 14px; margin: 0 0 12px;">${c.greeting(safeName)}</p>
+      <p style="color: #555; font-size: 14px; line-height: 1.7; margin: 0 0 16px;">${c.body}</p>
+      <div style="background: #f8f8f8; padding: 16px; border-radius: 6px; margin: 0 0 24px;">
+        <p style="color: #888; font-size: 12px; margin: 0 0 6px;"><strong>${c.quoteLabel}</strong></p>
+        <p style="color: #333; font-size: 13px; line-height: 1.7; margin: 0;">${safeMessage}</p>
+      </div>
+      <p style="color: #aaa; font-size: 12px; margin: 0; line-height: 1.6;">${c.note}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+  return { subject: c.subject, html };
 }

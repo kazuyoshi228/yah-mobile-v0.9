@@ -183,6 +183,7 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
     try {
       await updateRetryJob(job.id, { status: "retrying", retryCount: attemptNum });
 
+      let installBy: number | null = null; // 新規発行時のインストール期限（発行完了メールに記載）
       if (job.isTopup) {
         // Topup retry — 親eSIMは providerRef(=esimLinkUuid=esim_linksのdocID) で直接解決する。
         if (!job.esimLinkUuid) {
@@ -208,6 +209,7 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
       } else {
         // New eSIM retry
         const detail = await getProvider(job.provider).createEsim({ providerPlanId: job.bappyPlanId, orderId: job.orderId, transactionId: job.orderId });
+        installBy = detail.expiryDate; // インストール期限（発行完了メールに記載）
         await createEsimLink({
           orderId: job.orderId,
           userId: job.userId,
@@ -251,7 +253,7 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
         const user = await getUserById(job.userId);
         if (user?.email) {
           const order = await getOrderById(job.orderId);
-          const { subject, html } = buildEsimReadyEmail({ orderId: job.orderId, language: order?.language });
+          const { subject, html } = buildEsimReadyEmail({ orderId: job.orderId, language: order?.language, installBy });
           await sendEmail({ to: user.email, subject, html });
           logger.info(`[RetryService] Sent recovery-success email to user ${job.userId}`);
         }

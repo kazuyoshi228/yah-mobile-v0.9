@@ -177,7 +177,9 @@ describe("esimRetryService", () => {
       expect(db.createNotification).toHaveBeenCalledWith(
         expect.objectContaining({ type: "order_fulfilled", userId: "user_1" })
       );
-      expect(mailer.buildEsimReadyEmail).toHaveBeenCalledWith({ orderId: "order_1", language: undefined });
+      expect(mailer.buildEsimReadyEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ orderId: "order_1", language: undefined }),
+      );
       expect(mailer.sendEmail).toHaveBeenCalledWith(
         expect.objectContaining({ to: "user@example.com" })
       );

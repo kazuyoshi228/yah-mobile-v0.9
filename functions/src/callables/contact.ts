@@ -68,6 +68,7 @@ export const submitContactInquiry = onCall({ region: REGION, enforceAppCheck: tr
       status: "pending",
       userId: request.auth?.uid || null,
       orderId: data.orderId || null,
+      language: data.language || null, // 自動返信メールの言語判定（onContactCreated が参照）
       ipAddress,
       createdAt: now,
       updatedAt: now,

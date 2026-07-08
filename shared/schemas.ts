@@ -44,6 +44,8 @@ export const SubmitContactInquiryInput = z.object({
   detail: z.string().nullish(),
   message: z.string().max(2000),
   orderId: z.string().nullish(),
+  /** 送信時のUI言語（i18n.language）。自動返信メールの言語判定に使う。未設定は en 扱い。 */
+  language: z.string().max(20).nullish(),
   formStartTime: z.number(), // timestamp
   _hp: z.string().nullish(), // Honeypot
 });

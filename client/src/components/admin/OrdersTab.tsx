@@ -2,10 +2,9 @@
  * admin/OrdersTab.tsx — 注文一覧タブ（管理者専用）
  *
  * 表示内容:
- * - 全注文の一覧（最新100件）
- * - 各注文の購入国・都市・タイムゾーン（IPジオロケーション）
- * - ステータス・金額・プランID・StripeセッションID
- * - クリックで注文詳細パネルを表示
+ * - 全注文の一覧（最新200件）
+ * - 検索（Order ID / email / User ID / plan）・ステータスフィルタ・列ソート（Date/Amount/Status）
+ * - クリックで注文詳細パネルを表示。詳細パネルから全額返金（adminRefundOrder・二重確認）
  *
  * ユーザーには非表示（adminProcedure で保護済み）
  */
@@ -15,6 +14,7 @@ import { getFirebaseDb } from "@/lib/firebase";
 import { collection, query, orderBy, limit } from "firebase/firestore";
 import { labelStyle, bodyStyle } from "./types";
 import { formatTimestampJa } from "@/lib/format";
+import { callFunction, CALLABLE } from "@/lib/callable";
 
 // ─── 型定義 ─────────────────────────────────────────────────────────────────
 type Order = {
@@ -22,7 +22,9 @@ type Order = {
   userId: string;
   planId: string;
   bappyPlanId?: string;
+  planName?: string | null;
   status: string;
+  refundStatus?: string | null;
   amountJpy?: number | null;
   stripePaymentIntentId?: string | null;
   stripeSessionId?: string | null;
@@ -101,6 +103,9 @@ const formatTimestamp = (ts: number | { seconds: number } | null | undefined) =>
   formatTimestampJa(ts, { withSeconds: true });
 
 // ─── 注文詳細パネル ──────────────────────────────────────────────────────────
+// 返金可能なステータス（refunded/cancelled/pending は不可。executeRefund 側にも冪等ガード有り）
+const REFUNDABLE_STATUSES = new Set(["paid", "fulfilled", "failed", "provisioning", "pending_retry"]);
+
 function OrderDetailPanel({
   order,
   onClose,
@@ -108,6 +113,32 @@ function OrderDetailPanel({
   order: Order;
   onClose: () => void;
 }) {
+  const [refundState, setRefundState] = useState<"idle" | "processing" | "done" | "error">(
+    order.refundStatus === "refunded" || order.refundStatus === "processing" ? "done" : "idle",
+  );
+  const [refundError, setRefundError] = useState<string | null>(null);
+
+  const canRefund = REFUNDABLE_STATUSES.has(order.status) && refundState === "idle";
+  const amountLabel = order.amountJpy != null ? `¥${order.amountJpy.toLocaleString()}` : "全額";
+
+  const handleRefund = async () => {
+    // 二重確認（取り消し不可の操作のため）
+    if (!window.confirm(`注文 #${order.id}\n${amountLabel} を全額返金します。よろしいですか？`)) return;
+    if (!window.confirm("本当に実行しますか？この操作は取り消せません。\n（使用開始済みのeSIMは停止されず、Stripe返金のみ行われます）")) return;
+    setRefundState("processing");
+    setRefundError(null);
+    try {
+      await callFunction<{ orderId: string; reason: string }, { ok: boolean }>(
+        CALLABLE.adminRefundOrder,
+        { orderId: order.id, reason: "manual" },
+      );
+      setRefundState("done");
+    } catch (err) {
+      setRefundState("error");
+      setRefundError(err instanceof Error ? err.message : "返金に失敗しました");
+    }
+  };
+
   const firestoreUrl = `https://console.firebase.google.com/u/0/project/yah-mobile-v1-3ed24/firestore/databases/-default-/data/~2Forders~2F${order.id}`;
   const stripePaymentUrl = order.stripePaymentIntentId
     ? `https://dashboard.stripe.com/payments/${order.stripePaymentIntentId}`
@@ -191,6 +222,42 @@ function OrderDetailPanel({
           ))}
         </div>
 
+        {/* 返金アクション（Lane B 手動返金。確定・通知は charge.refunded webhook） */}
+        <div className="px-6 py-4 border-t border-[#E0E0E0]">
+          <p
+            className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-black/40 mb-3"
+            style={labelStyle}
+          >
+            Refund
+          </p>
+          {refundState === "done" ? (
+            <p className="text-emerald-700 text-[0.75rem]" style={bodyStyle}>
+              ✅ 返金を受け付けました（確定・顧客メールは Stripe webhook 経由で反映されます）
+            </p>
+          ) : canRefund || refundState === "processing" || refundState === "error" ? (
+            <>
+              <button
+                onClick={handleRefund}
+                disabled={refundState === "processing"}
+                className="w-full px-3 py-2 border border-red-300 text-red-600 text-[0.75rem] hover:bg-red-50 transition-colors duration-150 disabled:opacity-40"
+                style={bodyStyle}
+              >
+                {refundState === "processing" ? "返金処理中…" : `${amountLabel} を全額返金する`}
+              </button>
+              <p className="text-black/30 text-[0.65rem] mt-2" style={bodyStyle}>
+                Stripe全額返金＋未使用eSIMのキャンセル（使用済みは返金のみ）。取り消し不可。
+              </p>
+              {refundError && (
+                <p className="text-red-600 text-[0.7rem] mt-2" style={bodyStyle}>{refundError}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-black/30 text-[0.75rem]" style={bodyStyle}>
+              このステータス（{order.status}）の注文は返金できません。
+            </p>
+          )}
+        </div>
+
         {/* 外部リンク */}
         <div className="px-6 py-4 border-t border-[#E0E0E0] space-y-2">
           <p
@@ -237,14 +304,28 @@ function OrderDetailPanel({
 }
 
 // ─── メインコンポーネント ─────────────────────────────────────────────────────
+type SortKey = "createdAt" | "amountJpy" | "status";
+
+const tsOf = (v: number | { seconds: number } | null | undefined): number =>
+  typeof v === "number" ? v : v?.seconds ? v.seconds * 1000 : 0;
+
+const STATUS_OPTIONS = [
+  "all", "pending", "pending_retry", "paid", "provisioning", "fulfilled", "cancelled", "failed", "refunded",
+] as const;
+
 export default function OrdersTab() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("createdAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
   const ordersQuery = useMemo(
     () =>
       query(
         collection(getFirebaseDb(), "orders"),
         orderBy("createdAt", "desc"),
-        limit(100),
+        limit(200),
       ),
     [],
   );
@@ -253,6 +334,32 @@ export default function OrdersTab() {
     () => ordersQuery,
     [ordersQuery],
   );
+
+  // 取得済み200件に対するクライアントサイドの検索・フィルタ・ソート
+  const visibleOrders = useMemo(() => {
+    let list = orders ?? [];
+    if (statusFilter !== "all") list = list.filter((o) => o.status === statusFilter);
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter((o) =>
+        [o.id, o.userEmail, o.guestEmail, o.userName, o.userId, o.planId, o.bappyPlanId, o.planName]
+          .some((v) => v?.toLowerCase().includes(q)),
+      );
+    }
+    return [...list].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "createdAt") cmp = tsOf(a.createdAt) - tsOf(b.createdAt);
+      else if (sortKey === "amountJpy") cmp = (a.amountJpy ?? 0) - (b.amountJpy ?? 0);
+      else cmp = a.status.localeCompare(b.status);
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [orders, search, statusFilter, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir("desc"); }
+  };
+  const sortIndicator = (key: SortKey) => (sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : "");
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
@@ -266,9 +373,31 @@ export default function OrdersTab() {
             Orders
           </h2>
           <p className="text-black/50 text-[0.8125rem]" style={bodyStyle}>
-            最新 100 件の注文一覧。クリックで詳細を表示。
+            最新 200 件の注文一覧。クリックで詳細（返金もここから）。
           </p>
         </div>
+      </div>
+
+      {/* 検索・フィルタ */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="検索: Order ID / email / User ID / plan"
+          className="flex-1 min-w-[240px] px-3 py-2 border border-[#E0E0E0] text-[0.8125rem] focus:border-black/40 outline-none"
+          style={bodyStyle}
+        />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-3 py-2 border border-[#E0E0E0] text-[0.8125rem] bg-white focus:border-black/40 outline-none"
+          style={bodyStyle}
+        >
+          {STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>{s === "all" ? "すべてのステータス" : s}</option>
+          ))}
+        </select>
       </div>
 
       {/* エラー */}
@@ -291,24 +420,24 @@ export default function OrdersTab() {
           <table className="w-full text-[0.75rem]" style={bodyStyle}>
             <thead>
               <tr className="border-b border-[#E0E0E0] bg-[#F7F7F5]">
-                <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>Date</th>
+                <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap cursor-pointer hover:text-black select-none" style={labelStyle} onClick={() => toggleSort("createdAt")}>Date{sortIndicator("createdAt")}</th>
                 <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>Order ID</th>
-                <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>Status</th>
-                <th className="text-right px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>Amount</th>
+                <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap cursor-pointer hover:text-black select-none" style={labelStyle} onClick={() => toggleSort("status")}>Status{sortIndicator("status")}</th>
+                <th className="text-right px-4 py-3 text-black/40 font-medium whitespace-nowrap cursor-pointer hover:text-black select-none" style={labelStyle} onClick={() => toggleSort("amountJpy")}>Amount{sortIndicator("amountJpy")}</th>
                 <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>Plan</th>
                 <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>Purchase Location</th>
                 <th className="text-left px-4 py-3 text-black/40 font-medium whitespace-nowrap" style={labelStyle}>User ID</th>
               </tr>
             </thead>
             <tbody>
-              {orders.length === 0 && (
+              {visibleOrders.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-black/30">
-                    注文データがありません
+                    {search || statusFilter !== "all" ? "条件に一致する注文がありません" : "注文データがありません"}
                   </td>
                 </tr>
               )}
-              {orders.map((order) => (
+              {visibleOrders.map((order) => (
                 <tr
                   key={order.id}
                   className="border-b border-[#F0F0F0] hover:bg-[#F0EDE8] transition-colors duration-100 cursor-pointer"
@@ -328,8 +457,11 @@ export default function OrdersTab() {
                   <td className="px-4 py-3 text-right whitespace-nowrap text-black">
                     {order.amountJpy != null ? `¥${order.amountJpy.toLocaleString()}` : "—"}
                   </td>
-                  <td className="px-4 py-3 text-black/60 max-w-[140px] truncate">
-                    {order.planId ?? "—"}
+                  <td className="px-4 py-3 text-black/60 max-w-[160px] truncate">
+                    {order.planName ?? order.planId ?? "—"}
+                    {order.orderType === "topup" && (
+                      <span className="ml-1.5 text-[0.6rem] bg-black text-white px-1.5 py-0.5 align-middle" style={labelStyle}>TOP-UP</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <GeoBadge
@@ -347,9 +479,9 @@ export default function OrdersTab() {
               ))}
             </tbody>
           </table>
-          {orders.length > 0 && (
+          {visibleOrders.length > 0 && (
             <div className="px-4 py-3 border-t border-[#F0F0F0] text-black/30 text-[0.6875rem]" style={labelStyle}>
-              {orders.length} orders shown
+              {visibleOrders.length} / {orders?.length ?? 0} orders shown
             </div>
           )}
         </div>

@@ -138,6 +138,14 @@ const zhTW = {
         "a": "建議在出發前透過 Wi-Fi 安裝 eSIM。安裝完成後，抵達日本時將自動連線，機場無需額外設定。"
       },
       {
+        "q": "eSIM 有安裝期限嗎？",
+        "a": "有。請在購買後約 6 個月內安裝 eSIM——確切的「安裝期限」日期顯示在「我的頁面」和確認郵件中。逾期未使用的 eSIM 將失效。數據有效期（如 7 天）自您在日本啟用時才開始計算。"
+      },
+      {
+        "q": "eSIM 可以刪除後重新安裝嗎？",
+        "a": "安裝後請不要從裝置中刪除 eSIM。如果不小心刪除或需要更換手機，請先聯絡客服，我們會確認您的 eSIM 能否復原。"
+      },
+      {
         "q": "我的裝置相容嗎？",
         "a": "相容裝置包括 iPhone XS 以後、Google Pixel 3 以後、Samsung Galaxy S20 以後。裝置必須未鎖機。"
       },
@@ -354,6 +362,7 @@ const zhTW = {
     "preparingEsim": "正在準備您的eSIM...",
     "esimReadyTitle": "您的eSIM已準備就緒。",
     "esimReadyDesc": "掃描下方QR碼以安裝eSIM。您也可以隨時在我的eSIM中查看。",
+    "installByNote": "請在 {{date}} 前安裝。逾期未使用的 eSIM 將失效。數據有效期自您在日本啟用時開始計算。",
     "esimIccid": "ICCID",
     "esimActivateIos": "在iPhone上啟用",
     "esimActivateAndroid": "在Android上啟用",

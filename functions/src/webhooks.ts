@@ -274,6 +274,7 @@ async function fulfillEsim(orderData: FsOrder) {
   try {
     const provider = orderData.provider;
     let linkUuid = "";
+    let installBy: number | null = null; // 新規発行時のインストール期限（発行完了メールに記載）
     if (isTopup) {
       const parentLinkUuid = orderData.esimLinkUuid;
       if (!parentLinkUuid) throw new Error("Topup order missing esimLinkUuid");
@@ -283,6 +284,7 @@ async function fulfillEsim(orderData: FsOrder) {
     } else {
       const detail = await getProvider(provider).createEsim({ providerPlanId: bappyPlanId, orderId, transactionId: orderId });
       linkUuid = detail.providerRef;
+      installBy = detail.expiryDate; // 未有効化時の expiryDate ＝インストール期限（発行から約6ヶ月）
 
       // プランは管理画面から自動IDで作成されるため、ドキュメントIDではなく
       // bappyPlanId フィールドで検索する（ID規約の二重化に依存しない）。
@@ -333,7 +335,7 @@ async function fulfillEsim(orderData: FsOrder) {
 
     const user = await getUserByUid(userId);
     if (user?.email) {
-      const emailContent = buildEsimReadyEmail({ orderId, language: orderData.language });
+      const emailContent = buildEsimReadyEmail({ orderId, language: orderData.language, installBy });
       await sendEmail({ to: user.email, ...emailContent }).catch((err: unknown) =>
         logger.error("[fulfillEsim] Email error:", err)
       );

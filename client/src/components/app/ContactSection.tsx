@@ -18,7 +18,7 @@ interface FormData {
 }
 
 export default function ContactSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState<FormData>({ name: "", email: "", location: "", category: "", detail: "", message: "" });
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -106,6 +106,7 @@ export default function ContactSection() {
         detail: formData.detail || undefined,
         message: formData.message,
         orderId: orderId || undefined,
+        language: i18n.language || undefined, // 自動返信メールの言語判定に使用
         formStartTime,
         _hp: honeypot || undefined,
       });

@@ -10,7 +10,7 @@ import { updateEsimLink, FsEsimLink } from "./db";
 
 import { getProvider } from "./providers/types";
 import { notifyOwner } from "./adapters/notify";
-import { sendEmail } from "./mailer";
+import { sendEmail, buildContactAutoReplyEmail } from "./mailer";
 // シークレット宣言は secrets.ts に一元化（P1-1）
 import {
   omaxClientId,
@@ -132,11 +132,12 @@ export const onContactCreated = onDocumentCreated(
     const data = event.data?.data();
     if (!data) return;
 
-    const { name, email, category, message } = data as {
+    const { name, email, category, message, language } = data as {
       name: string;
       email: string;
       category?: string | null;
       message: string;
+      language?: string | null;
     };
 
     const safeName = escapeHtml(name);
@@ -170,25 +171,11 @@ export const onContactCreated = onDocumentCreated(
       }).catch((err) => logger.error("[onContactCreated] Failed to send admin email:", err));
     }
 
-    // お客様へ自動返信メール
+    // お客様へ自動返信メール（フォームのUI言語で6言語出し分け・未設定は en）
     if (email) {
-      await sendEmail({
-        to: email, // use original email for sending
-        subject: `【yah.mobile】お問い合わせを受け付けました`,
-        html: `
-          <div style="font-family: sans-serif; max-width: 600px;">
-            <p>${safeName || "お客様"} 様</p>
-            <p>お問い合わせありがとうございます。<br>以下の内容で受け付けました。<br>担当者より順次ご返信いたしますので、今しばらくお待ちください。</p>
-            <div style="background: #f8f8f8; padding: 16px; margin-top: 16px; border-radius: 4px;">
-              <strong>【送信内容】</strong><br>
-              ${safeMessage.replace(/\n/g, "<br>")}
-            </div>
-            <p style="color: #888; font-size: 12px; margin-top: 24px;">
-              ※本メールは自動送信です。このメールに心当たりがない場合は破棄してください。
-            </p>
-          </div>
-        `,
-      }).catch((err) => logger.error("[onContactCreated] Failed to send auto-reply email:", err));
+      const autoReply = buildContactAutoReplyEmail({ name, message, language });
+      await sendEmail({ to: email, ...autoReply })
+        .catch((err) => logger.error("[onContactCreated] Failed to send auto-reply email:", err));
     }
   }
 );

@@ -5,8 +5,12 @@ import { EsimQr } from "@/components/EsimQr";
 import { usePurchaseCheckoutCtx } from "../context";
 
 export function Step6Esim() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { esimLoading, esimLink } = usePurchaseCheckoutCtx();
+  // インストール期限（発行時の expiryDate）。未使用のまま期限を過ぎると失効するため明示する。
+  const installBy = esimLink?.expiryDate
+    ? new Date(esimLink.expiryDate).toLocaleDateString(i18n.language, { year: "numeric", month: "short", day: "numeric" })
+    : null;
 
   return (
     <div>
@@ -35,6 +39,11 @@ export function Step6Esim() {
               )}
             </div>
           </div>
+          {installBy && (
+            <p className="font-sans text-black/40 text-xs text-center mb-6 leading-[1.6]">
+              {t("drawer.installByNote", { date: installBy })}
+            </p>
+          )}
           <div className="flex gap-3 mb-6">
             {esimLink.appleActivationUrl && (
               <a href={safeUrl(esimLink.appleActivationUrl)} className="flex-1 text-center text-label py-3 border border-[#D7D7D7] text-black hover:border-black transition-colors text-[0.75rem]">
