@@ -52,7 +52,7 @@ const DEFAULT_TABLE: TableData = {
         estPrice: "¥1,350",
         pricePerGb: "¥450/GB",
         support: "24/7 multilingual",
-        network: "KDDI (4G/5G)",
+        network: "NTT docomo (4G/5G)",
       },
     },
     {

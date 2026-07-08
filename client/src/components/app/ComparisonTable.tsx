@@ -17,7 +17,7 @@ const FALLBACK = {
     { colKey: "network", label: "Network" },
   ],
   rows: [
-    { service: "yah.mobile", plan: "7 days / 3GB", estPrice: "¥1,350", pricePerGb: "¥450/GB", support: "24/7 multilingual", network: "KDDI (4G/5G)", highlight: true },
+    { service: "yah.mobile", plan: "7 days / 3GB", estPrice: "¥1,350", pricePerGb: "¥450/GB", support: "24/7 multilingual", network: "NTT docomo (4G/5G)", highlight: true },
     { service: "Airalo", plan: "7 days / 3GB", estPrice: "¥1,700", pricePerGb: "¥567/GB", support: "Email only", network: "IIJmio", highlight: false },
     { service: "Holafly", plan: "7 days / Unlimited", estPrice: "¥3,200", pricePerGb: "—", support: "Chat", network: "Softbank", highlight: false },
     { service: "Ubigi", plan: "30 days / 10GB", estPrice: "¥3,500", pricePerGb: "¥350/GB", support: "Email", network: "NTT Docomo", highlight: false },

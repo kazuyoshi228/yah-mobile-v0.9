@@ -37,7 +37,7 @@ const en = {
     title: "Designed for the modern traveler.",
     items: {
       bestPrice: { title: "Best price guaranteed", desc: "We promise the best price per GB comparing with our competitors." },
-      coverage: { title: "Nationwide coverage", desc: "Powered by Japan's major carrier network (KDDI). City centers to rural destinations." },
+      coverage: { title: "Nationwide coverage", desc: "Powered by Japan's major carrier network (NTT docomo). City centers to rural destinations." },
       support: { title: "24/7 multilingual support", desc: "24/7 support in multiple languages, before and during your trip." },
       activation: { title: "1-tap activation", desc: "On iOS 17.4+, activate your eSIM with a single tap — no QR scan required." },
       tracking: { title: "Real-time usage tracking", desc: "Monitor remaining data and expiry in real time. Top up instantly when needed." },
@@ -52,7 +52,7 @@ const en = {
     step3: { title: "Scan & install", desc: "After purchase, scan the QR code from your email or account page. Takes under 3 minutes." },
     step4: { title: "Arrive and connect", desc: "Your eSIM activates automatically when you land in Japan. No setup at the airport." },
   },
-  midBanner1: "Japan's major and fast network (KDDI), in your pocket.",
+  midBanner1: "Japan's major and fast network (NTT docomo), in your pocket.",
   midBanner2: {
     label: "Japan awaits",
     title: "Arrive ready.\nExplore freely.",
@@ -106,7 +106,7 @@ const en = {
       { q: "Does it include a phone number?", a: "yah.mobile is a data-only eSIM. Voice calls and SMS are not supported, but app-based calls via LINE, WhatsApp, and similar services work fine." },
       { q: "Can I get a refund?", a: "eSIM is a digital product. Once your payment is completed, cancellations and refunds are not available. You confirm this policy via a checkbox before completing your purchase. If you have any questions, please contact us via chat before buying." },
       { q: "Can I use it on multiple devices?", a: "Each eSIM is tied to one device. If you need data on multiple devices, you'll need to purchase a separate plan for each." },
-      { q: "Will it work on the bullet train (Shinkansen)?", a: "Yes. yah.mobile runs on KDDI, one of Japan's largest networks. Coverage is excellent on Shinkansen routes and in major cities. Some rural tunnels may have limited signal." },
+      { q: "Will it work on the bullet train (Shinkansen)?", a: "Yes. yah.mobile runs on NTT docomo, one of Japan's largest networks. Coverage is excellent on Shinkansen routes and in major cities. Some rural tunnels may have limited signal." },
       { q: "How do I receive my eSIM?", a: "After purchase, your QR code is delivered instantly to your registered email and is also available in your account under My Orders. No waiting, no shipping." },
       { q: "What if I need help setting it up?", a: "24/7 chat support can guide you through installation step by step — it usually takes under 3 minutes." },
       { q: "Is there a speed limit?", a: "No speed throttling. You get full 4G LTE / 5G speeds for the duration of your plan. Speeds depend on network conditions and your device's capabilities." },
@@ -184,7 +184,7 @@ const en = {
       installationFailed: "Tip: Make sure your device is unlocked (not carrier-locked), connected to Wi-Fi, and running the latest OS. Each QR code can only be scanned once — if it's already been used, please contact us.",
       checkDeviceCompatibility: "Tip: Most iPhones from XS (2018) onwards and many Android flagships support eSIM. You can check compatibility on the home page using the 'Check your device' tool.",
       noConnectionAfterArrival: "Tip: Toggle Airplane Mode on for 10 seconds, then off. If still no signal, go to Settings → Cellular → yah.mobile eSIM and make sure 'Data Roaming' is enabled.",
-      slowSpeed: "Tip: Our network runs on KDDI (au), one of Japan's largest carriers. If speeds are slow, try toggling Airplane Mode or moving to an open area. Indoor coverage in basements or tunnels may be limited.",
+      slowSpeed: "Tip: Our network runs on NTT docomo, one of Japan's largest carriers. If speeds are slow, try toggling Airplane Mode or moving to an open area. Indoor coverage in basements or tunnels may be limited.",
       dataStoppedWorking: "Tip: Your data allowance may have been used up. Check remaining data under My Page. You can top up instantly from the app without needing a new QR code.",
       apnSettings: "Tip: yah.mobile eSIM configures APN automatically — no manual input is needed. If you're prompted for APN, try removing and re-adding the eSIM, or contact us for the correct settings.",
       orderNotShowing: "Tip: Make sure you're logged in with the same email used at checkout. Orders can take up to 5 minutes to appear after payment. If it's been longer, please share your order confirmation email with us.",
@@ -350,10 +350,10 @@ const en = {
   },
   seo: {
     title: "yah.mobile — Japan eSIM for Travelers | From ¥990",
-    description: "Japan eSIM from ¥990. Instant QR code delivery, no SIM swap needed. Runs on KDDI — Japan's top carrier network. Perfect for travelers visiting Japan.",
-    keywords: "Japan eSIM, Japan SIM card, travel SIM Japan, eSIM Japan, KDDI eSIM",
+    description: "Japan eSIM from ¥990. Instant QR code delivery, no SIM swap needed. Runs on NTT docomo — Japan's top carrier network. Perfect for travelers visiting Japan.",
+    keywords: "Japan eSIM, Japan SIM card, travel SIM Japan, eSIM Japan, docomo eSIM",
     ogTitle: "yah.mobile — Japan eSIM for Travelers | From ¥990",
-    ogDescription: "Get connected in Japan instantly. eSIM plans from ¥990, QR code delivered to your email. No physical SIM required. Runs on KDDI network.",
+    ogDescription: "Get connected in Japan instantly. eSIM plans from ¥990, QR code delivered to your email. No physical SIM required. Runs on NTT docomo network.",
   },
 } as const;
 

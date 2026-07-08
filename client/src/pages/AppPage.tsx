@@ -257,10 +257,10 @@ export default function AppPage() {
       : lang === "zh-CN" ? "yah.mobile 日本eSIM"
       : "yah.mobile Japan eSIM";
     const productDesc = lang === "ko"
-      ? "일본 여행자를 위한 eSIM 서비스. QR 코드 즉시 발급, KDDI 네트워크. ¥990부터."
+      ? "일본 여행자를 위한 eSIM 서비스. QR 코드 즉시 발급, NTT docomo 네트워크. ¥990부터."
       : lang === "zh-CN"
-      ? "面向赴日旅行者的eSIM服务。即时发送二维码，KDDI网络。低至¥990。"
-      : "Japan eSIM for international travelers. Instant QR code delivery, KDDI network. Plans from ¥990.";
+      ? "面向赴日旅行者的eSIM服务。即时发送二维码，NTT docomo网络。低至¥990。"
+      : "Japan eSIM for international travelers. Instant QR code delivery, NTT docomo network. Plans from ¥990.";
 
     const reviewItems = [
       { author: "Sarah M.", rating: 5, body: lang === "ko" ? "공항에서 바로 연결됐어요. 완벽했습니다!" : lang === "zh-CN" ? "落地即连，完美！" : "Connected the moment I landed. Absolutely seamless!" },

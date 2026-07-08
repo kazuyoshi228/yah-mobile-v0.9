@@ -37,7 +37,7 @@ const zhCN = {
     title: "专为现代旅行者设计。",
     items: {
       bestPrice: { title: "最优价格保证", desc: "与竞争对手相比，我们承诺提供每GB最低价格。" },
-      coverage: { title: "全国覆盖", desc: "采用日本主要运营商网络（KDDI）。从城市中心到乡村目的地均有覆盖。" },
+      coverage: { title: "全国覆盖", desc: "采用日本主要运营商网络（NTT docomo）。从城市中心到乡村目的地均有覆盖。" },
       support: { title: "24/7多语言客服", desc: "全天候多语言支持，随时为您服务。" },
       activation: { title: "一键激活", desc: "在iOS 17.4+上，只需轻触一下即可激活eSIM——无需扫描二维码。" },
       tracking: { title: "实时流量监控", desc: "实时查看剩余流量和到期时间。随时可即时充值。" },
@@ -52,7 +52,7 @@ const zhCN = {
     step3: { title: "扫码安装", desc: "购买后，扫描邮件或账户页面中的二维码。不到3分钟即可完成。" },
     step4: { title: "抵达即连网", desc: "落地日本后，eSIM自动激活。无需在机场进行任何设置。" },
   },
-  midBanner1: "日本主要高速网络（KDDI），随身携带。",
+  midBanner1: "日本主要高速网络（NTT docomo），随身携带。",
   midBanner2: {
     label: "日本等你来",
     title: "准备好出发，\n自由探索。",
@@ -106,7 +106,7 @@ const zhCN = {
       { q: "是否包含电话号码？", a: "yah.mobile是纯数据eSIM，不支持语音通话和短信，但LINE、WhatsApp等应用内通话可正常使用。" },
       { q: "可以退款吗？", a: "eSIM为数字商品。支付完成后无法取消或退款。购买完成前需通过勾选框确认此政策。如有疑问，请在购买前通过在线客服联系我们。" },
       { q: "可以在多台设备上使用吗？", a: "每张eSIM仅绑定一台设备。如需在多台设备上使用，需为每台设备单独购买套餐。" },
-      { q: "在新干线上能用吗？", a: "可以。yah.mobile使用KDDI网络，这是日本最大的运营商之一。新干线沿线及主要城市覆盖良好。部分农村隧道可能信号有限。" },
+      { q: "在新干线上能用吗？", a: "可以。yah.mobile使用NTT docomo网络，这是日本最大的运营商之一。新干线沿线及主要城市覆盖良好。部分农村隧道可能信号有限。" },
       { q: "如何收到eSIM？", a: "购买后，二维码将立即发送至您的注册邮箱，也可在账户的'我的订单'中查看。无需等待，无需邮寄。" },
       { q: "如果需要帮助设置怎么办？", a: "全天候在线聊天为您一步步指导安装——通常不到3分钟。" },
       { q: "有速度限制吗？", a: "没有限速。在套餐有效期内，您可享受完整的4G LTE/5G速度。实际速度取决于网络状况和您的设备性能。" },
@@ -179,7 +179,7 @@ const zhCN = {
       installationFailed: "提示：请确保您的设备已解锁（非运营商锁定），连接Wi-Fi，并运行最新系统。每个二维码只能扫描一次——如已使用，请联系我们。",
       checkDeviceCompatibility: "提示：2018年以后的大多数iPhone（XS及以上）和许多Android旗舰机均支持eSIM。您可以在首页使用'检查您的设备'工具确认兼容性。",
       noConnectionAfterArrival: "提示：开启飞行模式10秒后关闭。如仍无信号，请前往设置→蜂窝网络→yah.mobile eSIM，确保已开启'数据漫游'。",
-      slowSpeed: "提示：我们的网络使用KDDI（au），日本最大运营商之一。如网速慢，请尝试切换飞行模式或移至开阔区域。地下室或隧道内的室内覆盖可能有限。",
+      slowSpeed: "提示：我们的网络使用NTT docomo，日本最大运营商之一。如网速慢，请尝试切换飞行模式或移至开阔区域。地下室或隧道内的室内覆盖可能有限。",
       dataStoppedWorking: "提示：您的流量可能已用完。请在'我的页面'查看剩余流量。您可以直接在应用内充值，无需新二维码。",
       apnSettings: "提示：yah.mobile eSIM会自动配置APN——无需手动输入。如提示输入APN，请尝试删除并重新添加eSIM，或联系我们获取正确设置。",
       orderNotShowing: "提示：请确保您使用结账时的同一邮箱登录。付款后订单最多需要5分钟才会显示。如超过此时间，请将订单确认邮件发送给我们。",
@@ -332,10 +332,10 @@ const zhCN = {
   },
   seo: {
     title: "yah.mobile — 日本旅行eSIM | 低至¥990",
-    description: "日本eSIM低至¥990。即时发送二维码，无需换卡。使用KDDI网络——日本顶级运营商。专为赴日旅行者设计。",
-    keywords: "日本eSIM, 日本SIM卡, 旅行SIM日本, eSIM日本, KDDI eSIM",
+    description: "日本eSIM低至¥990。即时发送二维码，无需换卡。使用NTT docomo网络——日本顶级运营商。专为赴日旅行者设计。",
+    keywords: "日本eSIM, 日本SIM卡, 旅行SIM日本, eSIM日本, docomo eSIM",
     ogTitle: "yah.mobile — 日本旅行eSIM | 低至¥990",
-    ogDescription: "在日本即时上网。eSIM套餐低至¥990，二维码发送至邮箱。无需实体SIM卡。使用KDDI网络。",
+    ogDescription: "在日本即时上网。eSIM套餐低至¥990，二维码发送至邮箱。无需实体SIM卡。使用NTT docomo网络。",
   },
 } as const;
 

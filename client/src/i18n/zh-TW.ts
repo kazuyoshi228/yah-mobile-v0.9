@@ -43,7 +43,7 @@ const zhTW = {
       },
       "coverage": {
         "title": "全國覆蓋",
-        "desc": "採用日本主要電信業者網路（KDDI）。從都市中心到鄉間各地皆有覆蓋。"
+        "desc": "採用日本主要電信業者網路（NTT docomo）。從都市中心到鄉間各地皆有覆蓋。"
       },
       "support": {
         "title": "24/7 多語言客服",
@@ -83,7 +83,7 @@ const zhTW = {
       "desc": "在手機設定中掃描QR碼，不到一分鐘即可完成。"
     }
   },
-  "midBanner1": "日本主要高速網路（KDDI），隨身攜帶。",
+  "midBanner1": "日本主要高速網路（NTT docomo），隨身攜帶。",
   "midBanner2": {
     "label": "日本等你來",
     "title": "準備好出發，\n自由探索。"
@@ -159,7 +159,7 @@ const zhTW = {
       },
       {
         "q": "新幹線上能使用嗎？",
-        "a": "可以。yah.mobile 使用 KDDI 網路，新幹線沿線及主要城市覆蓋良好。部分鄉村隧道可能信號有限。"
+        "a": "可以。yah.mobile 使用 NTT docomo 網路，新幹線沿線及主要城市覆蓋良好。部分鄉村隧道可能信號有限。"
       },
       {
         "q": "如何收到 eSIM？",
@@ -250,7 +250,7 @@ const zhTW = {
       "installationFailed": "提示：請確認您的裝置已解鎖（非電信商鎖定）、已連上 Wi-Fi，並執行最新系統。每個 QR 碼僅能掃描一次——若已使用過，請與我們聯絡。",
       "checkDeviceCompatibility": "提示：2018 年以後的大多數 iPhone（XS 及以上）與許多 Android 旗艦機皆支援 eSIM。您可在首頁使用「檢查您的裝置」工具確認相容性。",
       "noConnectionAfterArrival": "提示：開啟飛航模式 10 秒後再關閉。若仍無訊號，請前往 設定 → 行動網路 → yah.mobile eSIM，確認已開啟「數據漫遊」。",
-      "slowSpeed": "提示：我們的網路使用 KDDI（au），日本最大電信業者之一。若網速慢，請嘗試切換飛航模式或移至開闊區域。地下室或隧道內的室內覆蓋可能有限。",
+      "slowSpeed": "提示：我們的網路使用 NTT docomo，日本最大電信業者之一。若網速慢，請嘗試切換飛航模式或移至開闊區域。地下室或隧道內的室內覆蓋可能有限。",
       "dataStoppedWorking": "提示：您的流量可能已用盡。請於「我的頁面」查看剩餘流量。您可直接在應用程式內加值，無需新的 QR 碼。",
       "apnSettings": "提示：yah.mobile eSIM 會自動設定 APN——無需手動輸入。若系統提示輸入 APN，請嘗試移除並重新加入 eSIM，或與我們聯絡取得正確設定。",
       "orderNotShowing": "提示：請確認您以結帳時使用的相同電子郵件登入。付款後訂單最多需 5 分鐘才會顯示。若已超過此時間，請將訂單確認郵件提供給我們。",
@@ -432,10 +432,10 @@ const zhTW = {
   },
   "seo": {
     "title": "yah.mobile — 日本旅遊 eSIM｜低至 ¥990",
-    "description": "日本 eSIM 低至 ¥990。即時寄送 QR 碼，無需換卡。使用 KDDI 網路——日本頂級電信業者。專為赴日旅客設計。",
-    "keywords": "日本eSIM, 日本SIM卡, 日本旅遊SIM, eSIM日本, KDDI eSIM",
+    "description": "日本 eSIM 低至 ¥990。即時寄送 QR 碼，無需換卡。使用 NTT docomo 網路——日本頂級電信業者。專為赴日旅客設計。",
+    "keywords": "日本eSIM, 日本SIM卡, 日本旅遊SIM, eSIM日本, docomo eSIM",
     "ogTitle": "yah.mobile — 日本旅遊 eSIM｜低至 ¥990",
-    "ogDescription": "在日本即時上網。eSIM 方案低至 ¥990，QR 碼寄送至您的電子郵件。無需實體 SIM 卡。使用 KDDI 網路。"
+    "ogDescription": "在日本即時上網。eSIM 方案低至 ¥990，QR 碼寄送至您的電子郵件。無需實體 SIM 卡。使用 NTT docomo 網路。"
   },
   "deviceCheck": {
     "title": "確認相容性。",

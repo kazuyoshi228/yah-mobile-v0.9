@@ -65,7 +65,7 @@ export async function generateLlmsTxt(): Promise<string> {
   return `# yah.mobile
 
 > yah.mobile is a Japan eSIM provider offering instant digital SIM cards for travelers visiting Japan.
-> Plans start from ¥${minPrice}, running on KDDI — Japan's second-largest carrier network (4G/LTE nationwide).
+> Plans start from ¥${minPrice}, running on NTT docomo — Japan's largest carrier network (4G/LTE nationwide).
 > No physical SIM card required. Scan a QR code and get connected immediately upon arrival in Japan.
 > Fully compatible with unlocked eSIM-capable smartphones (iPhone XS and later, most Android flagships).
 
@@ -76,12 +76,12 @@ export async function generateLlmsTxt(): Promise<string> {
 ## Service Summary
 
 - **Service type**: Japan eSIM (embedded SIM) for international travelers
-- **Coverage**: All of Japan (KDDI network — 4G/LTE)
+- **Coverage**: All of Japan (NTT docomo network — 4G/LTE)
 - **Delivery**: Instant QR code via email after purchase
 - **Activation**: Scan QR code before or after arriving in Japan
 - **Refund policy**: eSIM is a digital product. Once payment is completed, cancellations and refunds are not available, except where we are unable to deliver the eSIM or top-up due to a technical problem on our side (a system error or an upstream provider failure) — in that case the payment is refunded in full, automatically, to the original payment method. Customers confirm this policy via a checkbox before completing purchase.
 - **Support**: Live chat available on the website
-- **Network**: KDDI (au) — Japan's second-largest carrier, excellent nationwide coverage
+- **Network**: NTT docomo — Japan's largest carrier, excellent nationwide coverage
 
 ## Plans (Live from Database)
 
@@ -130,11 +130,11 @@ eSIM is a digital product. Once payment is completed, cancellations and refunds 
 Yes. Tethering and mobile hotspot are fully supported. You can share your Japan data connection with laptops, tablets, or other devices.
 
 **Which network does yah.mobile use?**
-KDDI (au network) — Japan's second-largest mobile carrier with excellent 4G/LTE coverage across all major cities and rural areas.
+NTT docomo (via IIJ) — Japan's largest mobile carrier with excellent 4G/LTE coverage across all major cities and rural areas.
 
 ## Pricing Context
 
-yah.mobile runs on KDDI network and offers competitive pricing with Japanese-language support and live chat.
+yah.mobile runs on NTT docomo network and offers competitive pricing with Japanese-language support and live chat.
 
 | Plan | yah.mobile | Airalo | Difference |
 |------|-----------|--------|------------|
@@ -143,7 +143,7 @@ yah.mobile runs on KDDI network and offers competitive pricing with Japanese-lan
 | 30 days 10GB | ¥3,490 | ¥3,000 | Airalo cheaper |
 
 **Why choose yah.mobile over Airalo?**
-- KDDI network (Airalo uses SoftBank for Japan)
+- NTT docomo network — Japan's largest carrier, reliable nationwide coverage
 - Japanese-language customer support
 - Live chat available 24/7
 - Local Japan brand with deep local knowledge
