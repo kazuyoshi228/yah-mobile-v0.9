@@ -1,7 +1,10 @@
 # Firestore スキーマ / リレーション図（yah.mobile）
 
-型の唯一の定義は `shared/types.ts`（`Fs*` インターフェース）。コレクション定義は `functions/src/db.ts` の `collections`。
+最終更新: 2026-07-09。型の唯一の定義は `shared/types.ts`（`Fs*` インターフェース）。コレクション定義は **`functions/src/db/core.ts`** の `collections`（P2でdb/へ分割）。
 アクセス制御は `firestore.rules`。日時は原則 epoch millis（`number`）。一部は Firestore `Timestamp`（例: `users.sessionRevokedAt` はクライアントが `serverTimestamp()` で書き、functions が `.toMillis()` で読む）。
+
+**現行コレクション（23）**: `users` `plans` `orders` `esim_links`(+`usage_logs`サブ) `esim_activations` `notifications` `contact_inquiries` `allowed_emails` `esim_retry_jobs` `incident_logs` `user_consents` `stripe_events` `audit_logs` `analytics_events` `ai_referrer_logs` `recommend_logs` `bappy_token_cache` `rate_limits` `currency_rates` `system_config`(provider_health/refunds等) `competitor` `promotions`。
+**プロバイダ関連フィールド（柱2）**: `orders.provider`/`bappyPlanId`(=packageCode橋渡し)/`orderType`/`esimLinkUuid`/`language`、`plans.provider`/`providerPlanId`/`wholesalePriceUsd`/`planType`/`topupForBase`、`esim_links.provider`/`providerRef`/`bappyLinkUuid`/`iccid`/`lpaProfile`/`expiryDate`(=インストール期限)/`lastActiveAt`、`contact_inquiries.orderSnapshot`/`language`。
 
 ---
 

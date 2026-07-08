@@ -1,7 +1,30 @@
-# システム仕様書：yah-mobile-v3（極限フラット・サーバーレス直結モデル）
+# システム仕様書（最終版）：yah.mobile — BaaSファースト eSIM 販売プラットフォーム
 
-この仕様書は、eSIM販売プラットフォーム `yah-mobile-v3` (v4ブランチ) の最新のアーキテクチャ設計をまとめたドキュメントです。
-自前で管理していたExpress Webサーバーを完全に廃止し、「Firebase Hosting + Cloud Functions」による **純粋なBaaS（Backend as a Service）ファースト** のアーキテクチャに到達した状態を解説しています。今後の仕様検討やリファクタリングの指針としてご活用ください。
+最終更新: 2026-07-09。本書は現行アーキテクチャの仕様。詳細は各リンク先を正本とする。
+
+## 0. 現状サマリ（2026-07-09・本番稼働）
+- **構成**: React 19 + Vite 7（`client/`）→ Firebase Hosting（`https://yah.mobi`・多言語プリレンダ済）。バックエンド = Cloud Functions v2 / Firestore / Auth / Storage（プロジェクト `yah-mobile-v1-3ed24`・asia-northeast1）。**自前サーバなし（BaaS）**。
+- **eSIMプロバイダ**: **eSIMAccess 単一**（IIJ系=NTT docomo網/JP-IP）。発行/同期/topup/cancel は Provider抽象（`providers/*`）経由。Bappy は休眠。
+- **決済**: Stripe Checkout ＋ `stripeWebhook`。**返金**は Lane A(自動)/B(手動)→`executeRefund`→Stripe＋`charge.refunded` webhook確定・5言語メール。
+- **監視**: `providerHealthCheck`(15分・残高/死活・販売停止ガード自動)・`hungOrderMonitor`・`esimRetryJob`・Error Reporting。
+- **多言語**: en/ko/zh-CN/zh-TW/th（UI・メール・SEO）。中国本土は対象外（[seo_plan §8.0](./seo_plan.md)）。
+- **チャット**: 別プロジェクト chat.yah.mobi（iframe埋込・SSO・AI/RAG・非履行）。
+- **現状**: 招待制ゲートON（GA前）。実発注E2E成功済。
+
+## 0.1 正本ドキュメント（このセットで全体を把握）
+| テーマ | 正本 |
+|---|---|
+| 関数API | [api_functions.md](./api_functions.md) |
+| データモデル | [firestore_schema.md](./firestore_schema.md) |
+| 返金・障害の運用手順 | [refund_incident_procedures.md](./refund_incident_procedures.md) |
+| 日次運用・残高チャージ | [ops_daily_runbook.md](./ops_daily_runbook.md) |
+| 返金仕様/戦略 | [spec_refund.md](./spec_refund.md) / [design_refund_strategy.md](./design_refund_strategy.md) |
+| テスト | [test_coverage.md](./test_coverage.md) |
+| SEO/GEO | [seo_plan.md](./seo_plan.md) |
+| 残タスク | [roadmap_v2.md](./roadmap_v2.md) |
+| eSIMAccess API | [esimaccess_api_notes.md](./esimaccess_api_notes.md) |
+
+> 以下は詳細アーキテクチャ解説（BaaS設計思想）。上記サマリが現状の要約。
 
 ---
 

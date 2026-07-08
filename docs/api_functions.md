@@ -1,9 +1,18 @@
 # Cloud Functions API 仕様（yah.mobile）
 
+最終更新: 2026-07-09（現行実装に整合。プロバイダは **eSIMAccess 単一**、Bappy は休眠）。
 Firebase Cloud Functions v2。リージョンは特記なき限り `asia-northeast1`。
 種別は **Callable**（`onCall`・App Check 必須）／ **HTTP**（`onRequest`・Webhook 等）／ **Scheduled**（`onSchedule`）／ **Firestore Trigger**。
 
 入力スキーマの実体は `shared/schemas.ts`（zod）。Callable は undefined→null 変換のため任意項目は `.nullish()`。
+
+## 現行関数一覧（21・2026-07-09）
+- **Callable(6)**: `ordersInitCheckout` `ordersInitTopupCheckout` `orderRetryPayment` `adminRefundOrder` `submitContactInquiry` `analyticsGetAiInsights`
+- **HTTP(6)**: `stripeWebhook` `esimaccessWebhook` `bappyWebhook`(休眠) `analyticsEvents` `clientErrorLog` `llmsTxt`
+- **Scheduled(4)**: `esimRetryJob` `hungOrderMonitor` `providerHealthCheck`(15分・残高/死活) `updateCurrencyRates`
+- **Trigger(5)**: `onEsimSyncRequested` `onContactCreated` `onAllowedEmailWritten` `onInquiryUpdated` `onUserUpdated`
+
+> 発行/同期/topup/cancel は **Provider抽象**（`functions/src/providers/*`・`getProvider(order.provider)`）経由。新規販売は eSIMAccess。返金は `adminRefundOrder`/自動(Lane A)→`executeRefund`→Stripe＋`charge.refunded` webhook確定。詳細は各節。
 
 ---
 
@@ -79,10 +88,12 @@ Firebase Cloud Functions v2。リージョンは特記なき限り `asia-northea
 
 | 関数 | 位置 | 用途 | 認証 |
 |---|---|---|---|
-| `stripeWebhook` | webhooks.ts:33 | Stripe 決済イベント受信 → eSIM 発行 | Stripe 署名検証 |
-| `bappyWebhook` | webhooks_bappy.ts:31 | Bappy(OMAX) eSIM 状態変化の受信 | **OMAX 側で認証**（当方は変更しない）。失敗時 `notifyOwner` |
-| `analyticsEvents` | analytics.ts:26 | フロントの解析イベント収集（同意連動） | – |
-| `llmsTxt` | llmsTxt.ts:159 | `/llms.txt` を動的生成（AI エージェント向け） | 公開 |
+| `stripeWebhook` | webhooks.ts | Stripe 決済イベント受信 → eSIM 発行（Provider抽象）／`charge.refunded`→返金確定 | Stripe 署名検証 |
+| `esimaccessWebhook` | webhooks_esimaccess.ts | eSIMAccess 状態通知（ORDER/ESIM_STATUS/DATA/VALIDITY_USAGE）→ 裏取りで esim_links 更新・IN_USEで lastActiveAt 記録 | **多層防御**：秘密トークンURL＋送信元IP許可＋/esim/query裏取り＋notifyId冪等 |
+| `bappyWebhook`（休眠） | webhooks_bappy.ts | 旧Bappy eSIM 状態受信（表示状態のみ・非財務）。新規販売はeSIMAccessのため休眠 | **OMAX側で認証**（当方変更しない・[design_bappy_webhook_dormant.md](./design_bappy_webhook_dormant.md)） |
+| `analyticsEvents` | analytics.ts | フロントの解析イベント収集（同意連動） | – |
+| `clientErrorLog` | clientErrors.ts | フロント実行時エラー収集（S1b・PII非送信） | – |
+| `llmsTxt` | llmsTxt.ts | `/llms.txt` を動的生成（AI エージェント向け） | 公開 |
 
 ---
 
@@ -90,9 +101,10 @@ Firebase Cloud Functions v2。リージョンは特記なき限り `asia-northea
 
 | 関数 | 位置 | スケジュール | 用途 |
 |---|---|---|---|
-| `esimRetryJob` | scheduled.ts:20 | 定期 | `esim_retry_jobs` を処理して eSIM 発行を再試行 |
-| `hungOrderMonitor` | scheduled.ts:45 | every 15 minutes | `orders status=="provisioning"` かつ 30分以上更新なしを検知しオーナー通知（単一等価クエリ＋メモリ内フィルタ、複合インデックス不要） |
-| `updateCurrencyRates` | currencyRates.ts:10 | 定期 | `exchange_rates` を更新 |
+| `esimRetryJob` | scheduled.ts | 定期 | `esim_retry_jobs` を処理して eSIM 発行を再試行（最大3回・最終失敗で自動返金Lane A） |
+| `hungOrderMonitor` | scheduled.ts | 定期 | `orders status=="provisioning"` の滞留を検知しオーナー通知 |
+| `providerHealthCheck` | scheduled.ts | every 15 minutes | eSIMAccess 疎通＋**残高**確認。API down→販売停止ガード自動ON／残高 < $20 で警告。回復で自動解除通知 |
+| `updateCurrencyRates` | currencyRates.ts | 定期 | 為替レート更新 |
 
 ---
 
@@ -100,7 +112,7 @@ Firebase Cloud Functions v2。リージョンは特記なき限り `asia-northea
 
 | 関数 | 位置 | トリガ | 用途 |
 |---|---|---|---|
-| `onEsimSyncRequested` | triggers.ts:73 | onDocumentUpdated `esim_links` | `syncRequestedAt` 更新でBappyから最新使用量を同期 |
+| `onEsimSyncRequested` | triggers.ts | onDocumentUpdated `esim_links` | `syncRequestedAt` 更新で **Provider（eSIMAccess）** から使用量/期限を同期＋IN_USEで lastActiveAt 記録 |
 | `onContactCreated` | triggers.ts:124 | onDocumentCreated `contact_inquiries` | オーナー通知 |
 | `onAllowedEmailWritten` | triggers.ts:193 | onDocumentWritten `allowed_emails` | 招待制メールの整合 |
 | `onInquiryUpdated` | triggers.ts:210 | onDocumentUpdated `contact_inquiries` | ステータス変更処理 |
