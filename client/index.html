@@ -19,9 +19,12 @@
     <meta name="description" content="Japan eSIM from ¥990. Instant QR code delivery, no SIM swap needed. Runs on NTT docomo — Japan's top carrier network. Perfect for travelers visiting Japan." />
     <link rel="canonical" href="https://yah.mobi/app" />
 
-    <!-- i18n: hreflang for multi-language SEO -->
+    <!-- i18n: hreflang for multi-language SEO（対応UI言語 en/ko/zh-CN/zh-TW/th。sitemapと一致） -->
     <link rel="alternate" hreflang="en" href="https://yah.mobi/app" />
-    <link rel="alternate" hreflang="ja" href="https://yah.mobi/app" />
+    <link rel="alternate" hreflang="ko" href="https://yah.mobi/ko/app" />
+    <link rel="alternate" hreflang="zh-CN" href="https://yah.mobi/zh-CN/app" />
+    <link rel="alternate" hreflang="zh-TW" href="https://yah.mobi/zh-TW/app" />
+    <link rel="alternate" hreflang="th" href="https://yah.mobi/th/app" />
     <link rel="alternate" hreflang="x-default" href="https://yah.mobi/app" />
 
     <!-- Open Graph (Facebook, LINE, AI crawlers) -->
@@ -29,19 +32,21 @@
     <meta property="og:url" content="https://yah.mobi/app" />
     <meta property="og:title" content="yah.mobile — Japan eSIM for Travelers | From ¥990" />
     <meta property="og:description" content="Get connected in Japan instantly. eSIM plans from ¥990, QR code delivered to your email. No physical SIM required. Runs on NTT docomo network." />
-    <meta property="og:image" content="https://storage.googleapis.com/yah-mobile-v1-3ed24.firebasestorage.app/assets/images/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <!-- OG画像：本来の og-image.png(1200x630) が未作成のため、暫定で公開済みヒーロー画像を使用。要: 専用1200x630の作成 -->
+    <meta property="og:image" content="https://storage.googleapis.com/yah-mobile-v1-3ed24.firebasestorage.app/assets/images/thumb_09_desktop.jpg" />
     <meta property="og:image:alt" content="yah.mobile — Japan eSIM for Travelers" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="ja_JP" />
+    <meta property="og:locale:alternate" content="ko_KR" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:locale:alternate" content="zh_TW" />
+    <meta property="og:locale:alternate" content="th_TH" />
     <meta property="og:site_name" content="yah.mobile" />
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="yah.mobile — Japan eSIM from ¥990" />
     <meta name="twitter:description" content="Instant Japan eSIM. QR code to your email. No SIM swap. NTT docomo network." />
-    <meta name="twitter:image" content="https://storage.googleapis.com/yah-mobile-v1-3ed24.firebasestorage.app/assets/images/og-image.png" />
+    <meta name="twitter:image" content="https://storage.googleapis.com/yah-mobile-v1-3ed24.firebasestorage.app/assets/images/thumb_09_desktop.jpg" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -83,7 +88,7 @@
           "contactType": "customer support",
           "url": "https://yah.mobi/app#contact",
           "email": "contact@mail.yah.mobi",
-          "availableLanguage": ["English", "Japanese"]
+          "availableLanguage": ["English", "Korean", "Chinese", "Thai"]
         }
       },
       {
@@ -93,7 +98,20 @@
         "url": "https://yah.mobi",
         "name": "yah.mobile",
         "publisher": { "@id": "https://yah.mobi/#organization" },
-        "inLanguage": ["en", "ja"]
+        "inLanguage": ["en", "ko", "zh-CN", "zh-TW", "th"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to set up a Japan eSIM with yah.mobile",
+        "description": "Get connected in Japan in four steps: check device compatibility, choose a plan, scan the QR code to install, and connect automatically on arrival.",
+        "totalTime": "PT3M",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Check compatibility", "text": "Confirm your device supports eSIM and is SIM-unlocked. Most modern smartphones (iPhone XS and later, recent Android flagships) qualify." },
+          { "@type": "HowToStep", "position": 2, "name": "Choose your plan", "text": "Pick the data size and duration that fit your trip. All prices are in JPY and include tax." },
+          { "@type": "HowToStep", "position": 3, "name": "Scan & install", "text": "After purchase, scan the QR code delivered to your email or shown in your account. Installation takes under 3 minutes." },
+          { "@type": "HowToStep", "position": 4, "name": "Arrive and connect", "text": "Your eSIM activates automatically when you land in Japan on the NTT docomo network. No setup needed at the airport." }
+        ]
       }
     ]
     </script>

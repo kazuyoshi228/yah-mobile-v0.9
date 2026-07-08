@@ -7,6 +7,7 @@
   <!-- Main purchase page (English / default) -->
   <url>
     <loc>https://yah.mobi/app</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
@@ -20,6 +21,7 @@
   <!-- Korean -->
   <url>
     <loc>https://yah.mobi/ko/app</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
@@ -33,6 +35,7 @@
   <!-- Simplified Chinese -->
   <url>
     <loc>https://yah.mobi/zh-CN/app</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
@@ -46,6 +49,7 @@
   <!-- Traditional Chinese -->
   <url>
     <loc>https://yah.mobi/zh-TW/app</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
@@ -59,6 +63,7 @@
   <!-- Thai -->
   <url>
     <loc>https://yah.mobi/th/app</loc>
+    <lastmod>2026-07-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <xhtml:link rel="alternate" hreflang="en"        href="https://yah.mobi/app"/>
@@ -70,24 +75,37 @@
   </url>
 
   <!-- Plans section (per language) -->
-  <url><loc>https://yah.mobi/app#plans</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://yah.mobi/ko/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
-  <url><loc>https://yah.mobi/zh-CN/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
-  <url><loc>https://yah.mobi/zh-TW/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
-  <url><loc>https://yah.mobi/th/app#plans</loc><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/app#plans</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://yah.mobi/ko/app#plans</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/zh-CN/app#plans</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/zh-TW/app#plans</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>
+  <url><loc>https://yah.mobi/th/app#plans</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>daily</changefreq><priority>0.85</priority></url>
 
   <!-- FAQ section (per language) -->
-  <url><loc>https://yah.mobi/app#faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://yah.mobi/ko/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
-  <url><loc>https://yah.mobi/zh-CN/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
-  <url><loc>https://yah.mobi/zh-TW/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
-  <url><loc>https://yah.mobi/th/app#faq</loc><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/app#faq</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yah.mobi/ko/app#faq</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/zh-CN/app#faq</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/zh-TW/app#faq</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.65</priority></url>
+  <url><loc>https://yah.mobi/th/app#faq</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.65</priority></url>
 
   <!-- Other sections (English) -->
-  <url><loc>https://yah.mobi/app#compatibility</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://yah.mobi/app#contact</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://yah.mobi/app#compatibility</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://yah.mobi/app#contact</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
 
   <!-- Machine-readable plan data for AI agents -->
-  <url><loc>https://yah.mobi/llms.txt</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://yah.mobi/llms.txt</loc>
+    <lastmod>2026-07-08</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 </urlset>

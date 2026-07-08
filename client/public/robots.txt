@@ -7,8 +7,16 @@ Disallow: /api/
 Disallow: /admin
 Disallow: /mypage
 
-# AI Crawlers — explicitly welcome
+# ── AI Crawlers / generative engines — explicitly welcome (GEO) ──
 User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: OAI-SearchBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: ChatGPT-User
 Allow: /
 Allow: /llms.txt
 
@@ -16,14 +24,57 @@ User-agent: ClaudeBot
 Allow: /
 Allow: /llms.txt
 
+User-agent: Claude-SearchBot
+Allow: /
+Allow: /llms.txt
+
 User-agent: PerplexityBot
 Allow: /
 Allow: /llms.txt
 
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# ── Search engines ──
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
+Allow: /
+
+# Korea — Naver / Daum(Kakao)
+User-agent: Yeti
+Allow: /
+
+User-agent: Daum
+Allow: /
+
+# China — Baidu / ByteDance(Doubao) / Sogou / 360 / Shenma / Huawei
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Sogou web spider
+Allow: /
+
+User-agent: 360Spider
+Allow: /
+
+User-agent: YisouSpider
+Allow: /
+
+User-agent: PetalBot
 Allow: /
 
 # Sitemap
