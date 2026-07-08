@@ -361,10 +361,10 @@ const en = {
   },
   seo: {
     title: "yah.mobile — Japan eSIM for Travelers",
-    description: "Japan eSIM from ¥990. Instant QR code delivery, no SIM swap needed. Runs on NTT docomo — Japan's top carrier network. Perfect for travelers visiting Japan.",
+    description: "Japan eSIM with instant QR code delivery, no SIM swap needed. Runs on NTT docomo — Japan's top carrier network. Perfect for travelers visiting Japan.",
     keywords: "Japan eSIM, Japan SIM card, travel SIM Japan, eSIM Japan, docomo eSIM",
     ogTitle: "yah.mobile — Japan eSIM for Travelers",
-    ogDescription: "Get connected in Japan instantly. eSIM plans from ¥990, QR code delivered to your email. No physical SIM required. Runs on NTT docomo network.",
+    ogDescription: "Get connected in Japan instantly. QR code delivered to your email — no physical SIM. Runs on the NTT docomo network.",
   },
 } as const;
 

@@ -360,11 +360,11 @@ const th = {
     fetchFailed: "การดึงข้อมูลล้มเหลว กรุณาลองใหม่อีกครั้ง",
   },
   seo: {
-    title: "yah.mobile — Japan eSIM สำหรับนักเดินทาง | เริ่มต้น ¥990",
-    description: "Japan eSIM เริ่มต้น ¥990 รับ QR Code ทันที ไม่ต้องเปลี่ยนซิม ใช้เครือข่าย NTT docomo — เครือข่ายชั้นนำของญี่ปุ่น เหมาะสำหรับนักเดินทางที่มาเยือนญี่ปุ่น",
+    title: "yah.mobile — Japan eSIM สำหรับนักเดินทาง",
+    description: "Japan eSIM รับ QR Code ทันที ไม่ต้องเปลี่ยนซิม ใช้เครือข่าย NTT docomo — เครือข่ายชั้นนำของญี่ปุ่น เหมาะสำหรับนักเดินทางที่มาเยือนญี่ปุ่น",
     keywords: "Japan eSIM, ซิมญี่ปุ่น, ซิมท่องเที่ยวญี่ปุ่น, eSIM ญี่ปุ่น, docomo eSIM",
-    ogTitle: "yah.mobile — Japan eSIM สำหรับนักเดินทาง | เริ่มต้น ¥990",
-    ogDescription: "เชื่อมต่อในญี่ปุ่นได้ทันที แพ็กเกจ eSIM เริ่มต้น ¥990 QR Code ส่งไปยังอีเมล ไม่ต้องใช้ซิมจริง ใช้เครือข่าย NTT docomo",
+    ogTitle: "yah.mobile — Japan eSIM สำหรับนักเดินทาง",
+    ogDescription: "เชื่อมต่อในญี่ปุ่นได้ทันที แพ็กเกจ eSIM QR Code ส่งไปยังอีเมล ไม่ต้องใช้ซิมจริง ใช้เครือข่าย NTT docomo",
   },
 } as const;
 

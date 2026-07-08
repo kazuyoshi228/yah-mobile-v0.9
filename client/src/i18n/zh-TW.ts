@@ -448,11 +448,11 @@ const zhTW = {
     "fetchFailed": "載入資料失敗，請再試一次。"
   },
   "seo": {
-    "title": "yah.mobile — 日本旅遊 eSIM｜低至 ¥990",
-    "description": "日本 eSIM 低至 ¥990。即時寄送 QR 碼，無需換卡。使用 NTT docomo 網路——日本頂級電信業者。專為赴日旅客設計。",
+    "title": "yah.mobile — 日本旅遊 eSIM",
+    "description": "日本旅遊 eSIM。即時寄送 QR 碼，無需換卡。使用 NTT docomo 網路——日本頂級電信業者。專為赴日旅客設計。",
     "keywords": "日本eSIM, 日本SIM卡, 日本旅遊SIM, eSIM日本, docomo eSIM",
-    "ogTitle": "yah.mobile — 日本旅遊 eSIM｜低至 ¥990",
-    "ogDescription": "在日本即時上網。eSIM 方案低至 ¥990，QR 碼寄送至您的電子郵件。無需實體 SIM 卡。使用 NTT docomo 網路。"
+    "ogTitle": "yah.mobile — 日本旅遊 eSIM",
+    "ogDescription": "在日本即時上網。QR 碼寄送至您的電子郵件，無需實體 SIM 卡。使用 NTT docomo 網路。"
   },
   "deviceCheck": {
     "title": "確認相容性。",

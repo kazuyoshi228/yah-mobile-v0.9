@@ -342,11 +342,11 @@ const zhCN = {
     fetchFailed: "获取数据失败，请重试。",
   },
   seo: {
-    title: "yah.mobile — 日本旅行eSIM | 低至¥990",
-    description: "日本eSIM低至¥990。即时发送二维码，无需换卡。使用NTT docomo网络——日本顶级运营商。专为赴日旅行者设计。",
+    title: "yah.mobile — 日本旅行eSIM",
+    description: "日本旅行eSIM。即时发送二维码，无需换卡。使用NTT docomo网络——日本顶级运营商。专为赴日旅行者设计。",
     keywords: "日本eSIM, 日本SIM卡, 旅行SIM日本, eSIM日本, docomo eSIM",
-    ogTitle: "yah.mobile — 日本旅行eSIM | 低至¥990",
-    ogDescription: "在日本即时上网。eSIM套餐低至¥990，二维码发送至邮箱。无需实体SIM卡。使用NTT docomo网络。",
+    ogTitle: "yah.mobile — 日本旅行eSIM",
+    ogDescription: "在日本即时上网。二维码发送至邮箱，无需实体SIM卡。使用NTT docomo网络。",
   },
 } as const;
 

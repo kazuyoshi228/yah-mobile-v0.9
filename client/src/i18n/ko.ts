@@ -360,11 +360,11 @@ const ko = {
     fetchFailed: "데이터를 불러오는 데 실패했습니다. 다시 시도해 주세요.",
   },
   seo: {
-    title: "yah.mobile — 일본 여행 eSIM | ¥990부터 | 즉시 개통",
-    description: "일본 여행 eSIM ¥990부터. QR 코드 즉시 발급, 유심 교체 불필요. NTT docomo 네트워크 기반 전국 커버리지. 한국인 여행자에게 추천하는 일본 데이터 유심.",
+    title: "yah.mobile — 일본 여행 eSIM | 즉시 개통",
+    description: "일본 여행 eSIM. QR 코드 즉시 발급, 유심 교체 불필요. NTT docomo 네트워크 기반 전국 커버리지. 한국인 여행자에게 추천하는 일본 데이터 유심.",
     keywords: "일본 eSIM, 일본 유심, 일본 여행 유심, 일본 데이터 유심, docomo eSIM, 일본 여행 인터넷, 일본 eSIM 추천, 일본 여행 데이터",
-    ogTitle: "yah.mobile — 일본 여행 eSIM | ¥990부터 즉시 개통",
-    ogDescription: "일본 도착 즉시 연결. ¥990부터 시작하는 eSIM 플랜, QR 코드가 이메일로 바로 발송됩니다. 유심 교체 불필요. NTT docomo 네트워크 전국 커버리지.",
+    ogTitle: "yah.mobile — 일본 여행 eSIM | 즉시 개통",
+    ogDescription: "일본 도착 즉시 연결. eSIM 플랜의 QR 코드가 이메일로 바로 발송됩니다. 유심 교체 불필요. NTT docomo 네트워크 전국 커버리지.",
   },
 } as const;
 
