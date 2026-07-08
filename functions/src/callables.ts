@@ -44,6 +44,7 @@ import {
 } from "../../shared/schemas";
 import { executeRefund } from "./refund";
 import { assertProviderAvailable } from "./salesStopGuard";
+import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
 
 // Admin APIs are fully removed and replaced by direct BaaS + Firestore Rules
 
@@ -177,7 +178,7 @@ yah.mobile Analytics Summary (${period}):
 
 // ─── Incident (Read APIs Removed: pure BaaS) ──────────────────────────────────
 
-export const incidentRunRetryNow = onCall({ region: REGION, enforceAppCheck: true, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey, ownerEmail] }, async (request) => {
+export const incidentRunRetryNow = onCall({ region: REGION, enforceAppCheck: true, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey, ownerEmail, esimAccessCode, esimSecretKey] }, async (request) => {
   await requireAdmin(request);
   const result = await processPendingRetries();
   return { success: true, ...result };
@@ -615,7 +616,7 @@ export const ordersInitTopupCheckout = onCall(
 // 実際の返金は executeRefund → Stripe。確定/顧客通知/返金メールは charge.refunded webhook。
 // キルスイッチ（Lane A自動）の対象外＝人間の判断なので常に実行できる。
 export const adminRefundOrder = onCall(
-  { region: REGION, enforceAppCheck: true, secrets: [stripeSecretKey] },
+  { region: REGION, enforceAppCheck: true, secrets: [stripeSecretKey, esimAccessCode, esimSecretKey] },
   async (request) => {
     await requireAdmin(request);
 

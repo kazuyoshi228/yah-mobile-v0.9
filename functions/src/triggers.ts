@@ -10,6 +10,7 @@ import { ENV } from "./env";
 import { updateEsimLink, FsEsimLink } from "./db";
 
 import { getProvider } from "./providers/types";
+import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
 import { notifyOwner } from "./adapters/notify";
 import { sendEmail } from "./mailer";
 
@@ -74,7 +75,7 @@ export const onEsimSyncRequested = onDocumentUpdated(
   {
     document: "esim_links/{linkId}",
     region: REGION,
-    secrets: [omaxClientId, omaxClientSecret],
+    secrets: [omaxClientId, omaxClientSecret, esimAccessCode, esimSecretKey],
   },
   async (event) => {
     const before = event.data?.before.data();

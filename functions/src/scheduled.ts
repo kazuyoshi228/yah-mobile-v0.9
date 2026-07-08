@@ -28,7 +28,7 @@ export const esimRetryJob = onSchedule(
     schedule: "every 5 minutes",
     region: "asia-northeast1",
     timeoutSeconds: 300,
-    secrets: [omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey, ownerEmail],
+    secrets: [omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, stripeSecretKey, ownerEmail, esimAccessCode, esimSecretKey],
   },
   async () => {
     logger.info("[esimRetryJob] Starting eSIM retry job...");

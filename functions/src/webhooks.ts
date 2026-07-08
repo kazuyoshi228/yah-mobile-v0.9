@@ -35,11 +35,12 @@ import {
 import { getProvider } from "./providers/types";
 import { sendEmail, buildEsimReadyEmail, buildPurchaseReceivedEmail, buildRefundCompletedEmail } from "./mailer";
 import { handleProvisioningFailure } from "./esimRetryService";
+import { esimAccessCode, esimSecretKey } from "./esimaccess/auth";
 export const stripeWebhook = onRequest(
   {
     region: "asia-northeast1",
     timeoutSeconds: 120,
-    secrets: [stripeSecretKey, stripeWebhookSecret, omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, ownerEmail],
+    secrets: [stripeSecretKey, stripeWebhookSecret, omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, ownerEmail, esimAccessCode, esimSecretKey],
   },
   async (req, res) => {
     if (req.method !== "POST") {

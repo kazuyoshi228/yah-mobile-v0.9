@@ -10,9 +10,29 @@
  *    Lane B（管理者の手動返金）はキルスイッチの対象外（人間の判断なので常に実行可）。
  */
 import * as logger from "firebase-functions/logger";
-import { db, getOrderById, updateOrder, createIncidentLog } from "./db";
+import { db, getOrderById, updateOrder, createIncidentLog, getEsimLinkByOrderId } from "./db";
 import { stripeClient } from "./stripe";
 import { notifyOwner } from "./adapters/notify";
+import { esimaccessProvider } from "./providers/esimaccess";
+
+/**
+ * 柱2 §8: eSIMAccess の未有効化 eSIM を cancel して残高返金（仕入原価を回収）。
+ * best-effort：cancel は未使用(GOT_RESOURCE/RELEASED)のみ有効で、使用済みは API 側で拒否される（無害）。
+ * 失敗しても顧客への Stripe 返金は必ず続行する（この関数は例外を投げない）。
+ */
+async function tryCancelUnusedEsimAccess(orderId: string, provider?: string | null): Promise<void> {
+  if (provider !== "esimaccess") return;
+  try {
+    const link = await getEsimLinkByOrderId(orderId);
+    const providerRef = link?.providerRef ?? link?.bappyLinkUuid ?? null;
+    if (!providerRef || !esimaccessProvider.cancel) return;
+    const r = await esimaccessProvider.cancel(providerRef);
+    logger.info(`[executeRefund] eSIMAccess cancel(${providerRef}) for order ${orderId}: ok=${r.ok}（残高返金）`);
+  } catch (e) {
+    // 使用済み/既cancel等は正常系。原価回収できないだけで顧客返金には影響しない。
+    logger.warn(`[executeRefund] eSIMAccess cancel skipped for order ${orderId}: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
 
 /**
  * 自動返金（Lane A）のキルスイッチ。/admin のトグルが Firestore の
@@ -67,6 +87,9 @@ export async function executeRefund(orderId: string, reason: string): Promise<Ex
 
   // 多重実行防止：processing に落としてから Stripe を叩く
   await updateOrder(orderId, { refundStatus: "processing", refundReason: reason });
+
+  // 柱2 §8: eSIMAccess の未有効化 eSIM は先に cancel（残高返金）。best-effort・非ブロッキング。
+  await tryCancelUnusedEsimAccess(orderId, order.provider);
 
   try {
     await stripeClient.refunds.create(
