@@ -101,4 +101,30 @@ describe("esimaccessWebhook — 多層防御（柱1/§7）", () => {
     await call(mkReq({ body: { notifyType: "DATA_USAGE", notifyId: "n3", content: { transactionId: "o1", iccid: "8931" } } }), res);
     expect(createNotification).toHaveBeenCalledWith(expect.objectContaining({ userId: "u9", type: "data_threshold_100" }));
   });
+
+  it("ESIM_STATUS: activated（IN_USE等）で lastActiveAt を初回記録する", async () => {
+    getEsimLinkByOrderId.mockResolvedValue({ id: "L1", providerRef: "ET1", userId: "u", orderId: "o1", lastActiveAt: null });
+    getEsimDetail.mockResolvedValue({ status: "active", activated: true, dataRemainingMb: 2048, dataTotalMb: 2048, expiryDate: 456 });
+    const res = mkRes();
+    await call(mkReq({ body: { notifyType: "ESIM_STATUS", notifyId: "n4", content: { transactionId: "o1" } } }), res);
+    expect(updateEsimLink).toHaveBeenCalledWith("ET1", expect.objectContaining({ lastActiveAt: expect.any(Number) }));
+  });
+
+  it("ESIM_STATUS: 既に lastActiveAt がある場合は上書きしない", async () => {
+    getEsimLinkByOrderId.mockResolvedValue({ id: "L1", providerRef: "ET1", userId: "u", orderId: "o1", lastActiveAt: 1_700_000_000_000 });
+    getEsimDetail.mockResolvedValue({ status: "active", activated: true, dataRemainingMb: 1000, dataTotalMb: 2048, expiryDate: 456 });
+    const res = mkRes();
+    await call(mkReq({ body: { notifyType: "ESIM_STATUS", notifyId: "n5", content: { transactionId: "o1" } } }), res);
+    const arg = updateEsimLink.mock.calls[0][1] as Record<string, unknown>;
+    expect("lastActiveAt" in arg).toBe(false);
+  });
+
+  it("ESIM_STATUS: 未有効化（activated=false）なら lastActiveAt を書かない", async () => {
+    getEsimLinkByOrderId.mockResolvedValue({ id: "L1", providerRef: "ET1", userId: "u", orderId: "o1", lastActiveAt: null });
+    getEsimDetail.mockResolvedValue({ status: "active", activated: false, dataRemainingMb: 2048, dataTotalMb: 2048, expiryDate: 456 });
+    const res = mkRes();
+    await call(mkReq({ body: { notifyType: "ESIM_STATUS", notifyId: "n6", content: { transactionId: "o1" } } }), res);
+    const arg = updateEsimLink.mock.calls[0][1] as Record<string, unknown>;
+    expect("lastActiveAt" in arg).toBe(false);
+  });
 });

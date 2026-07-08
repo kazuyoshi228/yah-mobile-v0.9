@@ -104,6 +104,8 @@ export const onEsimSyncRequested = onDocumentUpdated(
         dataRemainingMb: detail.dataRemainingMb ?? null,
         dataTotalMb: detail.dataTotalMb ?? null,
         expiryDate: detail.expiryDate, // provider が epoch ms に正規化済み
+        // 有効化（使用開始）の初回検知：eSIMAccess の esimStatus IN_USE 等（既存値は上書きしない）
+        ...(detail.activated && after.lastActiveAt == null ? { lastActiveAt: Date.now() } : {}),
       });
       logger.info(`[onEsimSyncRequested] Sync complete for linkId: ${linkId}`);
     } catch (err) {

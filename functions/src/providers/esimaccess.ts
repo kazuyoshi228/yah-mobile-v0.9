@@ -61,6 +61,11 @@ function mapStatus(esimStatus?: string | null): "active" | "inactive" | "expired
   }
 }
 
+/** 端末で有効化（使用開始）済みか。ESIM_STATUS の IN_USE ＝使用開始（api_notes §ライフサイクル）。 */
+function isActivatedStatus(esimStatus?: string | null): boolean {
+  return esimStatus === "IN_USE" || esimStatus === "USED_UP" || esimStatus === "USED_EXPIRED";
+}
+
 function mapEsim(e: RawEsim): EsimDetail {
   const total = e.totalVolume ?? null;
   const used = e.orderUsage ?? 0;
@@ -76,6 +81,7 @@ function mapEsim(e: RawEsim): EsimDetail {
     dataRemainingMb: bytesToMb(remaining),
     dataTotalMb: bytesToMb(total),
     expiryDate: isoToEpochMs(e.expiredTime),
+    activated: isActivatedStatus(e.esimStatus),
   };
 }
 

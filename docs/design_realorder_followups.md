@@ -122,6 +122,32 @@ The request was not authorized to invoke this service. The access token could no
 ### 観察メモ（仕様として記録）
 - topup適用で eSIMAccess が `expiredTime` を **2027-01-04 → 2026-07-22（＝実行+14日）** に更新した。未有効化のため新UIでは「Install by Jul 22, 2026」と表示される。挙動として妥当だが、topupが期限を短縮し得る点は把握しておく（ヘルプ/FAQに将来反映候補）。
 
+## ⑤ eSIMを実際に有効化しても「Ready to Install」のまま（lastActiveAt 未記録）
+
+### 事実確認
+- 実eSIM（26070806270015）は端末装着・接続済みなのに `lastActiveAt: null`・データ未消費 → UIは Ready to Install＋「Install by」表示のまま。
+- 一方 `expiryDate` は **Jan 4, 2027（インストール期限）→ Jul 22, 2026（＝有効化時刻+14日：基本7日+topup7日）** に更新済み ＝ eSIMAccess 側は有効化を正しく検知し、webhook/裏取りで期限は反映されている。
+
+### 原因（バックエンド）
+- eSIMAccess は有効化を **`esimStatus: "IN_USE"`**（`ESIM_STATUS` webhook＝「使用開始（端末装着）」、`IN_USE+ENABLED`=有効化成功／[esimaccess_api_notes.md](./esimaccess_api_notes.md)）で通知する。
+- しかし [providers/esimaccess.ts の mapStatus](functions/src/providers/esimaccess.ts) は `IN_USE` も `GOT_RESOURCE`（未インストール）も同じ `"active"` に潰し、**`lastActiveAt` をセットするのは Bappy 用 webhook のみ**。eSIMAccess 経路では誰も記録しない。
+- フロントの `isEsimActivated` は `lastActiveAt`／データ消費で判定するため、eSIMAccess では使用開始してもUIが切り替わらない（データ使用量の反映もラグがある）。
+
+### 変更方針（functions のみ・フロント変更不要）
+1. `providers/types.ts`：`EsimDetail` に `activated?: boolean | null` を追加。
+2. `providers/esimaccess.ts`：`mapEsim` で `activated = ["IN_USE","USED_UP","USED_EXPIRED"].includes(esimStatus)` を設定。
+3. `webhooks_esimaccess.ts reconcileFromProvider`：`detail.activated && link.lastActiveAt == null` なら `updates.lastActiveAt = Date.now()`（初回検知時刻）。
+4. `triggers.ts onEsimSyncRequested`（マイページの同期）：同じ判定で `lastActiveAt` を書き込む。
+5. Bappy provider は不変（既存の webhooks_bappy が担当）。
+
+### 効果
+- `ESIM_STATUS` webhook 受信時 or マイページ表示時の自動同期で `lastActiveAt` が記録され、UIが **Active＋「Expires <実期限>」** に切替（validity表示も自動で実期限になる）。
+- **既存のあなたのeSIMも、デプロイ後に注文詳細を開けば（自動sync）Active に直る**。
+
+### テスト
+- `webhooks_esimaccess.test.ts`：IN_USE 裏取りで lastActiveAt が入る／既に lastActiveAt 有りなら上書きしない ケース追加。
+- `cd functions && npm run build && npm test` 全green。
+
 ## 検証計画（共通）
 1. `npx tsc --noEmit -p tsconfig.json`（Node22）
 2. `npx vitest run --config vitest.client.config.ts`（①のテスト追加含む）

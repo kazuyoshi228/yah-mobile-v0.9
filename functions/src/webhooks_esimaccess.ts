@@ -78,6 +78,9 @@ async function reconcileFromProvider(link: FsEsimLink): Promise<FsEsimLink | nul
   }
   if (detail.dataTotalMb != null) updates.dataTotalMb = detail.dataTotalMb;
   if (detail.expiryDate != null) updates.expiryDate = detail.expiryDate;
+  // 有効化（使用開始）の初回検知：esimStatus IN_USE 等で lastActiveAt を記録（既存値は上書きしない）。
+  // フロントの isEsimActivated / 期限表示（Expires 切替）がこれを参照する。
+  if (detail.activated && link.lastActiveAt == null) updates.lastActiveAt = Date.now();
   await updateEsimLink(providerRef, updates);
   return { ...link, ...updates };
 }

@@ -32,6 +32,12 @@ export interface EsimDetail {
   dataRemainingMb: number | null;
   dataTotalMb: number | null;
   expiryDate: number | null; // epoch ms
+  /**
+   * 端末で有効化（使用開始）済みか。eSIMAccess: esimStatus IN_USE/USED_UP/USED_EXPIRED。
+   * Bappy は独自 webhook が lastActiveAt を担うため未設定（undefined）。
+   * 呼び出し側は true かつ lastActiveAt 未記録のとき lastActiveAt を書き込む。
+   */
+  activated?: boolean | null;
 }
 
 /** topup 実行結果（残り期間・データの更新）。expiryDate は epoch ms。 */
