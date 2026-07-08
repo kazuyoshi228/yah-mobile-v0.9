@@ -18,7 +18,8 @@ Tier1＋プリレンダリングは本番反映済み。残りは以下。
 | 残項目 | 内容 | 状態 |
 |---|---|---|
 | **専用OG画像 1200×630** | 現状は暫定でヒーロー画像流用。ブランドOGを作成しStorage公開 | 🔲 画像用意 |
-| **Search Console / Naver Search Advisor / 百度站长 登録** | 計測＋各エンジンにsitemap提出（韓国=Naver必須。プリレンダ済で効く） | 🔲 あなた |
+| ~~Google Search Console 登録~~ | sitemap `https://yah.mobi/sitemap.xml` 提出 | ✅ 完了（2026-07-08） |
+| **Naver Search Advisor / 百度站长 登録** | **現地携帯電話が必要で登録不可**（Naver=韓国番号／百度=中国番号）。→ ①**Bing Webmaster Tools**（電話不要・Yahoo Taiwan/一部Bing系に有効）で代替登録 ②Naver/百度はプリレンダ済のため**オーガニック巡回に委ねる**（sitemap提出なしでもクロール可）③必要なら現地パートナー経由。百度は §8.0「中国本土対象外」判断と整合 | ⚠️ 登録不可→Bing代替＋オーガニック |
 | 動的head（Tier2） | react-helmet等で言語別 title/description/canonical（CSRのままの緩和策） | 後日判断（プリレンダで主目的は達成） |
 | **中国本土アクセス性**（§8.0🔴） | Google依存(App Check/reCAPTCHA/Auth/googleapis)で本土遮断の恐れ。ICP+中国CDN+認証中国対応 or「本土は当面対象外」判断 | 🔲 方針決定要 |
 
@@ -59,4 +60,4 @@ Tier1＋プリレンダリングは本番反映済み。残りは以下。
 ## 順序メモ
 - **残るは実質 v0.9（固める）→ v1.0（招待制解除＋QA＋点火）**。0.7・v0.8・SEO/プリレンダ・batch2 は本番反映済み。
 - **一般公開(v1.0-1)は最後**：v0.9・全言語QA が揃ってから。段階公開（allowed_emails 緩和）も選択肢。
-- 中国本土は §8.0 の方針決定が前提。OG画像・各サーチコンソール登録はあなた側の軽作業。
+- 中国本土は §8.0 の方針決定が前提。Google Search Console は登録済。Naver/百度は現地電話必須で登録不可（Bing Webmaster 代替＋プリレンダのオーガニック巡回に委ねる）。
