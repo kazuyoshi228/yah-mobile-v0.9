@@ -337,10 +337,21 @@ export function buildEsimReadyEmail(opts: { orderId: string; language?: string |
     "zh-TW": (d) => `⏰ 請<strong>在 ${d} 前安裝</strong>。逾期未使用的 eSIM 將失效（數據有效期自啟用時開始計算）。`,
     th: (d) => `⏰ <strong>ติดตั้งภายใน ${d}</strong> หากไม่ใช้งานภายในกำหนด eSIM จะหมดอายุ (อายุการใช้งานดาต้าเริ่มนับเมื่อเปิดใช้งาน)`,
   };
+  // 削除注意（G: 再インストール仕様が確定するまで安全側の案内）
+  const deleteWarnLine: Record<MailLang, string> = {
+    ja: `⚠️ <strong>インストール後は端末から eSIM を削除しないでください。</strong>誤って削除した場合や機種変更の際は、復元の可否を確認しますので先にサポートへご連絡ください。`,
+    en: `⚠️ <strong>After installing, do not delete the eSIM from your device.</strong> If you accidentally delete it or switch phones, contact our support first — we'll check whether it can be restored.`,
+    ko: `⚠️ <strong>설치 후에는 기기에서 eSIM을 삭제하지 마세요.</strong> 실수로 삭제했거나 기기를 변경하는 경우, 복원 가능 여부를 확인해 드리니 먼저 고객 지원에 문의해 주세요.`,
+    "zh-CN": `⚠️ <strong>安装后请不要从设备中删除 eSIM。</strong>如不小心删除或更换手机，请先联系客服，我们会确认能否恢复。`,
+    "zh-TW": `⚠️ <strong>安裝後請不要從裝置中刪除 eSIM。</strong>如不小心刪除或更換手機，請先聯絡客服，我們會確認能否復原。`,
+    th: `⚠️ <strong>หลังติดตั้งแล้ว โปรดอย่าลบ eSIM ออกจากอุปกรณ์</strong> หากเผลอลบหรือเปลี่ยนเครื่อง โปรดติดต่อฝ่ายสนับสนุนก่อน เราจะตรวจสอบว่าสามารถกู้คืนได้หรือไม่`,
+  };
   const c = copy[lang];
-  const box = opts.installBy
-    ? `${c.box}<br><br>${installLine[lang](fmtMailDate(opts.installBy, lang))}`
-    : c.box;
+  const notes = [
+    ...(opts.installBy ? [installLine[lang](fmtMailDate(opts.installBy, lang))] : []),
+    deleteWarnLine[lang],
+  ];
+  const box = `${c.box}<br><br>${notes.join("<br><br>")}`;
   return { subject: c.subject, html: renderEmail(lang, { title: c.title, body: c.body, box: { tone: "success", html: box }, ctaLabel: c.cta, ctaHref: "https://yah.mobi/mypage" }) };
 }
 
