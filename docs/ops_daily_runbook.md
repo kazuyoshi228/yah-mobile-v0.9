@@ -59,6 +59,10 @@
 | Functions | main | `firebase deploy --only functions:<name>`（スコープ付き） |
 
 - 本番リリースは **dev確認 → 明示判断**。認証切れ（invalid_rapt/reauth）は `firebase login --reauth`。
+- 🟢 **【必須】本番デプロイ後は必ずスモークを実行**：`node scripts/smoke_prod.mjs`（読み取り専用）。
+  - 検査: 全callableの `allUsers` invoker（**topup 401 の再発防止**）／OG画像200／`/app`・各言語プリレンダの title/og:image 回帰／llms.txt。
+  - 🔴 FAIL が出たら該当を修正して再デプロイ。invoker欠落は該当サービスに allUsers 付与（[refund_incident_procedures.md](./refund_incident_procedures.md) の topup 行）。
+  - invoker確認は ADC 要（`gcloud auth application-default login`）。ADC無しでもHTTPチェックは実行される。
 - 詳細な障害・返金・復旧手順は [refund_incident_procedures.md](./refund_incident_procedures.md)。
 
 ## 5. 週次/月次
