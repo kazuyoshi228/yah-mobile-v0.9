@@ -6,8 +6,8 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { processPendingRetries } from "./esimRetryService";
 import { db } from "./db";
 import { notifyOwner } from "./adapters/notify";
-import { isBappyConfigured } from "./bappy";
-import { fetchNewToken } from "./bappy/auth";
+import { esimaccessProvider } from "./providers/esimaccess";
+import { esimAccessCode, esimSecretKey, isEsimAccessConfigured } from "./esimaccess/auth";
 
 import { defineSecret } from "firebase-functions/params";
 
@@ -94,16 +94,19 @@ export const hungOrderMonitor = onSchedule(
  * 状態は system_config/provider_health に記録し、通知はデバウンス（down遷移で即／継続は1時間に1回／復旧も1回）。
  * eSIMAccess は柱2導入後に本関数へ追加予定。
  */
+// 残高がこれ未満なら（downではないが）オーナーに補充を促す警告を出す。
+const LOW_BALANCE_USD = 20;
+
 export const providerHealthCheck = onSchedule(
   {
     schedule: "every 15 minutes",
     region: "asia-northeast1",
     timeoutSeconds: 120,
-    secrets: [omaxClientId, omaxClientSecret, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, ownerEmail],
+    secrets: [esimAccessCode, esimSecretKey, gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, ownerEmail],
   },
   async () => {
-    if (!isBappyConfigured()) {
-      logger.info("[providerHealthCheck] Bappy not configured (mock). Skipping.");
+    if (!isEsimAccessConfigured()) {
+      logger.info("[providerHealthCheck] eSIMAccess not configured. Skipping.");
       return;
     }
 
@@ -111,19 +114,21 @@ export const providerHealthCheck = onSchedule(
     const ref = db.collection("system_config").doc("provider_health");
     const now = Date.now();
 
-    // 認証ping（キャッシュ非経由でライブ検証）
+    // 残高ping（署名付き軽量read＝課金なし）。成功=API/認証が生きている＝発行可能。
     let ok = false;
+    let balanceUsd: number | null = null;
     let errMsg = "";
     try {
-      await fetchNewToken();
+      const r = await esimaccessProvider.queryBalance!();
+      balanceUsd = r.balanceUsd;
       ok = true;
     } catch (err) {
       errMsg = err instanceof Error ? err.message : String(err);
     }
 
     const snap = await ref.get();
-    const prev = (snap.exists ? snap.data()?.bappy : undefined) as
-      | { status?: string; lastAlertAt?: number; consecutiveFails?: number }
+    const prev = (snap.exists ? snap.data()?.esimaccess : undefined) as
+      | { status?: string; lastAlertAt?: number; consecutiveFails?: number; lowBalanceAlertAt?: number }
       | undefined;
     const prevStatus = prev?.status ?? "ok";
 
@@ -131,16 +136,29 @@ export const providerHealthCheck = onSchedule(
       if (prevStatus === "down") {
         await notifyOwner({
           critical: true,
-          title: "✅ Bappy認証 復旧",
-          content: `Bappy(OMAX)認証が回復しました（${new Date(now).toISOString()}）。発行/topup/同期を再開できます。`,
+          title: "✅ eSIMAccess 復旧（販売再開可）",
+          content: `eSIMAccess API が回復しました（${new Date(now).toISOString()}）。残高 $${balanceUsd?.toFixed(2)}。販売停止ガードは自動解除され、購入を再開できます。`,
         });
       }
-      await ref.set({ bappy: { status: "ok", lastOkAt: now, consecutiveFails: 0 } }, { merge: true });
-      logger.info("[providerHealthCheck] Bappy auth OK");
+      // 残高低下の警告（downではない。1時間に1回まで）。0以下は発行が失敗しうるため強めに。
+      let lowBalanceAlertAt = prev?.lowBalanceAlertAt ?? 0;
+      if (balanceUsd != null && balanceUsd < LOW_BALANCE_USD && now - lowBalanceAlertAt >= ONE_HOUR) {
+        await notifyOwner({
+          critical: balanceUsd <= 0,
+          title: `⚠️ eSIMAccess 残高低下 $${balanceUsd.toFixed(2)}`,
+          content: `eSIMAccess の残高が $${balanceUsd.toFixed(2)}（閾値 $${LOW_BALANCE_USD}）です。残高が尽きると発行が失敗し自動返金になります。ダッシュボードで補充してください。`,
+        });
+        lowBalanceAlertAt = now;
+      }
+      await ref.set(
+        { esimaccess: { status: "ok", lastOkAt: now, balanceUsd, consecutiveFails: 0, lowBalanceAlertAt } },
+        { merge: true },
+      );
+      logger.info(`[providerHealthCheck] eSIMAccess OK / balance $${balanceUsd?.toFixed(2)}`);
       return;
     }
 
-    // down
+    // down（API/認証ダウン）→ 販売停止ガードON（購入callableが弾く）
     const consecutiveFails = (prev?.consecutiveFails ?? 0) + 1;
     const lastAlertAt = prev?.lastAlertAt ?? 0;
     const isTransition = prevStatus !== "down";
@@ -149,13 +167,13 @@ export const providerHealthCheck = onSchedule(
     if (isTransition || shouldRealert) {
       await notifyOwner({
         critical: true,
-        title: "🚨 Bappy認証 ダウン（発行系停止のおそれ）",
-        content: `Bappy(OMAX)認証に失敗しています。eSIMの発行/topup/同期が止まっている可能性があります。\n\n**連続失敗:** ${consecutiveFails}回\n**エラー:** ${errMsg.slice(0, 500)}\n\n確認：OMAX_CLIENT_ID/OMAX_CLIENT_SECRET（末尾改行等の混入）・Keycloak(id.omaxtelecom.com)への疎通。`,
+        title: "🚨 eSIMAccess ダウン（販売停止ガードON）",
+        content: `eSIMAccess API への疎通/署名に失敗しています。**購入は自動停止**（課金しない）され、in-flightの失敗は自動返金されます。\n\n**連続失敗:** ${consecutiveFails}回\n**エラー:** ${errMsg.slice(0, 500)}\n\n確認：ESIMACCESS_ACCESS_CODE/ESIMACCESS_SECRET_KEY・api.esimaccess.com への疎通・署名(RT-*)。`,
       });
     }
     await ref.set(
       {
-        bappy: {
+        esimaccess: {
           status: "down",
           lastDownAt: now,
           lastAlertAt: isTransition || shouldRealert ? now : lastAlertAt,
@@ -164,6 +182,6 @@ export const providerHealthCheck = onSchedule(
       },
       { merge: true },
     );
-    logger.error(`[providerHealthCheck] Bappy auth DOWN (fails=${consecutiveFails}): ${errMsg}`);
+    logger.error(`[providerHealthCheck] eSIMAccess DOWN (fails=${consecutiveFails}): ${errMsg}`);
   }
 );

@@ -65,6 +65,8 @@ vi.mock("./llm", () => ({ invokeLLM: vi.fn() }));
 vi.mock("./esimRetryService", () => ({ processPendingRetries: vi.fn() }));
 // レート制限は本テストの対象外（rateLimit.test.ts で検証）。ここでは無効化する。
 vi.mock("./rateLimit", () => ({ enforceRateLimit: vi.fn() }));
+// 販売停止ガードは salesStopGuard.test.ts で個別検証。ここでは常に通す。
+vi.mock("./salesStopGuard", () => ({ assertProviderAvailable: vi.fn() }));
 
 const mockCreateCheckoutSession = vi.fn();
 vi.mock("./stripe", () => ({

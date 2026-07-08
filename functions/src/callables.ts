@@ -43,6 +43,7 @@ import {
   AdminRefundOrderInput
 } from "../../shared/schemas";
 import { executeRefund } from "./refund";
+import { assertProviderAvailable } from "./salesStopGuard";
 
 // Admin APIs are fully removed and replaced by direct BaaS + Firestore Rules
 
@@ -438,6 +439,9 @@ export const ordersInitCheckout = onCall(
     const planDoc = plansSnap.docs[0];
     const plan = planDoc.data();
 
+    // 3.5 販売停止ガード（柱2）：発行元プロバイダがダウン中なら課金前に弾く。
+    await assertProviderAvailable(plan.provider ?? "bappy");
+
     // 4. Firestoreに注文レコードを作成（status: "pending"）
     const now = Date.now();
     const orderRef = await db.collection("orders").add({
@@ -549,6 +553,9 @@ export const ordersInitTopupCheckout = onCall(
     const planDocId = planSnap.docs[0].id;
     const amountJpy = topupPlan.priceJpy;
     const planName = topupPlan.name;
+
+    // 販売停止ガード（柱2）：対象eSIMのプロバイダがダウン中なら課金前に弾く。
+    await assertProviderAvailable(targetEsim.provider ?? topupPlan.provider ?? "bappy");
 
     // Firestoreに注文レコードを作成
     const now = Date.now();
