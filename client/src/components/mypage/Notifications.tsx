@@ -81,7 +81,9 @@ export function NotificationPanel({ onClose }: { onClose: () => void }) {
   const handleMarkRead = useCallback(async (notifId: string) => {
     if (!user?.id) return;
     const ref = doc(getFirebaseDb(), "notifications", notifId);
-    await updateDoc(ref, { isRead: true, readAt: Date.now() });
+    // isRead は functions 側（db/notifications.ts）と同じ文字列 "true"/"false" 規約に揃える
+    // （boolean を書くと型混在データが増える。全面 boolean 化は移行を伴うためバックログ）
+    await updateDoc(ref, { isRead: "true", readAt: Date.now() });
   }, [user?.id]);
 
   useEffect(() => {
