@@ -30,6 +30,12 @@
 - Naver/百度は現地電話必須で登録不可 → プリレンダのオーガニック巡回に委ねる。
 
 ## 任意・バックログ（GA後でよい）
+- **CVR改善（GA後2〜4週の計測データを見てから・この順で）**：
+  1. 自前ミニA/B基盤（匿名IDハッシュ振り分け＋trackEventにvariant付与＋集計スクリプト。GA4/新サービス不要・同意ゲートと両立）— 半日
+  2. 第1実験: CTA差し色（購入CTA専用1色・クリック率を代理指標に判定。色はブランドガイドライン確認後）
+  3. 第2実験: モバイルsticky bottom購入バー（14.4画面の中盤空白を埋める・chat FABと位置調整）
+- **CI自動デプロイの見直し** 🔴：`firebase-hosting-dev.yml` が dev push で functions を本番へ、`firebase-hosting-merge.yml` が main push で本番全デプロイを自動実行する。CLAUDE.md の「本番デプロイは手動・明示指示」運用と矛盾 → 自動デプロイを止めるか運用ルールをCIに合わせるか決める（GA前後で要判断）。
+- notifications.isRead の全面boolean化（要データ移行。文字列規約への統一は済・実害なし）。
 - 失効30日前の未有効化リマインダーメール（scheduled）。
 - 専用OG画像の多言語版／A11yの網羅拡大（購入・問い合わせ以外の全画面）／`lastSignedIn` 毎ログイン更新／依存自動更新(Dependabot)／法務ページ完全日本語版。
 - **アーキ改善（旧「潰すべきポイント」から集約）**：llms.txt 等 Cache-Control 確認／Analytics の BaaS化でFunctions削減（研究）／古いCallables残余の除去（軽微）。
