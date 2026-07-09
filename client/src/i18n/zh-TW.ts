@@ -94,6 +94,9 @@ const zhTW = {
     "subtitle": "購買前請確認您的裝置支援 eSIM。適用於任何已解鎖的 eSIM 相容裝置。"
   },
   "plans": {
+    "allPlans": "選擇方案",
+    "validUpTo": "最長可用 {{days}} 天",
+    "usageHint": "參考：以地圖、社群與訊息為主，每天約 1GB 即可。",
     "sectionLabel": "方案",
     "title": "簡單定價。",
     "subtitle": "含稅價格。純流量方案——選擇適合您行程的方案。",
@@ -303,13 +306,14 @@ const zhTW = {
     "title": "購買eSIM",
     "subtitle": "取得您的eSIM。",
     "stepLabels": [
-      "天數",
-      "流量",
+      "方案",
       "價格",
       "登入",
       "付款",
       "eSIM"
     ],
+    "planTitle": "選擇您的方案。",
+    "planDesc": "所有價格皆含稅。有效期間為最長使用期限，行程較短也可放心使用。",
     "step0": "登入",
     "step1": "天數",
     "step2": "流量",

@@ -131,7 +131,7 @@ export function Step4Payment() {
       ) : (
         <div className="flex gap-3">
           <button
-            onClick={() => setStep(2)}
+            onClick={() => setStep(1)}
             className="text-label px-5 py-3.5 border border-[#D7D7D7] text-black hover:border-black transition-colors"
           >
             {t("drawer.back")}

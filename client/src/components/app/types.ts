@@ -45,6 +45,34 @@ export function groupPlansByDays(dbPlans: FsPlan[]): Record<number, PlanOption[]
   return result;
 }
 
+export type FlatPlanOption = PlanOption & { days: number };
+
+/**
+ * 全プランをフラットな1リストに（価格昇順）。
+ * 日数ファーストの2段選択を廃止した単一リストUI用（plan-selector改修）。
+ * popular は「容量が10GBに最も近いプラン」1件のみ（同率は安い方）。
+ * ※この商材の validityDays は「有効期限の上限」であり旅程との一致条件ではないため、
+ *   全プランを常に見せて "Valid up to N days" と表現する。
+ */
+export function flattenPlanOptions(planOptions: Record<number, PlanOption[]>): FlatPlanOption[] {
+  const flat: FlatPlanOption[] = [];
+  for (const d of Object.keys(planOptions).map(Number)) {
+    for (const o of planOptions[d]) flat.push({ ...o, days: d, popular: false });
+  }
+  flat.sort((a, b) => a.priceJpy - b.priceJpy);
+  if (flat.length > 0) {
+    const TARGET_GB = 10;
+    let best = flat[0];
+    for (const p of flat) {
+      const diff = Math.abs(parseInt(p.gb) - TARGET_GB);
+      const bestDiff = Math.abs(parseInt(best.gb) - TARGET_GB);
+      if (diff < bestDiff || (diff === bestDiff && p.priceJpy < best.priceJpy)) best = p;
+    }
+    best.popular = true;
+  }
+  return flat;
+}
+
 export function parsePlanId(
   bappyPlanId?: string,
   planOptions?: Record<number, PlanOption[]>,

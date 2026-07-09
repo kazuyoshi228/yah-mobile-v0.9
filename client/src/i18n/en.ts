@@ -63,6 +63,9 @@ const en = {
     subtitle: "Check if your device supports eSIM before you buy. Works with any SIM-unlocked eSIM-compatible device.",
   },
   plans: {
+    allPlans: "Choose your plan",
+    validUpTo: "Valid up to {{days}} days",
+    usageHint: "Guide: about 1GB/day covers maps, social media & messaging.",
     sectionLabel: "Plans",
     title: "Simple, transparent plans.",
     subtitle: "All prices include tax. Data-only plans — choose the one that fits your stay.",
@@ -230,7 +233,9 @@ const en = {
   drawer: {
     title: "Buy eSIM",
     subtitle: "Get your eSIM.",
-    stepLabels: ["Duration", "Data", "Price", "Login", "Payment", "eSIM"],
+    stepLabels: ["Plan", "Price", "Login", "Payment", "eSIM"],
+    planTitle: "Choose your plan.",
+    planDesc: "All prices include tax. Validity is the maximum period — any plan works for a shorter trip.",
     step0: "Sign in",
     step1: "Duration",
     step2: "Data",

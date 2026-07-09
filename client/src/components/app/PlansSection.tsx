@@ -7,9 +7,9 @@ import { trackEvent } from "@/lib/analytics";
 import FadeIn from "./FadeIn";
 import { FsPlan } from "../../../../shared/types";
 import {
-  getPlanDays,
-  type PlanOption,
+  type FlatPlanOption,
   groupPlansByDays,
+  flattenPlanOptions,
   serif,
 } from "./types";
 
@@ -17,10 +17,14 @@ interface PlansSectionProps {
   onSelectPlan: (days: number, gb: string, priceJpy: number, bappyPlanId?: string) => void;
 }
 
+/**
+ * PlansSection — 全プランをフラットな1リストで提示（plan-selector改修）。
+ * 旧「Step1 日数 → Step2 容量」の2段選択を廃止。日数は「最長◯日利用可」の上限属性として
+ * 各カードに表示する（validityDays は旅程との一致条件ではないため）。
+ */
 export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
   const { t } = useTranslation();
-  const [selectedDays, setSelectedDays] = useState<number>(7);
-  const [selectedGb, setSelectedGb] = useState<string | null>(null);
+  const [selected, setSelected] = useState<FlatPlanOption | null>(null);
   const [currency, setCurrency] = useState<string>("JPY");
   const AVAILABLE_CURRENCIES = ["JPY", "USD", "EUR", "TWD", "KRW", "THB", "SGD", "GBP", "CNY"];
 
@@ -42,13 +46,15 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
     { realtime: false }
   );
   const rates = ratesData[0]?.rates ?? null;
-  const planDays = getPlanDays(dbPlans as FsPlan[]);
-  const planOptions = groupPlansByDays(dbPlans as FsPlan[]);
-  const gbOptions: PlanOption[] = planOptions[selectedDays] ?? [];
+  const flatPlans = useMemo(
+    () => flattenPlanOptions(groupPlansByDays(dbPlans as FsPlan[])),
+    [dbPlans]
+  );
 
-  const handleDaySelect = (d: number) => { setSelectedDays(d); setSelectedGb(null); trackEvent("plan_tab_click", { days: d }); };
-
-  const selectedOption = gbOptions.find((o) => o.gb === selectedGb);
+  const handleSelect = (p: FlatPlanOption) => {
+    setSelected(p);
+    trackEvent("plan_card_click", { days: p.days, gb: p.gb });
+  };
 
   const formatPrice = (priceJpy: number) => {
     if (currency === "JPY" || !rates || !rates[currency]) {
@@ -74,74 +80,51 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
           </p>
         </FadeIn>
 
-        {/* Step 1: 日数選択 */}
+        {/* 全プランのフラットリスト（価格昇順） */}
         <FadeIn delay={0.1}>
           <div className="mt-14">
-            <p className="text-label text-black/35 mb-4 text-[0.6875rem]">{t("plans.step1")}</p>
-            <div className="flex flex-wrap gap-3">
-              {planDays.map((d) => (
+            <p className="text-label text-black/35 mb-4 text-[0.6875rem]">{t("plans.allPlans")}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-[#D7D7D7]">
+              {flatPlans.map((opt) => (
                 <motion.button
-                  key={d}
-                  onClick={() => handleDaySelect(d)}
-                  whileTap={{ scale: 0.96 }}
-                  className={`font-sans font-light px-6 py-3 border transition-colors duration-200 text-[clamp(1.1rem,2.5vw,1.5rem)] tracking-[-0.01em] ${
-                    selectedDays === d ? "bg-black text-white border-black" : "bg-white text-black border-[#D7D7D7] hover:border-black"
+                  key={opt.planId}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleSelect(opt)}
+                  className={`relative bg-white p-6 text-left transition-colors duration-150 ${
+                    selected?.planId === opt.planId ? "ring-2 ring-black ring-inset" : "hover:bg-[#F0F0F0]"
                   }`}
                 >
-                  {t("plans.days", { days: d })}
+                  {opt.popular && (
+                    <p className="font-sans font-medium text-black/40 mb-2 text-[0.6rem] tracking-[0.22em] uppercase">{t("plans.popular")}</p>
+                  )}
+                  <p className="font-sans font-light text-black text-[clamp(1.5rem,3vw,2rem)] leading-[1.1] tracking-[-0.02em]">
+                    {opt.gb}
+                  </p>
+                  <p className="font-sans text-black/40 mt-1 text-[0.75rem]">{t("plans.validUpTo", { days: opt.days })}</p>
+                  <p className="font-sans font-medium text-black mt-2 text-[0.9375rem]">{formatPrice(opt.priceJpy)}</p>
+                  {selected?.planId === opt.planId && (
+                    <motion.div
+                      layoutId="gb-check"
+                      className="absolute top-3 right-3 w-5 h-5 bg-black flex items-center justify-center"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <polyline points="1.5 5 4 7.5 8.5 2.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </motion.div>
+                  )}
                 </motion.button>
               ))}
             </div>
+            <p className="font-sans text-black/35 mt-4 text-[0.75rem] leading-[1.6]">{t("plans.usageHint")}</p>
           </div>
         </FadeIn>
 
-        {/* Step 2: GB選択 */}
-        <FadeIn delay={0.15}>
-          <div className="mt-10">
-            <p className="text-label text-black/35 mb-4 text-[0.6875rem]">{t("plans.step2")}</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#D7D7D7]">
-              <AnimatePresence>
-                {gbOptions.map((opt, i) => (
-                  <motion.button
-                    key={`${selectedDays}-${opt.gb}`}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
-                    onClick={() => setSelectedGb(opt.gb)}
-                    className={`relative bg-white p-6 text-left transition-colors duration-150 ${
-                      selectedGb === opt.gb ? "ring-2 ring-black ring-inset" : "hover:bg-[#F0F0F0]"
-                    }`}
-                  >
-                    {opt.popular && (
-                      <p className="font-sans font-medium text-black/40 mb-2 text-[0.6rem] tracking-[0.22em] uppercase">{t("plans.popular")}</p>
-                    )}
-                    <p className="font-sans font-light text-black text-[clamp(1.5rem,3vw,2rem)] leading-[1.1] tracking-[-0.02em]">
-                      {opt.gb}
-                    </p>
-                    {selectedGb === opt.gb && (
-                      <motion.div
-                        layoutId="gb-check"
-                        className="absolute top-3 right-3 w-5 h-5 bg-black flex items-center justify-center"
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                      >
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                          <polyline points="1.5 5 4 7.5 8.5 2.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </motion.div>
-                    )}
-                  </motion.button>
-                ))}
-              </AnimatePresence>
-            </div>
-          </div>
-        </FadeIn>
-
-        {/* Step 3: 価格表示 + 通貨切り替え */}
+        {/* 価格表示 + 通貨切り替え */}
         <AnimatePresence>
-          {selectedGb && selectedOption && (
+          {selected && (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -154,17 +137,17 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                   <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
                     <div>
                       <p className="text-label text-black/35 mb-2">
-                        {t("plans.days", { days: selectedDays })} / {selectedGb}
+                        {selected.gb} · {t("plans.validUpTo", { days: selected.days })}
                       </p>
                       <motion.p
-                        key={`${currency}-${selectedOption.priceJpy}`}
+                        key={`${currency}-${selected.priceJpy}`}
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
                         className="text-black"
                         style={serif("clamp(2.5rem, 6vw, 4rem)")}
                       >
-                        {formatPrice(selectedOption.priceJpy)}
+                        {formatPrice(selected.priceJpy)}
                       </motion.p>
                       <div className="flex gap-2 mt-4 flex-wrap">
                         {AVAILABLE_CURRENCIES.map((c) => (
@@ -187,7 +170,7 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                     </div>
                     <motion.button
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => onSelectPlan(selectedDays, selectedGb, selectedOption.priceJpy, selectedOption.bappyPlanId)}
+                      onClick={() => onSelectPlan(selected.days, selected.gb, selected.priceJpy, selected.bappyPlanId)}
                       className="text-label text-[0.75rem] bg-black text-white px-10 py-4 hover:bg-black/80 transition-colors duration-200 whitespace-nowrap"
                     >
                       {t("plans.buyCta")}

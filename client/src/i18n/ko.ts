@@ -63,6 +63,9 @@ const ko = {
     subtitle: "구매 전 기기의 eSIM 지원 여부를 확인하세요. 유심 잠금이 해제된 eSIM 지원 기기라면 모두 사용 가능합니다.",
   },
   plans: {
+    allPlans: "플랜 선택",
+    validUpTo: "최대 {{days}}일 사용 가능",
+    usageHint: "참고: 지도·SNS·메신저 중심 사용 시 하루 약 1GB면 충분합니다.",
     sectionLabel: "요금제",
     title: "심플하고 투명한 요금제.",
     subtitle: "모든 가격에 세금 포함. 데이터 전용 플랜 — 여행에 맞는 플랜을 선택하세요.",
@@ -230,7 +233,9 @@ const ko = {
   drawer: {
     title: "eSIM 구매",
     subtitle: "eSIM을 받으세요.",
-    stepLabels: ["기간", "데이터", "가격", "로그인", "결제", "eSIM"],
+    stepLabels: ["플랜", "가격", "로그인", "결제", "eSIM"],
+    planTitle: "플랜을 선택하세요.",
+    planDesc: "모든 가격은 세금 포함입니다. 유효기간은 최대 사용 기간으로, 더 짧은 여행에도 그대로 사용할 수 있습니다.",
     step0: "로그인",
     step1: "기간",
     step2: "데이터",

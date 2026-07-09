@@ -10,7 +10,7 @@ export function Step2Confirm() {
 
   return (
     <div>
-      <p className="text-label text-black/35 mb-2">{t("drawer.stepOf", { current: 3, total: 3 })}</p>
+      <p className="text-label text-black/35 mb-2">{t("drawer.stepOf", { current: 2, total: 2 })}</p>
       <h2 className="font-sans font-light text-black mb-8 text-[1.375rem] leading-[1.15] tracking-[-0.02em]">{t("drawer.confirmTitle")}</h2>
       <div className="border border-black p-6 mb-8">
         <div className="flex justify-between items-start mb-6">
@@ -48,9 +48,9 @@ export function Step2Confirm() {
         </div>
       </div>
       <div className="flex gap-3">
-        <button onClick={() => setStep(1)} className="text-label px-5 py-3.5 border border-[#D7D7D7] text-black hover:border-black transition-colors">{t("drawer.back")}</button>
+        <button onClick={() => setStep(0)} className="text-label px-5 py-3.5 border border-[#D7D7D7] text-black hover:border-black transition-colors">{t("drawer.back")}</button>
         <button
-          onClick={() => isAuthenticated ? setStep(4) : setStep(3)}
+          onClick={() => isAuthenticated ? setStep(3) : setStep(2)}
           className="text-label flex-1 py-3.5 bg-black text-white hover:bg-black/80 transition-colors duration-200 active:scale-[0.97]"
         >
           {t("drawer.continueToPayment")}

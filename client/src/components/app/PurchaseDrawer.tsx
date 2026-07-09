@@ -41,8 +41,7 @@ import {
   PurchaseSessionContext, type PurchaseSessionCtx,
   PurchaseCheckoutContext, type PurchaseCheckoutCtx,
 } from "./purchase-drawer/context";
-import { Step0Duration } from "./purchase-drawer/steps/Step0Duration";
-import { Step1Data } from "./purchase-drawer/steps/Step1Data";
+import { Step0Plan } from "./purchase-drawer/steps/Step0Plan";
 import { Step2Confirm } from "./purchase-drawer/steps/Step2Confirm";
 import { Step3Login } from "./purchase-drawer/steps/Step3Login";
 import { Step4Payment } from "./purchase-drawer/steps/Step4Payment";
@@ -115,7 +114,7 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
   const { data: esimLinks, isLoading: esimLoading } = useFirestoreCollection<FsEsimLink>(
     () => esimQuery!,
     [esimQuery],
-    { realtime: true, enabled: isAuthenticated && step === 6 && esimOrderId !== undefined && esimQuery !== null }
+    { realtime: true, enabled: isAuthenticated && step === 5 && esimOrderId !== undefined && esimQuery !== null }
   );
   const esimLink = esimLinks[0] ?? null;
 
@@ -157,10 +156,9 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
     setDrawerDays(days ?? defaultDay);
     setDrawerGb(gb);
     // programmatic open では handleOpenChange が発火しないため、開いている間の開始ステップをここで担保。
-    // 明示ステップ指定（?buy=&step= や 決済完了=6）がある場合はそちらを優先。
+    // 明示ステップ指定（?buy=&step= や 決済完了=5）がある場合はそちらを優先。
     if (open && initialStep === undefined) {
-      if (days && gb) setStep(2);
-      else if (days) setStep(1);
+      if (days && gb) setStep(1);  // プラン確定済み → 確認へ（フラットリスト化で日数のみ指定は廃止）
       else setStep(0);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -176,8 +174,7 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
       const p = parsePlanId(initialPlanId, planOptions);
       const days = initialDays ?? p.days;
       const gb = initialGb ?? p.gb;
-      if (days && gb) setStep(2);
-      else if (days) setStep(1);
+      if (days && gb) setStep(1);
       else setStep(0);
     }
     onOpenChange(v);
@@ -244,8 +241,8 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
         {/* Step indicator */}
         <div className="flex items-center gap-0 px-6 py-4 border-b border-[#D7D7D7] shrink-0">
           {drawerStepLabels.map((s, i) => {
-            // 完了済みのプラン選択ステップ（DURATION/DATA/PRICE = 0..2）はクリックで戻れる
-            const clickable = i < step && i <= 2;
+            // 完了済みのプラン選択ステップ（PLAN/PRICE = 0..1）はクリックで戻れる
+            const clickable = i < step && i <= 1;
             return (
             <div key={i} className="flex items-center">
               <button
@@ -295,13 +292,14 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
               <PurchaseFlowContext.Provider value={flowValue}>
                 <PurchaseSessionContext.Provider value={sessionValue}>
                   <PurchaseCheckoutContext.Provider value={checkoutValue}>
-                    {step === 0 && <Step0Duration />}
-                    {step === 1 && <Step1Data />}
-                    {step === 2 && <Step2Confirm />}
-                    {step === 3 && <Step3Login />}
-                    {step === 4 && <Step4Payment />}
-                    {step === 5 && <Step5Complete />}
-                    {step === 6 && <Step6Esim />}
+                    {/* plan-selector改修: 0=プラン選択(旧Duration+Data統合) 1=確認 2=ログイン 3=支払い 4=完了 5=eSIM
+                        ※コンポーネント名の数字は旧インデックスの名残（ファイル名変更によるテスト churn を避けた） */}
+                    {step === 0 && <Step0Plan />}
+                    {step === 1 && <Step2Confirm />}
+                    {step === 2 && <Step3Login />}
+                    {step === 3 && <Step4Payment />}
+                    {step === 4 && <Step5Complete />}
+                    {step === 5 && <Step6Esim />}
                   </PurchaseCheckoutContext.Provider>
                 </PurchaseSessionContext.Provider>
               </PurchaseFlowContext.Provider>

@@ -45,8 +45,8 @@ export function Step3Login() {
             </div>
             <CheckCircle2 size={20} className="text-black shrink-0" strokeWidth={1.5} />
           </div>
-          <div className="flex gap-3"><button onClick={() => setStep(2)} className="text-label px-5 py-3.5 border border-[#D7D7D7] text-black hover:border-black transition-colors">{t("drawer.back")}</button><button
-            onClick={() => setStep(4)}
+          <div className="flex gap-3"><button onClick={() => setStep(1)} className="text-label px-5 py-3.5 border border-[#D7D7D7] text-black hover:border-black transition-colors">{t("drawer.back")}</button><button
+            onClick={() => setStep(3)}
             className="text-label flex-1 py-3.5 bg-black text-white hover:bg-black/80 transition-colors duration-200 active:scale-[0.97]"
           >
             {t("drawer.continueBtn")}
@@ -65,7 +65,7 @@ export function Step3Login() {
               </div>
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(1)}
                 className="text-label text-[0.7rem] text-black/50 hover:text-black underline underline-offset-2 shrink-0 transition-colors"
               >
                 {t("drawer.changePlan", "Change")}

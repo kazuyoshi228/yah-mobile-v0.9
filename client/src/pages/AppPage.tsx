@@ -196,7 +196,7 @@ export default function AppPage() {
         const orderIdParam = params.get("orderId");
         trackEvent("order_complete", { orderId: orderIdParam ?? undefined });
         if (orderIdParam) setDrawerOrderId(orderIdParam);
-        setDrawerInitialStep(6);
+        setDrawerInitialStep(5);
         setDrawerOpen(true);
         window.history.replaceState(null, "", window.location.pathname + window.location.hash);
       } else if (planParam || openParam === "true") {

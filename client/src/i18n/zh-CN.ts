@@ -63,6 +63,9 @@ const zhCN = {
     subtitle: "购买前请确认您的设备支持eSIM。适用于任何已解锁的eSIM兼容设备。",
   },
   plans: {
+    allPlans: "选择套餐",
+    validUpTo: "最长可用 {{days}} 天",
+    usageHint: "参考：以地图、社交和消息为主，每天约 1GB 即可。",
     sectionLabel: "套餐",
     title: "简单透明的套餐。",
     subtitle: "所有价格均含税。纯数据套餐——选择适合您行程的套餐。",
@@ -221,7 +224,9 @@ const zhCN = {
   drawer: {
     title: "购买 eSIM",
     subtitle: "获取您的 eSIM。",
-    stepLabels: ["天数", "流量", "价格", "登录", "支付", "eSIM"],
+    stepLabels: ["套餐", "价格", "登录", "支付", "eSIM"],
+    planTitle: "选择您的套餐。",
+    planDesc: "所有价格均含税。有效期为最长使用期限，行程较短也可放心使用。",
     step0: "登录",
     step1: "天数",
     step2: "流量",
