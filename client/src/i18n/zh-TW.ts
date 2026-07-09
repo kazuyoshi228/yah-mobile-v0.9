@@ -193,6 +193,12 @@ const zhTW = {
     "subtitle": "全天候線上客服，無論您身在何處。從安裝問題到連線故障，我們始終提供安靜可靠的支援。",
     "cta": "開始對話"
   },
+  "cookie": {
+    "message": "我們使用可選的分析 Cookie 來改進服務。登入由 Google 安全處理，不依賴這些 Cookie。",
+    "policyLink": "Cookie 政策",
+    "decline": "拒絕",
+    "acceptAll": "全部接受"
+  },
   "contact": {
     "sectionLabel": "聯絡我們",
     "title": "與我們聯絡。",
@@ -206,6 +212,8 @@ const zhTW = {
     "messageSentDesc": "我們將盡快與您聯絡。",
     "sending": "傳送中...",
     "sendMessage": "傳送訊息",
+    "errorTooMany": "您在短時間內傳送了多則訊息，請稍後再試。",
+    "errorGeneric": "傳送失敗，請再試一次。",
     "labels": {
       "name": "姓名",
       "email": "電子郵件",

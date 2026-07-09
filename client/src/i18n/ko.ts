@@ -121,6 +121,12 @@ const ko = {
     subtitle: "여행 중 어디서든 24시간 채팅 지원. 설치 문의부터 연결 문제까지, 조용하고 믿음직하게 함께합니다.",
     cta: "채팅 시작",
   },
+  cookie: {
+    message: "서비스 개선을 위해 선택적 분석 쿠키를 사용합니다. 로그인은 Google이 안전하게 처리하며 이 쿠키에 의존하지 않습니다.",
+    policyLink: "쿠키 정책",
+    decline: "거부",
+    acceptAll: "모두 허용",
+  },
   contact: {
     sectionLabel: "문의하기",
     title: "문의하세요.",
@@ -134,6 +140,8 @@ const ko = {
     messageSentDesc: "곧 연락드리겠습니다.",
     sending: "전송 중...",
     sendMessage: "메시지 보내기",
+    errorTooMany: "짧은 시간에 여러 번 전송하셨습니다. 잠시 후 다시 시도해 주세요.",
+    errorGeneric: "전송에 실패했습니다. 다시 시도해 주세요.",
     labels: {
       name: "이름",
       email: "이메일",

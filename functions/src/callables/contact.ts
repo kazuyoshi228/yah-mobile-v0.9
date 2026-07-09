@@ -38,20 +38,24 @@ export const submitContactInquiry = onCall({ region: REGION, enforceAppCheck: tr
   const ipAddress = request.rawRequest?.ip ?? "unknown";
   logger.info(`[Contact] Checking rate limit for IP: ${ipAddress}`);
   if (ipAddress !== "unknown") {
+    // 件数取得だけを try/catch する。超過時の throw を catch の外に置かないと、
+    // resource-exhausted が自分の catch に捕まって internal(500) に化ける。
+    let recentCount: number;
     try {
       const oneHourAgo = now - 60 * 60 * 1000;
       const snap = await collections.contactInquiries
         .where("ipAddress", "==", ipAddress)
         .where("createdAt", ">=", oneHourAgo)
         .get();
-
-      if (snap.size >= 3) {
-        logger.warn(`[Contact] Rate limit exceeded. IP: ${ipAddress}`);
-        throw new HttpsError("resource-exhausted", "Too many requests. Please try again later.");
-      }
+      recentCount = snap.size;
     } catch (dbErr) {
       logger.error("[Contact] Rate limiting DB check failed", dbErr);
       throw new HttpsError("internal", "Rate limit check failed");
+    }
+
+    if (recentCount >= 3) {
+      logger.warn(`[Contact] Rate limit exceeded. IP: ${ipAddress}`);
+      throw new HttpsError("resource-exhausted", "Too many requests. Please try again later.");
     }
   }
 

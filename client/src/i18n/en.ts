@@ -121,6 +121,12 @@ const en = {
     subtitle: "24/7 chat support, wherever your journey takes you. From setup questions to connection issues, we're here — quietly and reliably.",
     cta: "Start a chat",
   },
+  cookie: {
+    message: "We use optional analytics cookies to improve our service. Sign-in is handled securely by Google and does not rely on these cookies.",
+    policyLink: "Cookie Policy",
+    decline: "Decline",
+    acceptAll: "Accept All",
+  },
   contact: {
     sectionLabel: "Contact",
     title: "Get in touch.",
@@ -134,6 +140,8 @@ const en = {
     messageSentDesc: "We'll be in touch shortly.",
     sending: "Sending...",
     sendMessage: "Send message",
+    errorTooMany: "You've sent several messages recently. Please wait a while and try again.",
+    errorGeneric: "Failed to send. Please try again.",
     labels: {
       name: "Name",
       email: "Email",

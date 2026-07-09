@@ -121,6 +121,12 @@ const zhCN = {
     subtitle: "全天候在线客服，无论您身在何处。从安装问题到连接故障，我们始终为您提供安静可靠的支持。",
     cta: "开始聊天",
   },
+  cookie: {
+    message: "我们使用可选的分析 Cookie 来改进服务。登录由 Google 安全处理，不依赖这些 Cookie。",
+    policyLink: "Cookie 政策",
+    decline: "拒绝",
+    acceptAll: "全部接受",
+  },
   contact: {
     sectionLabel: "联系我们",
     title: "联系我们。",
@@ -134,6 +140,8 @@ const zhCN = {
     messageSentDesc: "我们将尽快与您联系。",
     sending: "发送中...",
     sendMessage: "发送消息",
+    errorTooMany: "您在短时间内发送了多条消息，请稍后再试。",
+    errorGeneric: "发送失败，请重试。",
     labels: {
       name: "姓名",
       email: "邮箱",

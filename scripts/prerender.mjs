@@ -83,6 +83,14 @@ async function main() {
     page.on("console", () => {});
     const wantLang = route.match(/^\/(ko|zh-CN|zh-TW|th)\//)?.[1] ?? "en";
     try {
+      // chat widget (chat.yah.mobi) はプリレンダ中はロードしない。
+      // 焼き込むと死んだ #yah-chat-btn ＋ origin=localhost の iframe が本番HTMLに残り、
+      // 実行時の widget.js 再注入と二重化するため（QA修正一式 design_qa_fixes.md §D）。
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        if (req.url().includes("chat.yah.mobi")) return void req.abort();
+        return void req.continue();
+      });
       // networkidle は Firestore のリアルタイム接続で発火しないため使わない。DOM構築後に描画完了を待つ。
       await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: "domcontentloaded", timeout: 30000 });
       // #root に本文が入り、かつ html[lang] が目的言語になる（SEO useEffect 実行）まで待つ
@@ -109,6 +117,13 @@ async function main() {
             '.grecaptcha-badge, [id^="fire_app_check"], iframe[src*="recaptcha"], iframe[title*="recaptcha"], script[src*="recaptcha"], script[src*="gstatic.com/recaptcha"]',
           )
           .forEach((el) => el.remove());
+        // chat widget の残骸（万一 interception をすり抜けた場合の保険）
+        document
+          .querySelectorAll('#yah-chat-btn, iframe[src*="chat.yah.mobi"]')
+          .forEach((el) => el.remove());
+        document.querySelectorAll("style").forEach((s) => {
+          if ((s.textContent || "").includes("#yah-chat-btn")) s.remove();
+        });
       });
 
       const html = await page.content();

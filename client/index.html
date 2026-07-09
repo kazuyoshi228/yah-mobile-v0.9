@@ -123,7 +123,21 @@
     <!-- Support chat widget (yah-chat / 別プロジェクト chat.yah.mobi)。#yah-chat-btn を注入し、
          各所の「Start a chat」ボタン(document.getElementById("yah-chat-btn").click())を有効化する。
          ※CSP(firebase.json) の script/connect/frame/img に chat.yah.mobi を許可済み。 -->
-    <script src="https://chat.yah.mobi/widget.js" data-lang="en" defer></script>
+    <script id="yah-chat-widget-loader" src="https://chat.yah.mobi/widget.js" data-lang="en" defer></script>
+    <script>
+      // chat widget の初期言語をサイト言語に同期する。
+      // widget.js は defer（＝このインライン script より後に実行）で data-lang を読むため、実行前に上書きできる。
+      // 判定順: URLパス(/ko/ 等) → localStorage(i18nextLng)。既定は en（訪日外国人向け）。
+      (function () {
+        try {
+          var m = location.pathname.match(/^\/(ko|zh-CN|zh-TW|th)(\/|$)/);
+          var lang = m ? m[1] : (localStorage.getItem("i18nextLng") || "");
+          if (/^(ko|zh-CN|zh-TW|th|en)$/.test(lang)) {
+            document.getElementById("yah-chat-widget-loader").setAttribute("data-lang", lang);
+          }
+        } catch (e) { /* 失敗時は data-lang="en" のまま */ }
+      })();
+    </script>
   </head>
   <body>
     <div id="root">

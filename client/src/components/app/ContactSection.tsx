@@ -166,7 +166,11 @@ export default function ContactSection() {
         sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     } catch (err) {
-      setFormError((err instanceof Error ? err.message : "") || "Failed to send. Please try again.");
+      // FirebaseError の code で分岐（レート制限は案内文言、その他は汎用文言）。生の英語 message は出さない。
+      const code = (err as { code?: string } | null)?.code ?? "";
+      setFormError(
+        code.includes("resource-exhausted") ? t("contact.errorTooMany") : t("contact.errorGeneric"),
+      );
     } finally {
       setIsPending(false);
     }
