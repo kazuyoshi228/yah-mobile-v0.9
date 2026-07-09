@@ -3,12 +3,20 @@
 開発ルール（ブランチ運用・デプロイ・実装フロー）はリポジトリ直下の `CLAUDE.md` を参照。
 実コードと記述が食い違う場合は**実コードを優先**。
 
-## 計画（進行中）
-- ⭐ [roadmap_to_v1.md](./roadmap_to_v1.md) — **残タスクの単一台帳**（v0.6→v1.0 一般公開・ver別）
+## 🚀 リリース準備（GA前・いま見るもの）
+- ⭐ [roadmap_v2.md](./roadmap_v2.md) — **残タスクの単一台帳**（v0.9固める→v1.0開放）
+- [qa_launch_checklist.md](./qa_launch_checklist.md) — 公開前QA（全言語＋実機。PC5言語・SEO・メールは実施済み）
+- [legal_telecom_memo.md](./legal_telecom_memo.md) — **弁護士相談メモ**（電気通信事業法ほか。PDF版はデスクトップ）
+- [design_qa_fixes.md](./design_qa_fixes.md) — QAで発見した本番バグ2件＋改善の修正記録
+- [design_plan_selector.md](./design_plan_selector.md) — プラン選択UIフラット化（devチャンネル確認中）
+- [design_smtp_relay.md](./design_smtp_relay.md) — メール送信のSMTP relay化（本番稼働中）
+
+## 計画（経緯）
 - [seo_plan.md](./seo_plan.md) — SEO & GEO 計画（監査＋Tier別。§7 GEO・網の事実訂正G-1）
+- [roadmap_to_v1.md](./roadmap_to_v1.md) — 旧ロードマップ（→ roadmap_v2.md に移管）
 - [design_refactoring_v06.md](./design_refactoring_v06.md) — 大規模リファクタリング v0.6（P0〜P5・完了）
 - [plan_v0.51.md](./plan_v0.51.md) — v0.51 全体計画（ver.1・完了経緯）
-- （アーカイブ）plan_v0.51_v2.md → 残タスクは roadmap_to_v1.md に移管
+- （アーカイブ）plan_v0.51_v2.md → 残タスクは roadmap_v2.md に移管
 
 ## 運用ランブック（恒久）
 - [runbook_solo_ops.md](./runbook_solo_ops.md) — solo運用（障害/返金/デプロイ/復旧）
