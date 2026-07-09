@@ -20,7 +20,12 @@ export interface SendEmailOptions {
 }
 
 /**
- * nodemailer を使用して Gmail 経由でメールを送信する。
+ * nodemailer を使用して Google Workspace SMTP relay 経由でメールを送信する。
+ *
+ * smtp.gmail.com（service:"gmail"・2,000通/日）ではなく smtp-relay.gmail.com（~10,000通/日）を使う。
+ * 認証は既存の GMAIL_USER / GMAIL_PASS（アプリパスワード）を継続利用（Secret追加なし）。
+ * 前提: 管理コンソールで SMTP リレー サービスを有効化（SMTP認証+TLS要求）。From=contact@mail.yah.mobi は
+ * Workspace 登録済みドメインのため許可送信者に含まれる。詳細 docs/design_smtp_relay.md。
  * 送信失敗時は例外をスローする。
  */
 export async function sendEmail({ to, subject, html }: SendEmailOptions): Promise<void> {
@@ -33,7 +38,10 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
   }
 
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp-relay.gmail.com",
+    port: 587,
+    secure: false,       // STARTTLS（下の requireTLS で強制）
+    requireTLS: true,
     auth: {
       user,
       pass,
