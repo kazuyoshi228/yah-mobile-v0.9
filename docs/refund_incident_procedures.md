@@ -42,6 +42,7 @@
 | **eSIMが「Ready to Install」のまま** | lastActiveAt | 有効化webhook(IN_USE)未達→マイページ再読込で自動sync。仕様は [[esimaccess-expirydate-install-deadline]] |
 | **topupできない** | Cloud Run invoker | callable の allUsers invoker 欠落→401（[[topup-iam-invoker-401]]）。IAM付与で復旧 |
 | **返金が確定しない** | Stripe webhook 到達 | `charge.refunded` が来ているか。未達なら Stripe 側で手動返金＋記録 |
+| **メールが届かない（全件）** | `firebase functions:log`で mailer エラー | `550 Invalid credentials for relay`→From が Workspace 登録ドメイン外（素の`yah.mobi`等）。From は `contact@mail.yah.mobi`（`env.ts` mailFrom）であること。relay 設定/OU/DNS は [[smtp-relay-from-domain]]・[design_smtp_relay.md](./design_smtp_relay.md)。単独検証 `scripts/test_smtp_relay.mjs` |
 | **Functions例外多発** | Cloud Error Reporting | 該当関数のログ→原因特定→修正→スコープ付きデプロイ |
 
 **エスカレーション**: プロバイダ起因（発行/残高/API）は eSIMAccess サポート（ICCID＋スクショ添付）。決済は Stripe ダッシュボード。

@@ -6,6 +6,7 @@
 - **構成**: React 19 + Vite 7（`client/`）→ Firebase Hosting（`https://yah.mobi`・多言語プリレンダ済）。バックエンド = Cloud Functions v2 / Firestore / Auth / Storage（プロジェクト `yah-mobile-v1-3ed24`・asia-northeast1）。**自前サーバなし（BaaS）**。
 - **eSIMプロバイダ**: **eSIMAccess 単一**（IIJ系=NTT docomo網/JP-IP）。発行/同期/topup/cancel は Provider抽象（`providers/*`）経由。Bappy は休眠。
 - **決済**: Stripe Checkout ＋ `stripeWebhook`。**返金**は Lane A(自動)/B(手動)→`executeRefund`→Stripe＋`charge.refunded` webhook確定・5言語メール。
+- **メール送信**: `mailer.ts` → **Google Workspace SMTP relay**（`smtp-relay.gmail.com:587`・~10,000通/日）。From＝`contact@mail.yah.mobi`（**登録ドメイン必須**。素の`yah.mobi`は未登録で relay 拒否）。`mail.yah.mobi` に DKIM/SPF/DMARC 設定済（dkim/spf/dmarc=pass）。詳細 [design_smtp_relay.md](./design_smtp_relay.md)。
 - **監視**: `providerHealthCheck`(15分・残高/死活・販売停止ガード自動)・`hungOrderMonitor`・`esimRetryJob`・Error Reporting。
 - **多言語**: en/ko/zh-CN/zh-TW/th（UI・メール・SEO）。中国本土は対象外（[seo_plan §8.0](./seo_plan.md)）。
 - **チャット**: 別プロジェクト chat.yah.mobi（iframe埋込・SSO・AI/RAG・非履行）。
