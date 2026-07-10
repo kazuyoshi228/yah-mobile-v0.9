@@ -20,6 +20,7 @@ import {
   serif,
 } from "@/components/app";
 import type { FsPlan } from "../../../shared/types";
+import { buyPageMeta, buySlugForGb } from "@/components/app/buyLinks";
 
 // Lazy-loaded heavy components (Below the fold)
 const PurchaseDrawer = lazy(() => import("@/components/app/PurchaseDrawer"));
@@ -40,7 +41,7 @@ const HERO_MOBILE_IMG = ASSETS.HERO_MOBILE_IMG;
 const CITY_IMG = ASSETS.CITY_IMG;
 const NATURE_IMG = ASSETS.NATURE_IMG;
 
-export default function AppPage() {
+export default function AppPage({ buySlug }: { buySlug?: string } = {}) {
   const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -75,6 +76,24 @@ export default function AppPage() {
   );
   const { data: allDbPlans = [] } = useFirestoreCollection<FsPlan>(() => allPlansQuery, [allPlansQuery], { realtime: false });
 
+  // /buy/:slug（共有用購入リンク）: 実プランと照合できたらドロワーを確認ステップで自動オープン。
+  // 未知slug・販売停止中はなにもしない（通常の /app 表示にフォールバック）。1回だけ実行。
+  const [buyLinkHandled, setBuyLinkHandled] = useState(false);
+  useEffect(() => {
+    if (!buySlug || buyLinkHandled || allDbPlans.length === 0) return;
+    const plan = (allDbPlans as FsPlan[]).find(
+      (p) => p.isActive && buySlugForGb(p.dataGb) === buySlug.toLowerCase(),
+    );
+    setBuyLinkHandled(true);
+    if (!plan) return;
+    setDrawerPlanId(plan.bappyPlanId);
+    setDrawerInitialDays(plan.validityDays);
+    setDrawerInitialGb(`${plan.dataGb}GB`);
+    setDrawerInitialStep(undefined);
+    setDrawerOpen(true);
+    trackEvent("share_link_open", { slug: buySlug.toLowerCase() });
+  }, [buySlug, buyLinkHandled, allDbPlans]);
+
   // Parse ?buy=planId&step=N to open PurchaseDrawer directly
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -97,8 +116,11 @@ export default function AppPage() {
     const htmlEl = document.documentElement;
     htmlEl.setAttribute("lang", lang);
 
+    // /buy/:slug（共有用購入リンク）はプラン専用メタで上書き（design_share_links.md）
+    const buyMeta = buySlug ? buyPageMeta(buySlug) : null;
+
     // Title
-    document.title = t("seo.title", "yah.mobile — Japan eSIM for Travelers");
+    document.title = buyMeta?.title ?? t("seo.title", "yah.mobile — Japan eSIM for Travelers");
 
     // Meta description
     let metaDesc = document.querySelector<HTMLMetaElement>('meta[name="description"]');
@@ -107,7 +129,7 @@ export default function AppPage() {
       metaDesc.name = "description";
       document.head.appendChild(metaDesc);
     }
-    metaDesc.content = t("seo.description");
+    metaDesc.content = buyMeta?.description ?? t("seo.description");
 
     // Meta keywords
     let metaKw = document.querySelector<HTMLMetaElement>('meta[name="keywords"]');
@@ -127,7 +149,7 @@ export default function AppPage() {
       th: "https://yah.mobi/th/app",
     };
     // Canonical（言語別 self-referencing）
-    const canonicalUrl = LANG_PATHS[lang] ?? LANG_PATHS.en;
+    const canonicalUrl = buyMeta?.canonical ?? LANG_PATHS[lang] ?? LANG_PATHS.en;
     let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement("link");
@@ -148,7 +170,7 @@ export default function AppPage() {
       { hreflang: "th", href: LANG_PATHS.th },
       { hreflang: "x-default", href: LANG_PATHS.en },
     ];
-    hreflangs.forEach(({ hreflang, href }) => {
+    if (!buyMeta) hreflangs.forEach(({ hreflang, href }) => {
       const link = document.createElement("link");
       link.rel = "alternate";
       link.setAttribute("hreflang", hreflang);
@@ -158,8 +180,8 @@ export default function AppPage() {
 
     // OG tags
     const ogTags: Record<string, string> = {
-      "og:title": t("seo.ogTitle"),
-      "og:description": t("seo.ogDescription"),
+      "og:title": buyMeta?.title ?? t("seo.ogTitle"),
+      "og:description": buyMeta?.description ?? t("seo.ogDescription"),
       "og:url": canonicalUrl,
       "og:locale": lang === "ko" ? "ko_KR" : lang === "zh-CN" ? "zh_CN" : lang === "zh-TW" ? "zh_TW" : lang === "th" ? "th_TH" : "en_US",
     };
@@ -177,12 +199,12 @@ export default function AppPage() {
       // Cleanup hreflang on unmount
       document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
     };
-  }, [i18n.language, t]);
+  }, [i18n.language, t, buySlug]);
 
   // ページビュートラッキング
   useEffect(() => {
-    trackPageView(i18n.language === "en" ? "/app" : `/${i18n.language}/app`);
-  }, [i18n.language]);
+    trackPageView(buySlug ? `/buy/${buySlug}` : (i18n.language === "en" ? "/app" : `/${i18n.language}/app`));
+  }, [i18n.language, buySlug]);
 
   // URLParam処理：?plan=JP_7D_3GB&open=true
   useEffect(() => {
@@ -257,9 +279,8 @@ export default function AppPage() {
     document.getElementById("schema-faq")?.remove();
     document.head.appendChild(faqScript);
 
-    const pageUrl = lang === "ko" ? "https://yah.mobi/app/ko"
-      : lang === "zh-CN" ? "https://yah.mobi/app/zh"
-      : "https://yah.mobi/app";
+    // 言語別URL（実ルーティングは /{lang}/app。旧 /app/ko 形式は誤りだったため修正）
+    const pageUrl = lang === "en" ? "https://yah.mobi/app" : `https://yah.mobi/${lang}/app`;
 
     // Product schema with AggregateRating + Review + Offer
     const productName = lang === "ko" ? "yah.mobile 일본 eSIM"
@@ -318,7 +339,7 @@ export default function AppPage() {
               "description": p.description ?? `${p.dataGb}GB / ${p.validityDays} days`,
               "price": String(p.priceJpy),
               "priceCurrency": "JPY",
-              "url": `${pageUrl}?plan=${p.bappyPlanId}&open=true`,
+              "url": `https://yah.mobi/buy/${buySlugForGb(p.dataGb)}`,
               "availability": "https://schema.org/InStock",
               "seller": { "@type": "Organization", "name": "yah.mobile" },
             })),

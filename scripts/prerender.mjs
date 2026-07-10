@@ -28,6 +28,13 @@ const ROUTES = [
   "/terms",
   "/privacy",
   "/cookie-policy",
+  // 共有用購入リンク（design_share_links.md）。プラン改廃時は client/src/components/app/buyLinks.ts と同期。
+  "/buy/1gb",
+  "/buy/3gb",
+  "/buy/5gb",
+  "/buy/10gb",
+  "/buy/20gb",
+  "/buy/50gb",
 ];
 
 const MIME = {

@@ -53,6 +53,8 @@ function I18nRouter() {
           <Route path="/"><Redirect to="/app" /></Route>
           <Route path="/login" component={LoginPage} />
           <Route path="/app"><AppPage /></Route>
+          {/* 共有用購入リンク（design_share_links.md）: プラン確定済みでドロワー直開 */}
+          <Route path="/buy/:slug">{(params) => <AppPage buySlug={params.slug} />}</Route>
           <Route path="/contact" component={ContactPage} />
           <Route path="/mypage" component={MyPage} />
           <Route path="/mypage/orders/:orderId" component={OrderDetailPage} />
