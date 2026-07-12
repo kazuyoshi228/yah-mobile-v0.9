@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
           <h1 className="font-sans font-light text-black mb-3" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1.1, letterSpacing: "-0.02em" }}>
             Privacy Policy
           </h1>
-          <p className="font-sans text-black/40 text-[0.8125rem] mb-12">Last updated: June 27, 2026</p>
+          <p className="font-sans text-black/40 text-[0.8125rem] mb-12">Last updated: July 13, 2026</p>
 
           {/* Overview */}
           <div className="mb-10">
@@ -46,7 +46,7 @@ export default function PrivacyPolicy() {
             <div className="border border-[#D7D7D7]">
               <LegalRow label="Data Collected" value="Name, email address, payment information (managed by Stripe), device information, IP address, usage data" />
               <LegalRow label="Purpose of Use" value="eSIM delivery, customer support, service improvement, legal compliance, fraud prevention" />
-              <LegalRow label="Third-Party Disclosure" value="Network carrier (eSIM issuance), Stripe (payment processing), as required by law. We do not sell your personal data." />
+              <LegalRow label="Third-Party Disclosure" value="Stripe (payment processing), and disclosures as required by law. For eSIM issuance we send only an internal order reference and the plan code to our network provider (eSIMAccess) — no personal data (such as your name or email) is transmitted to the network provider. We do not sell your personal data.\n\neSIM の発行にあたり、通信提供者（eSIMAccess）へは内部注文番号とプランコードのみを送信し、氏名・メールアドレス等の個人データは送信しません。" />
               <LegalRow label="Retention Period" value="Transaction records: 7 years (statutory requirement under Japanese Commercial Code). Consent records (purchase consent, terms acceptance): 7 years (GDPR Article 5(1)(e) / APPI compliance). Account data: deleted within 90 days of account closure upon request. Analytics data: 26 months. Marketing consent: retained until opt-out or account deletion.\n\n同意記録（購入同意・利用規約同意）は、日本の商法およびGDPR第5条第1項(e)に基づき、7年間保管します。" />
               <LegalRow label="Governing Law" value="Laws of Japan" />
               <LegalRow label="APPI" value="Compliant with Japan's Act on the Protection of Personal Information (APPI). You have the right to request disclosure, correction, or deletion of your personal data." />

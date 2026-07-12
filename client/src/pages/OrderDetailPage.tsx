@@ -277,6 +277,10 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
                             ? `Last updated ${new Date(esimLink.updatedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
                             : ""}
                     </p>
+                    {/* 帰属表示（法務: 販売店構成）— 使用量は提供者のシステムから取得して表示している旨 */}
+                    <p className="font-sans text-black/30 text-[0.65rem] mt-3 pt-3 border-t border-black/5">
+                      Network service and usage data provided by our partner carrier.
+                    </p>
                   </div>
                 )}
 
