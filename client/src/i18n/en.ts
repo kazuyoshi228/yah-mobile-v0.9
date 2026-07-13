@@ -111,7 +111,7 @@ const en = {
       { q: "Will it work on the bullet train (Shinkansen)?", a: "Yes. yah.mobile runs on NTT docomo, one of Japan's largest networks. Coverage is excellent on Shinkansen routes and in major cities. Some rural tunnels may have limited signal." },
       { q: "How do I receive my eSIM?", a: "After purchase, your QR code is delivered instantly to your registered email and is also available in your account under My Orders. No waiting, no shipping." },
       { q: "What if I need help setting it up?", a: "24/7 chat support can guide you through installation step by step — it usually takes under 3 minutes." },
-      { q: "Is there a speed limit?", a: "No artificial speed caps from us. Your eSIM runs on high-speed 4G LTE (5G where available). Actual speeds vary by location, time of day, network conditions and your device." },
+      { q: "Is there a speed limit?", a: "No artificial speed caps from us. Your eSIM runs on high-speed 4G LTE. Actual speeds vary by location, time of day, network conditions and your device." },
       { q: "Can I use tethering (hotspot)?", a: "Yes. Tethering and mobile hotspot are supported. You can share your Japan data connection with laptops, tablets, or other devices." },
     ],
   },

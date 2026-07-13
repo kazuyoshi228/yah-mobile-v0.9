@@ -36,7 +36,8 @@ export default function Terms() {
     },
     {
       title: "7. Disclaimer",
-      body: "yah.mobile is not liable for damages arising from network outages, network quality issues, or device incompatibility. We do not guarantee uninterrupted service. Our liability is limited to the amount paid for the eSIM plan.",
+      body: "Except where caused by our willful misconduct or gross negligence, yah.mobile is not liable for damages arising from network outages, network quality issues, or device incompatibility. We do not guarantee uninterrupted service. Our total liability is limited to the amount paid for the eSIM plan; this limitation does not apply in cases of our willful misconduct or gross negligence.",
+      ja: "当社の故意または重過失による場合を除き、当社はネットワークの障害・通信品質・端末の非互換に起因する損害について責任を負いません。当社が責任を負う場合であっても、その総額は当該eSIMプランの購入代金を上限とします（当社の故意または重過失による場合はこの限りではありません）。",
     },
     {
       title: "8. Privacy",
