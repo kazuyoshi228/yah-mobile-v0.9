@@ -8,7 +8,6 @@ export function Step4Payment() {
   const {
     termsConsented, setTermsConsented, termsConsentError, setTermsConsentError,
     privacyConsented, setPrivacyConsented, privacyConsentError, setPrivacyConsentError,
-    marketingConsented, setMarketingConsented,
     refundConsented, setRefundConsented, refundConsentError, setRefundConsentError,
     purchaseError, isPurchasing, handlePurchase,
   } = usePurchaseCheckoutCtx();
@@ -78,20 +77,6 @@ export function Step4Payment() {
         </p>
       </label>
       {(termsConsentError || privacyConsentError) && <p className="font-sans text-red-600 text-[0.75rem] mb-3 -mt-1">{t("drawer.termsPrivacyConsentRequired")}</p>}
-
-      {/* マーケティングメール同意（任意）*/}
-      <label className="flex items-start gap-3 p-4 border border-[#D7D7D7] cursor-pointer mb-4 hover:border-black/40 transition-colors">
-        <div className="relative shrink-0 mt-0.5">
-          <input type="checkbox" checked={marketingConsented} onChange={(e) => setMarketingConsented(e.target.checked)} className="sr-only" />
-          <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${marketingConsented ? "bg-black border-black" : "bg-white border-[#D7D7D7]"}`}>
-            {marketingConsented && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
-          </div>
-        </div>
-        <p className="font-sans text-black/50 text-[0.8125rem] leading-[1.65]">
-          {t("drawer.marketingConsentLabel")}{" "}
-          <span className="text-black/30 text-[0.75rem]">({t("drawer.optional")})</span>
-        </p>
-      </label>
 
       {/* 返金不可同意 */}
       <label className={`flex items-start gap-3 p-4 border cursor-pointer mb-4 transition-colors ${refundConsentError ? "border-red-400 bg-red-50" : "border-[#D7D7D7] hover:border-black/40"}`}>
