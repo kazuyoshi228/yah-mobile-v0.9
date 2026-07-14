@@ -27,14 +27,18 @@ const ko = {
     review2: "일본에서 써본 eSIM 중 최고예요. 빠른 네트워크, 번거로움 없음.",
     review3: "QR 스캔 하나로 공항을 나서기 전에 이미 온라인 상태였어요.",
   },
-  support: { title: "24/7 다국어 지원", desc: "다국어 AI 채팅 24/7 지원, 상담원 답변은 1영업일 이내입니다." },
+  support: {
+    heading: "도움이 필요하신가요?",
+    subheading: "여행 전후 24시간 언제든지 지원해 드립니다.",
+    cta: "채팅 시작",
+  },
   features: {
     sectionLabel: "yah.mobile을 선택하는 이유",
     title: "현대 여행자를 위해 설계되었습니다.",
     items: {
       bestPrice: { title: "합리적인 GB당 가격", desc: "세금 포함의 투명한 가격, GB당 가격도 경쟁력 있게 제공합니다." },
       coverage: { title: "전국 커버리지", desc: "일본 주요 통신사(NTT docomo) 네트워크 기반. 도심부터 지방까지 안정적인 연결." },
-      support: { title: "24/7 다국어 지원", desc: "여행 전후 언제든지 24시간 다국어로 지원해 드립니다." },
+      support: { title: "24/7 다국어 지원", desc: "다국어 AI 채팅 24/7 지원, 상담원 답변은 1영업일 이내입니다." },
       activation: { title: "원탭 활성화", desc: "iOS 17.4 이상에서는 QR 스캔 없이 탭 한 번으로 eSIM을 활성화할 수 있습니다." },
       tracking: { title: "실시간 사용량 확인", desc: "남은 데이터와 만료일을 실시간으로 확인하세요. 필요할 때 즉시 추가 충전 가능." },
       account: { title: "계정 관리", desc: "구매 내역, 활성 eSIM, 지원 이력을 한 곳에서 모두 확인하세요." },

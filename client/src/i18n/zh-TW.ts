@@ -28,7 +28,11 @@ const zhTW = {
     "review2": "在日本用過最好的 eSIM，網速快、操作簡便。",
     "review3": "掃描 QR 碼後，還沒走出機場就已上網。"
   },
-  "support": { "title": "24/7多語言支援", "desc": "多語言AI聊天24/7支援，人工回覆於1個工作日內。" },
+  "support": {
+    "heading": "需要協助嗎？",
+    "subheading": "全天候支援——旅行前後皆可聯絡。",
+    "cta": "開始對話"
+  },
   "features": {
     "sectionLabel": "為什麼選擇 yah.mobile",
     "title": "為什麼選擇 yah.mobile。",
@@ -40,7 +44,7 @@ const zhTW = {
       },
       "support": {
         "title": "24/7 多語言客服",
-        "desc": "全天候多語言支援，隨時為您服務。"
+        "desc": "多語言AI聊天24/7支援，人工回覆於1個工作日內。"
       },
       "activation": {
         "title": "一鍵啟用",

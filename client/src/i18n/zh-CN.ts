@@ -27,14 +27,18 @@ const zhCN = {
     review2: "在日本用过最好的eSIM，网速快，操作简便。",
     review3: "扫码后还没出机场就已上网了。",
   },
-  support: { title: "24/7多语言支持", desc: "多语言AI聊天24/7支持，人工回复在1个工作日内。" },
+  support: {
+    heading: "需要帮助？",
+    subheading: "全天候支持——旅行前后均可联系。",
+    cta: "开始聊天",
+  },
   features: {
     sectionLabel: "为什么选择 yah.mobile",
     title: "专为现代旅行者设计。",
     items: {
       bestPrice: { title: "极具竞争力的每GB价格", desc: "价格透明、含税，每GB价格具有竞争力。" },
       coverage: { title: "全国覆盖", desc: "采用日本主要运营商网络（NTT docomo）。从城市中心到乡村目的地均有覆盖。" },
-      support: { title: "24/7多语言客服", desc: "全天候多语言支持，随时为您服务。" },
+      support: { title: "24/7多语言客服", desc: "多语言AI聊天24/7支持，人工回复在1个工作日内。" },
       activation: { title: "一键激活", desc: "在iOS 17.4+上，只需轻触一下即可激活eSIM——无需扫描二维码。" },
       tracking: { title: "实时流量监控", desc: "实时查看剩余流量和到期时间。随时可即时充值。" },
       account: { title: "账户管理", desc: "在一个地方查看购买记录、活跃eSIM和客服历史。" },

@@ -27,14 +27,18 @@ const en = {
     review2: "Best eSIM I've used in Japan. Fast network, no hassle.",
     review3: "Scanned the QR and I was online before leaving the airport.",
   },
-  support: { title: "24/7 multilingual support", desc: "24/7 multilingual AI chat; human replies within 1 business day." },
+  support: {
+    heading: "Need support?",
+    subheading: "Support is available 24/7 — before and after your trip.",
+    cta: "Start a chat",
+  },
   features: {
     sectionLabel: "Why yah.mobile",
     title: "Designed for the modern traveler.",
     items: {
       bestPrice: { title: "Competitive price per GB", desc: "Transparent, tax-included pricing with a competitive price per GB." },
       coverage: { title: "Nationwide coverage", desc: "Powered by Japan's major carrier network (NTT docomo). City centers to rural destinations." },
-      support: { title: "24/7 multilingual support", desc: "24/7 support in multiple languages, before and during your trip." },
+      support: { title: "24/7 multilingual support", desc: "24/7 multilingual AI chat; human replies within 1 business day." },
       activation: { title: "1-tap activation", desc: "On iOS 17.4+, activate your eSIM with a single tap — no QR scan required." },
       tracking: { title: "Real-time usage tracking", desc: "Monitor remaining data and expiry in real time. Top up instantly when needed." },
       account: { title: "Manage your account", desc: "View purchase history, active eSIMs, and support history all in one place." },
