@@ -22,6 +22,9 @@ export interface UiStrings {
   buy: string;
   buyCta: string;
   faqTitle: string;
+  summaryLabel: string;
+  ctaHeadline: string;
+  ctaButton: string;
   compareTitle: string;
   bestValue: string;
   /** langロケールでの表示名（言語切替リンクのラベル用） */
@@ -46,6 +49,9 @@ export const UI: Record<string, UiStrings> = {
     buy: "購入",
     buyCta: "eSIMを購入する",
     faqTitle: "よくある質問",
+    summaryLabel: "Summary",
+    ctaHeadline: "ChatGPTが使える、日本IPのeSIM。",
+    ctaButton: "プランを見る",
     compareTitle: "他社eSIMとの料金比較",
     bestValue: "BEST VALUE",
     nativeName: "日本語",
@@ -68,6 +74,9 @@ export const UI: Record<string, UiStrings> = {
     buy: "Buy",
     buyCta: "Get your eSIM",
     faqTitle: "FAQ",
+    summaryLabel: "Summary",
+    ctaHeadline: "A Japan-IP eSIM that works with ChatGPT.",
+    ctaButton: "View plans",
     compareTitle: "How we compare",
     bestValue: "BEST VALUE",
     nativeName: "English",

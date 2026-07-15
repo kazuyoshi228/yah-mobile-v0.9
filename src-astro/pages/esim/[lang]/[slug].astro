@@ -55,6 +55,9 @@ const alternates = (guide.languages ?? []).map((l) => ({
 // deep-link（既存SPAドロワー起動）
 const buyHref = (planId: string) => `/app?open=true&plan=${encodeURIComponent(planId)}`;
 const primaryPlanId = plans[0]?.id;
+// 要約直下CTAの価格（バインド中プランの最安・SSOTから焼く。ハードコードしない）
+const leadPrices = plans.map((p) => p.priceJpy).filter((n): n is number => n != null);
+const leadPrice = leadPrices.length ? Math.min(...leadPrices) : null;
 
 // 著者バイライン（表示 ＋ JSON-LD Person）。author はオブジェクト {name,title,photoUrl}。
 const author = guide.author?.name ? guide.author : null;
@@ -125,7 +128,21 @@ const jsonLd = [articleLd, ...(faqLd ? [faqLd] : [])];
       </div>
     )}
 
-    {t.directAnswer && <p class="direct-answer">{t.directAnswer}</p>}
+    {t.directAnswer && (
+      <div class="direct-answer">
+        <span class="direct-answer-label">{ui.summaryLabel}</span>
+        <p>{t.directAnswer}</p>
+      </div>
+    )}
+
+    {primaryPlanId && (
+      <aside class="lead-cta">
+        <p class="lead-cta-head">{ui.ctaHeadline}</p>
+        <a class="lead-cta-btn" href={buyHref(primaryPlanId)} data-plan={primaryPlanId}>
+          {ui.ctaButton}{leadPrice != null ? `（${yen(leadPrice)}〜）` : ""}
+        </a>
+      </aside>
+    )}
 
     <div class="article-body" set:html={bodyHtml} />
 

@@ -191,8 +191,28 @@ const NAV = [
         background: color-mix(in srgb, var(--brand-accent) 6%, var(--brand-bg));
         border: 1px solid color-mix(in srgb, var(--brand-accent) 22%, transparent);
         border-left: 3px solid var(--brand-accent);
-        padding: 1rem 1.25rem; margin: 0 0 2rem; font-size: 1.02rem;
+        padding: 1rem 1.25rem; margin: 0 0 1.5rem; font-size: 1.02rem;
       }
+      .direct-answer p { margin: 0; }
+      .direct-answer-label {
+        display: block; font-family: "National2", sans-serif; font-weight: 500;
+        font-size: 0.6875rem; letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--brand-accent); margin-bottom: 0.5rem;
+      }
+
+      /* 要約直下CTA（高意図読者をピークで捕捉。ドロワー直行deep-link＋no-JSフォールバック） */
+      .lead-cta {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem;
+        margin: 0 0 2.25rem;
+      }
+      .lead-cta-head { margin: 0; font-weight: 500; font-size: 1.02rem; }
+      .lead-cta-btn {
+        display: inline-block; background: var(--brand-accent); color: #fff;
+        padding: 0.7rem 1.5rem; border-radius: 999px; font-weight: 500;
+        font-size: 0.95rem; text-decoration: none; white-space: nowrap;
+      }
+      .lead-cta-btn:hover { opacity: 0.9; }
+
       .article-body :first-child { margin-top: 0; }
 
       /* ── 表（ブランド: 白セル＋細罫線・角0・National2。ライト/ダーク両対応） ── */
