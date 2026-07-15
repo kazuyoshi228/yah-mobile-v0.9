@@ -12,6 +12,7 @@ export default tseslint.config(
       "**/node_modules/**",
       "dist/**",
       "dev-dist/**",
+      ".astro/**", // Astro生成の型定義（content.d.ts/types.d.ts）。生成物のためlint対象外。
       "functions/lib/**",
       "client/public/**",
       "**/*.config.js",
