@@ -320,43 +320,48 @@ export default function AppPage({ buySlug }: { buySlug?: string } = {}) {
       Infinity
     );
 
-    const productSchema = {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": productName,
-      "description": productDesc,
-      "url": pageUrl,
-      "image": "https://yah.mobi/og-image.png",
-      "brand": { "@type": "Brand", "name": "yah.mobile" },
-      "offers": (allDbPlans as (FsPlan & { description?: string | null })[]).length > 0
-        ? {
-            "@type": "AggregateOffer",
-            "lowPrice": String(Math.min(...(allDbPlans as FsPlan[]).map(p => p.priceJpy))),
-            "highPrice": String(Math.max(...(allDbPlans as FsPlan[]).map(p => p.priceJpy))),
-            "priceCurrency": "JPY",
-            "offerCount": String((allDbPlans as FsPlan[]).length),
-            "availability": "https://schema.org/InStock",
-            "seller": { "@type": "Organization", "name": "yah.mobile", "url": "https://yah.mobi" },
-            "offers": (allDbPlans as (FsPlan & { description?: string | null })[]).map((p) => ({
-              "@type": "Offer",
-              "name": p.name,
-              "description": p.description ?? `${p.dataGb}GB / ${p.validityDays} days`,
-              "price": String(p.priceJpy),
-              "priceCurrency": "JPY",
-              "url": `https://yah.mobi/buy/${buySlugForGb(p.dataGb)}`,
-              "availability": "https://schema.org/InStock",
-              "seller": { "@type": "Organization", "name": "yah.mobile" },
-            })),
-          }
-        : undefined,
-    };
-    const productScript = Object.assign(document.createElement("script"), {
-      type: "application/ld+json",
-      id: "schema-product",
-      textContent: JSON.stringify(productSchema),
-    });
+    // Product 構造化データは offers があるときだけ出す。
+    // offers/review/aggregateRating のどれか1つが必須で、架空レビュー(aggregateRating/review)は
+    // コンプラ対応で撤去済み。プラン未読込(プリレンダ時=App CheckでFirestore不可)は offers も無いため、
+    // ここで Product schema を出すと「3つとも無し」で Search Console が無効判定する → 出さない。
+    // Googlebot は JS 実行時にプランが読めて offers 付きの有効な Product を得る。
+    const activePlans = allDbPlans as (FsPlan & { description?: string | null })[];
     document.getElementById("schema-product")?.remove();
-    document.head.appendChild(productScript);
+    if (activePlans.length > 0) {
+      const productSchema = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": productName,
+        "description": productDesc,
+        "url": pageUrl,
+        "image": "https://yah.mobi/og-image.png",
+        "brand": { "@type": "Brand", "name": "yah.mobile" },
+        "offers": {
+          "@type": "AggregateOffer",
+          "lowPrice": String(Math.min(...activePlans.map((p) => p.priceJpy))),
+          "highPrice": String(Math.max(...activePlans.map((p) => p.priceJpy))),
+          "priceCurrency": "JPY",
+          "offerCount": String(activePlans.length),
+          "availability": "https://schema.org/InStock",
+          "seller": { "@type": "Organization", "name": "yah.mobile", "url": "https://yah.mobi" },
+          "offers": activePlans.map((p) => ({
+            "@type": "Offer",
+            "name": p.name,
+            "description": p.description ?? `${p.dataGb}GB / ${p.validityDays} days`,
+            "price": String(p.priceJpy),
+            "priceCurrency": "JPY",
+            "url": `https://yah.mobi/buy/${buySlugForGb(p.dataGb)}`,
+            "availability": "https://schema.org/InStock",
+            "seller": { "@type": "Organization", "name": "yah.mobile" },
+          })),
+        },
+      };
+      document.head.appendChild(Object.assign(document.createElement("script"), {
+        type: "application/ld+json",
+        id: "schema-product",
+        textContent: JSON.stringify(productSchema),
+      }));
+    }
 
     return () => {
       document.getElementById("schema-faq")?.remove();
