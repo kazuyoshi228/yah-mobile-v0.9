@@ -5,6 +5,7 @@
 const FEED_URL = "https://magazine.yah.mobi/feeds/esim.json";
 
 export interface FaqItem { q: string; a: string; }
+export interface GuideAuthor { id?: string; name: string; title?: string; photoUrl?: string; }
 export interface GuideTranslation {
   title: string;
   excerpt?: string;
@@ -23,9 +24,9 @@ export interface EsimGuide {
   showCompetitorTable?: boolean;
   canonical: string; // 例 /esim/ja/esim-chatgpt
   confirmedDate?: string;
-  publishedAt?: string;
-  updatedAt?: string;
-  author?: string;
+  publishedAt?: number;
+  updatedAt?: number;
+  author?: GuideAuthor;
   translations: Record<string, GuideTranslation>;
 }
 

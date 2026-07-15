@@ -91,6 +91,16 @@ export function formatAsOf(lang: string, confirmedDate?: string): string | null 
   return `Prices as of ${months[Number(mo) - 1]} ${Number(d)}, ${y}.`;
 }
 
+/** 最終更新日の言語別表記（byline用）。ms epoch。UTC基準でビルド環境non依存。 */
+export function formatUpdated(lang: string, ms?: number): string | null {
+  if (!ms || !Number.isFinite(ms)) return null;
+  const d = new Date(ms);
+  const y = d.getUTCFullYear(), mo = d.getUTCMonth() + 1, day = d.getUTCDate();
+  if (lang === "ja") return `${y}年${mo}月${day}日 更新`;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `Updated ${months[mo - 1]} ${day}, ${y}`;
+}
+
 /** 競合表の注記（他社料金は公開情報に基づく目安である旨・景表法配慮）。 */
 export function formatCompareNote(lang: string, confirmedDate?: string): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(confirmedDate || "");

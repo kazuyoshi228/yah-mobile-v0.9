@@ -9,7 +9,7 @@ import { getEsimGuides, stripTitlePrefix, type EsimGuide } from "../../../lib/es
 import { getPlansByBindings, type Plan } from "../../../lib/plans";
 import { getCompetitorTable, type CompareTable } from "../../../lib/competitor";
 import { renderMarkdown } from "../../../lib/markdown";
-import { getUi, formatAsOf, formatCompareNote } from "../../../lib/ui-i18n";
+import { getUi, formatAsOf, formatCompareNote, formatUpdated } from "../../../lib/ui-i18n";
 
 export async function getStaticPaths() {
   const guides = await getEsimGuides();
@@ -56,8 +56,20 @@ const alternates = (guide.languages ?? []).map((l) => ({
 const buyHref = (planId: string) => `/app?open=true&plan=${encodeURIComponent(planId)}`;
 const primaryPlanId = plans[0]?.id;
 
+// 著者バイライン（表示 ＋ JSON-LD Person）。author はオブジェクト {name,title,photoUrl}。
+const author = guide.author?.name ? guide.author : null;
+const updatedText = formatUpdated(lang, guide.updatedAt);
+
 // JSON-LD（Article + FAQPage）
 const iso = (ms?: number) => (ms ? new Date(ms).toISOString() : undefined);
+const authorLd = author
+  ? {
+      "@type": "Person",
+      name: author.name,
+      ...(author.title ? { jobTitle: author.title } : {}),
+      ...(author.photoUrl ? { image: author.photoUrl } : {}),
+    }
+  : { "@type": "Organization", name: "yah.mobile" };
 const articleLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": guide.schemaType || "Article",
@@ -65,11 +77,11 @@ const articleLd: Record<string, unknown> = {
   description: metaDescription,
   inLanguage: lang,
   mainEntityOfPage: canonical,
-  author: { "@type": "Organization", name: guide.author || "yah.mobile" },
+  author: authorLd,
   publisher: { "@type": "Organization", name: "yah.mobile" },
 };
-if (iso(guide.publishedAt as unknown as number)) articleLd.datePublished = iso(guide.publishedAt as unknown as number);
-if (iso(guide.updatedAt as unknown as number)) articleLd.dateModified = iso(guide.updatedAt as unknown as number);
+if (iso(guide.publishedAt)) articleLd.datePublished = iso(guide.publishedAt);
+if (iso(guide.updatedAt)) articleLd.dateModified = iso(guide.updatedAt);
 if (guide.thumbnailUrl) articleLd.image = guide.thumbnailUrl;
 
 const faqLd =
@@ -97,6 +109,21 @@ const jsonLd = [articleLd, ...(faqLd ? [faqLd] : [])];
 >
   <article>
     <h1>{displayTitle}</h1>
+
+    {(author || updatedText) && (
+      <div class="byline">
+        {author?.photoUrl && (
+          <img class="byline-photo" src={author.photoUrl} alt={author.name} width="40" height="40" loading="lazy" decoding="async" />
+        )}
+        {author && (
+          <div class="byline-meta">
+            <span class="byline-name">{author.name}</span>
+            {author.title && <span class="byline-title">{author.title}</span>}
+          </div>
+        )}
+        {updatedText && <span class="byline-date">{updatedText}</span>}
+      </div>
+    )}
 
     {t.directAnswer && <p class="direct-answer">{t.directAnswer}</p>}
 
