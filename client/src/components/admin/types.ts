@@ -42,7 +42,7 @@ export const bodyStyle: React.CSSProperties = {
 };
 
 export type PlanFormData = {
-  bappyPlanId: string;
+  providerPlanId: string;
   name: string;
   dataGb: string;
   validityDays: string;
@@ -55,7 +55,7 @@ export type PlanFormData = {
 };
 
 export const EMPTY_PLAN_FORM: PlanFormData = {
-  bappyPlanId: "",
+  providerPlanId: "",
   name: "",
   dataGb: "",
   validityDays: "",
@@ -69,7 +69,6 @@ export const EMPTY_PLAN_FORM: PlanFormData = {
 
 export type PlanRow = {
   id: string;
-  bappyPlanId: string;
   name: string;
   dataGb: string;
   validityDays: number;
@@ -83,7 +82,7 @@ export type PlanRow = {
   updatedAt: number;
   // 柱2: プロバイダ/卸情報（eSIMAccess取り込みで自動付与。既存Bappyプランは未設定）
   provider?: "esimaccess" | "bappy" | null;
-  providerPlanId?: string | null;
+  providerPlanId: string; // プロバイダのプラン識別子（eSIMAccess packageCode）。旧名 bappyPlanId
   wholesalePriceUsd?: number | null;
   network?: string | null;
   ipExport?: string | null;

@@ -30,7 +30,7 @@ export const NotFoundError = (msg: string) => new HttpError(404, msg);
 //     message: "Plan is no longer available",
 //     cause: {
 //       code: AppErrorCode.PLAN_NOT_AVAILABLE,
-//       alternatives: [{ bappyPlanId: "JP_7D_5GB", ... }],
+//       alternatives: [{ providerPlanId: "JP_7D_5GB", ... }],
 //     },
 //   });
 // ─────────────────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ export interface AiErrorPayload {
   code: AppErrorCode;
   /** 代替プランの提案（PLAN_NOT_AVAILABLE 時など） */
   alternatives?: Array<{
-    bappyPlanId: string;
+    providerPlanId: string;
     name: string;
     dataGb: string;
     validityDays: number;

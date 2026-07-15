@@ -134,7 +134,7 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
   const lastPlanOpt = useMemo(() => {
     if (!lastOrder || !lastOrder.planId) return null;
     for (const d of Object.keys(planOptions).map(Number)) {
-      const opt = planOptions[d].find((o: PlanOption) => o.planId === lastOrder.planId || o.bappyPlanId === lastOrder.bappyPlanId);
+      const opt = planOptions[d].find((o: PlanOption) => o.planId === lastOrder.planId || o.providerPlanId === lastOrder.providerPlanId);
       if (opt) return { days: d, opt };
     }
     return null;
@@ -148,7 +148,7 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
 
   // 初期プランから 日数・GB・開始ステップ を復元。
   // initialDays/initialGb（PlansSection選択やログイン往復のURL由来）を最優先し、無ければ
-  // bappyPlanId から parsePlanId で復元（Firestore 読込後に有効）。
+  // providerPlanId から parsePlanId で復元（Firestore 読込後に有効）。
   useEffect(() => {
     const p = parsePlanId(initialPlanId, planOptions);
     const days = initialDays ?? p.days ?? null;

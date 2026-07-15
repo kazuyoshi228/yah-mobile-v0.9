@@ -52,7 +52,6 @@ export interface FsUser {
 
 export interface FsPlan {
   id: string;
-  bappyPlanId: string;
   planType?: string | null;
   name: string;
   dataGb: number;
@@ -69,7 +68,7 @@ export interface FsPlan {
   updatedAt: number;
   // ── プロバイダ抽象化（柱2 / eSIMAccess）。既存Bappyプランでは未設定（=bappy扱い） ──
   provider?: "esimaccess" | "bappy" | null;
-  providerPlanId?: string | null; // eSIMAccess packageCode（発注時に使用）
+  providerPlanId: string; // プロバイダのプラン識別子（eSIMAccess packageCode）。旧名 providerPlanId
   slug?: string | null;
   wholesalePriceUsd?: number | null; // 卸価格（USD）。JPY小売は priceJpy に設定する
   network?: string | null; // 例: "NTT docomo"
@@ -86,7 +85,7 @@ export interface FsOrder {
   id: string;
   userId: string;
   planId: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   status: "pending" | "paid" | "provisioning" | "pending_retry" | "fulfilled" | "failed" | "refunded" | "cancelled";
   amountJpy: number;
   discountAmount?: number | null;
@@ -153,7 +152,7 @@ export interface FsEsimActivation {
   id: string;
   esimLinkId: string;
   bappyActivationUuid: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   status: "active" | "expired" | "cancelled";
   expiryDate?: number | null;
   dataRemainingMb?: number | null;
@@ -212,7 +211,7 @@ export interface FsEsimRetryJob {
   id: string;
   orderId: string;
   userId: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   provider?: "esimaccess" | "bappy" | null; // 柱2: 再試行を正しいプロバイダで実行するため
   stripeSessionId: string;
   isTopup: boolean;

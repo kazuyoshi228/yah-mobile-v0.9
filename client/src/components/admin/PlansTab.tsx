@@ -221,7 +221,7 @@ export function PlansTab() {
                       {plan.provider ?? "bappy"}
                     </span>
                     <div className="text-black/40 font-mono mt-0.5" style={{ fontSize: "0.65rem" }}>
-                      {plan.providerPlanId ?? plan.bappyPlanId}
+                      {plan.providerPlanId ?? plan.providerPlanId}
                     </div>
                   </td>
                   <td className="py-3 pr-4 text-black/60" style={{ fontSize: "0.75rem" }}>

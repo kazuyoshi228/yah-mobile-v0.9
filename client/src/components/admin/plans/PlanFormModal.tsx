@@ -23,7 +23,7 @@ export function PlanFormModal({
   const [form, setForm] = useState<PlanFormData>(
     isEdit
       ? {
-          bappyPlanId: plan.bappyPlanId,
+          providerPlanId: plan.providerPlanId,
           name: plan.name,
           dataGb: plan.dataGb,
           validityDays: String(plan.validityDays),
@@ -60,7 +60,7 @@ export function PlanFormModal({
       return;
     }
     const payload = {
-      bappyPlanId: form.bappyPlanId.trim(),
+      providerPlanId: form.providerPlanId.trim(),
       name: form.name.trim(),
       dataGb: form.dataGb.trim(),
       validityDays,
@@ -122,7 +122,7 @@ export function PlanFormModal({
           )}
           <div className="grid grid-cols-2 gap-4">
             {[
-              { key: "bappyPlanId" as const, label: "Bappy Plan ID *", placeholder: "e.g. JP_3D_1GB" },
+              { key: "providerPlanId" as const, label: "Bappy Plan ID *", placeholder: "e.g. JP_3D_1GB" },
               { key: "name" as const, label: "Plan Name *", placeholder: "e.g. Japan 3 Days 1GB" },
             ].map(({ key, label, placeholder }) => (
               <div key={key}>

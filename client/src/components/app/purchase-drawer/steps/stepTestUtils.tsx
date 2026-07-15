@@ -12,7 +12,7 @@ import type { PlanOption } from "../../types";
 export const testOpt: PlanOption = {
   gb: "1GB",
   priceJpy: 990,
-  bappyPlanId: "JP_7D_1GB",
+  providerPlanId: "JP_7D_1GB",
 } as PlanOption;
 
 export function makeFlow(over: Partial<PurchaseFlowCtx> = {}): PurchaseFlowCtx {

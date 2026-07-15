@@ -8,7 +8,7 @@
 export type ProviderName = "esimaccess" | "bappy";
 
 export interface CreateEsimParams {
-  providerPlanId: string; // Bappy: bappyPlanId / eSIMAccess: packageCode(or slug)
+  providerPlanId: string; // Bappy: providerPlanId / eSIMAccess: packageCode(or slug)
   orderId: string;
   transactionId: string; // 冪等キー（eSIMAccessで必須。Bappyは未使用でも渡す）
 }

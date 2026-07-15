@@ -6,7 +6,7 @@ export type PlanOption = {
   gb: string;
   priceJpy: number;
   popular?: boolean;
-  bappyPlanId: string;
+  providerPlanId: string;
   planId: string;
 };
 
@@ -28,7 +28,7 @@ export function groupPlansByDays(dbPlans: FsPlan[]): Record<number, PlanOption[]
     result[d].push({
       gb: `${p.dataGb}GB`,
       priceJpy: p.priceJpy,
-      bappyPlanId: p.bappyPlanId,
+      providerPlanId: p.providerPlanId,
       planId: p.id,
     });
   }
@@ -74,12 +74,12 @@ export function flattenPlanOptions(planOptions: Record<number, PlanOption[]>): F
 }
 
 export function parsePlanId(
-  bappyPlanId?: string,
+  providerPlanId?: string,
   planOptions?: Record<number, PlanOption[]>,
 ): { days: number | null; gb: string | null } {
-  if (!bappyPlanId || !planOptions) return { days: null, gb: null };
+  if (!providerPlanId || !planOptions) return { days: null, gb: null };
   for (const d of Object.keys(planOptions).map(Number)) {
-    const found = planOptions[d].find((o) => o.bappyPlanId === bappyPlanId);
+    const found = planOptions[d].find((o) => o.providerPlanId === providerPlanId);
     if (found) return { days: d, gb: found.gb };
   }
   return { days: null, gb: null };

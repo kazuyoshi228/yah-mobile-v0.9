@@ -68,15 +68,15 @@ export default function TopupPage({ params }: { params: { esimLinkId: string } }
     setIsPurchasing(true);
     setPurchasingPlanId(plan.id); // this is firestore plan doc id
     
-    // In db.ts, bappyPlanId is required. The plan document in Firestore has bappyPlanId.
-    const bappyPlanId = plan.bappyPlanId;
+    // In db.ts, providerPlanId is required. The plan document in Firestore has providerPlanId.
+    const providerPlanId = plan.providerPlanId;
 
     try {
-      const result = await callFunction<{ esimLinkUuid: string; bappyPlanId: string; origin: string; timezone: string; language: string }, { checkoutUrl: string; orderId: string }>(
+      const result = await callFunction<{ esimLinkUuid: string; providerPlanId: string; origin: string; timezone: string; language: string }, { checkoutUrl: string; orderId: string }>(
         CALLABLE.ordersInitTopupCheckout,
         {
           esimLinkUuid: esimLink.bappyLinkUuid,
-          bappyPlanId: bappyPlanId, // The cloud function queries plans where bappyPlanId matches
+          providerPlanId: providerPlanId, // The cloud function queries plans where providerPlanId matches
           origin: window.location.origin,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           language: i18n.language,

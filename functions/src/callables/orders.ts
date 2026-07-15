@@ -65,7 +65,7 @@ export const orderRetryPayment = onCall(
       const { sessionId, checkoutUrl } = await createCheckoutSession({
         orderId,
         planId: order.planId,
-        bappyPlanId: order.bappyPlanId,
+        providerPlanId: order.providerPlanId,
         amountJpy: order.amountJpy,
         planName: order.planName ?? "Japan eSIM",
         userId: uid,
@@ -114,11 +114,11 @@ export const ordersInitCheckout = onCall(
     // 2. 入力バリデーション
     const parsed = OrdersInitCheckoutInput.safeParse(request.data ?? {});
     if (!parsed.success) throw zodError(parsed.error.message);
-    const { bappyPlanId, origin, termsConsented, privacyConsented, marketingConsented, timezone, language, gaClientId } = parsed.data;
+    const { providerPlanId, origin, termsConsented, privacyConsented, marketingConsented, timezone, language, gaClientId } = parsed.data;
 
     // 3. プラン取得・検証（Firestoreから直接）
     const plansSnap = await db.collection("plans")
-      .where("bappyPlanId", "==", bappyPlanId)
+      .where("providerPlanId", "==", providerPlanId)
       .where("isActive", "==", true)
       .limit(1)
       .get();
@@ -137,7 +137,7 @@ export const ordersInitCheckout = onCall(
     const orderRef = await db.collection("orders").add({
       userId: uid,
       planId: planDoc.id,
-      bappyPlanId: plan.bappyPlanId,
+      providerPlanId: plan.providerPlanId,
       // 柱2: プラン由来のプロバイダで発注を routing（未設定の既存Bappyプランは "bappy"）
       provider: plan.provider ?? "bappy",
       status: "pending",
@@ -163,7 +163,7 @@ export const ordersInitCheckout = onCall(
       const { sessionId, checkoutUrl } = await createCheckoutSession({
         orderId,
         planId: planDoc.id,
-        bappyPlanId: plan.bappyPlanId,
+        providerPlanId: plan.providerPlanId,
         amountJpy: plan.priceJpy,
         planName: plan.name,
         userId: uid,
@@ -223,7 +223,7 @@ export const ordersInitTopupCheckout = onCall(
 
     const parsed = OrdersInitTopupCheckoutInput.safeParse(request.data ?? {});
     if (!parsed.success) throw zodError(parsed.error.message);
-    const { esimLinkUuid, bappyPlanId, origin, timezone, language } = parsed.data;
+    const { esimLinkUuid, providerPlanId, origin, timezone, language } = parsed.data;
 
     // 所有権チェック（IDOR防止）: 対象のeSIMが本人のものであることを検証する。
     // これがないと他人のesimLinkUuidを指定して他ユーザーのeSIMにデータを追加できてしまう。
@@ -233,7 +233,7 @@ export const ordersInitTopupCheckout = onCall(
     }
 
     // Firestore からプラン取得
-    const planSnap = await collections.plans.where("bappyPlanId", "==", bappyPlanId).where("planType", "==", "topup").limit(1).get();
+    const planSnap = await collections.plans.where("providerPlanId", "==", providerPlanId).where("planType", "==", "topup").limit(1).get();
     if (planSnap.empty) {
       throw new HttpsError("not-found", "トップアッププランが見つかりません。");
     }
@@ -251,7 +251,7 @@ export const ordersInitTopupCheckout = onCall(
     const orderRef = await db.collection("orders").add({
       userId: uid,
       planId: planDocId,
-      bappyPlanId: bappyPlanId,
+      providerPlanId: providerPlanId,
       esimLinkUuid,
       // 柱2: topup は対象eSIMのプロバイダに合わせる（無ければプラン→bappy の順でフォールバック）
       provider: targetEsim.provider ?? topupPlan.provider ?? "bappy",
@@ -274,7 +274,7 @@ export const ordersInitTopupCheckout = onCall(
       const { sessionId, checkoutUrl } = await createCheckoutSession({
         orderId,
         planId: planDocId,
-        bappyPlanId,
+        providerPlanId,
         amountJpy,
         planName,
         userId: uid,

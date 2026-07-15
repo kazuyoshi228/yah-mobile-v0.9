@@ -16,7 +16,7 @@ import type { EsimLink, OrderRow, EsimPreview, EsimPreviewMap } from "./types";
  * MyPage の注文・eSIM リンクを Firestore onSnapshot でリアルタイム購読し、
  * 表示用の派生データ（orderId→eSIMプレビュー Map、アクティブeSIM一覧）を返す。
  */
-// plan（bappyPlanId / doc.id）→ { validityDays, name } の索引
+// plan（providerPlanId / doc.id）→ { validityDays, name } の索引
 type PlanInfo = { validityDays?: number | null; name?: string | null };
 
 export function useMyPageData(uid: string | undefined) {
@@ -25,16 +25,16 @@ export function useMyPageData(uid: string | undefined) {
   const [esimLinks, setEsimLinks] = useState<EsimLink[] | null>(null);
   const [planMap, setPlanMap] = useState<Map<string, PlanInfo>>(new Map());
 
-  // 有効期間（validityDays）等を注文の bappyPlanId / planId から引くための plans 索引
+  // 有効期間（validityDays）等を注文の providerPlanId / planId から引くための plans 索引
   useEffect(() => {
     const q = activePlansQuery();
     const unsub = onSnapshot(q, (snap: QuerySnapshot<DocumentData>) => {
       const m = new Map<string, PlanInfo>();
       snap.docs.forEach((d) => {
-        const p = d.data() as { bappyPlanId?: string; validityDays?: number; name?: string };
+        const p = d.data() as { providerPlanId?: string; validityDays?: number; name?: string };
         const info: PlanInfo = { validityDays: p.validityDays ?? null, name: p.name ?? null };
         m.set(d.id, info);
-        if (p.bappyPlanId) m.set(p.bappyPlanId, info);
+        if (p.providerPlanId) m.set(p.providerPlanId, info);
       });
       setPlanMap(m);
     });
@@ -84,8 +84,8 @@ export function useMyPageData(uid: string | undefined) {
     if (!orders) return orders;
     return orders.map((o) => {
       if (o.planName) return o;
-      const oo = o as unknown as { bappyPlanId?: string; planId?: string };
-      const plan = (oo.bappyPlanId && planMap.get(oo.bappyPlanId)) || (oo.planId && planMap.get(oo.planId)) || null;
+      const oo = o as unknown as { providerPlanId?: string; planId?: string };
+      const plan = (oo.providerPlanId && planMap.get(oo.providerPlanId)) || (oo.planId && planMap.get(oo.planId)) || null;
       return plan?.name ? { ...o, planName: plan.name } : o;
     });
   }, [orders, planMap]);

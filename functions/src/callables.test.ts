@@ -100,7 +100,7 @@ describe("ordersInitCheckout — 課金入口の防御", () => {
   });
 
   const validInput = {
-    bappyPlanId: "JP_3D_1GB",
+    providerPlanId: "JP_3D_1GB",
     origin: "https://yah.mobi",
     termsConsented: true,
     privacyConsented: true,
@@ -112,7 +112,7 @@ describe("ordersInitCheckout — 課金入口の防御", () => {
     // プランは 990円。クライアントが安い額を送っても入力スキーマに price フィールドは無い。
     mockCheckoutPlanGet.mockResolvedValue({
       empty: false,
-      docs: [{ id: "plan_doc_1", data: () => ({ bappyPlanId: "JP_3D_1GB", priceJpy: 990, name: "Japan 3D 1GB" }) }],
+      docs: [{ id: "plan_doc_1", data: () => ({ providerPlanId: "JP_3D_1GB", priceJpy: 990, name: "Japan 3D 1GB" }) }],
     });
 
     // 悪意あるクライアントが amountJpy: 1 を混入させても無視されるべき
@@ -152,13 +152,13 @@ describe("ordersInitTopupCheckout — 所有権(IDOR)の防御", () => {
     mockUpdateOrder.mockResolvedValue(undefined);
     mockTopupPlanGet.mockResolvedValue({
       empty: false,
-      docs: [{ id: "plan_topup_1", data: () => ({ bappyPlanId: "JP_TOPUP_1GB", priceJpy: 500, name: "Topup 1GB", planType: "topup" }) }],
+      docs: [{ id: "plan_topup_1", data: () => ({ providerPlanId: "JP_TOPUP_1GB", priceJpy: 500, name: "Topup 1GB", planType: "topup" }) }],
     });
   });
 
   const validTopup = {
     esimLinkUuid: "esim-uuid-owned-by-someone",
-    bappyPlanId: "JP_TOPUP_1GB",
+    providerPlanId: "JP_TOPUP_1GB",
     origin: "https://yah.mobi",
     timezone: "Asia/Tokyo",
   };

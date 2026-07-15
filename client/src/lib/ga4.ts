@@ -45,9 +45,9 @@ export function getGaClientId(): Promise<string | null> {
 }
 
 /** 通貨は JPY 固定（価格の真実値）。プラン→GA4 item 変換の共通ヘルパー。 */
-export function ga4Item(opt: { gb: string; priceJpy: number; bappyPlanId?: string; planId?: string }) {
+export function ga4Item(opt: { gb: string; priceJpy: number; providerPlanId?: string; planId?: string }) {
   return {
-    item_id: opt.bappyPlanId || opt.planId || opt.gb,
+    item_id: opt.providerPlanId || opt.planId || opt.gb,
     item_name: `Japan eSIM ${opt.gb}`,
     price: opt.priceJpy,
     quantity: 1,

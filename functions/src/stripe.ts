@@ -68,7 +68,7 @@ export const stripeClient = new Proxy({} as Stripe, {
 export interface CreateCheckoutSessionParams {
   orderId: string;
   planId: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   amountJpy: number;
   planName: string;
   userId: string;
@@ -90,7 +90,7 @@ export async function createCheckoutSession(
   const {
     orderId,
     planId,
-    bappyPlanId,
+    providerPlanId,
     amountJpy,
     planName,
     userId,
@@ -125,7 +125,7 @@ export async function createCheckoutSession(
     metadata: {
       order_id: orderId,
       plan_id: planId,
-      ...(bappyPlanId ? { bappy_plan_id: bappyPlanId } : {}),
+      ...(providerPlanId ? { provider_plan_id: providerPlanId } : {}),
       user_id: userId,
       customer_email: userEmail || "",
       customer_name: userName || "",

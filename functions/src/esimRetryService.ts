@@ -49,7 +49,7 @@ const MAX_RETRIES = 3;
 export interface ProvisioningContext {
   orderId: string;
   userId: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   provider?: "esimaccess" | "bappy" | null;
   stripeSessionId: string;
   isTopup: boolean;
@@ -74,7 +74,7 @@ export async function handleProvisioningFailure(
     retryJobId = await createRetryJob({
       orderId: ctx.orderId,
       userId: ctx.userId,
-      bappyPlanId: ctx.bappyPlanId,
+      providerPlanId: ctx.providerPlanId,
       provider: ctx.provider ?? "bappy",
       stripeSessionId: ctx.stripeSessionId,
       isTopup: ctx.isTopup,
@@ -93,7 +93,7 @@ export async function handleProvisioningFailure(
       type: "esim_failure",
       severity: "critical",
       title: `eSIM発行失敗 — 注文 #${ctx.orderId}`,
-      detail: `Order: ${ctx.orderId}\nUser: ${ctx.userId}\nBappy Plan: ${ctx.bappyPlanId}\nError: ${errorMessage}\nRetry job: ${retryJobId ?? "N/A"}`,
+      detail: `Order: ${ctx.orderId}\nUser: ${ctx.userId}\nBappy Plan: ${ctx.providerPlanId}\nError: ${errorMessage}\nRetry job: ${retryJobId ?? "N/A"}`,
       orderId: ctx.orderId,
       userId: ctx.userId,
     });
@@ -105,7 +105,7 @@ export async function handleProvisioningFailure(
   try {
     await notifyOwner({
       title: `🚨 eSIM発行失敗 — 注文 #${ctx.orderId}（自動リトライ中）`,
-      content: `**注文ID:** ${ctx.orderId}\n**ユーザーID:** ${ctx.userId}\n**Bappyプラン:** ${ctx.bappyPlanId}\n**エラー:** ${errorMessage}\n\n自動リトライを最大${MAX_RETRIES}回（5分間隔）実行します。\n解決した場合は通知します。`,
+      content: `**注文ID:** ${ctx.orderId}\n**ユーザーID:** ${ctx.userId}\n**Bappyプラン:** ${ctx.providerPlanId}\n**エラー:** ${errorMessage}\n\n自動リトライを最大${MAX_RETRIES}回（5分間隔）実行します。\n解決した場合は通知します。`,
     });
     if (incidentId) await markIncidentNotified(incidentId, "owner");
   } catch (notifyErr) {
@@ -123,7 +123,7 @@ export async function handleProvisioningFailure(
           <table>
             <tr><td><b>Order ID</b></td><td>${ctx.orderId}</td></tr>
             <tr><td><b>User ID</b></td><td>${ctx.userId}</td></tr>
-            <tr><td><b>Bappy Plan ID</b></td><td>${ctx.bappyPlanId}</td></tr>
+            <tr><td><b>Bappy Plan ID</b></td><td>${ctx.providerPlanId}</td></tr>
             <tr><td><b>Is Topup</b></td><td>${ctx.isTopup}</td></tr>
             <tr><td><b>Error</b></td><td>${errorMessage}</td></tr>
             <tr><td><b>Time</b></td><td>${new Date(now).toISOString()}</td></tr>
@@ -189,17 +189,17 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
         if (!job.esimLinkUuid) {
           throw new Error("Missing esimLinkUuid for topup retry");
         }
-        const activation = await getProvider(job.provider).topup({ providerRef: job.esimLinkUuid, providerPlanId: job.bappyPlanId, transactionId: job.orderId });
+        const activation = await getProvider(job.provider).topup({ providerRef: job.esimLinkUuid, providerPlanId: job.providerPlanId, transactionId: job.orderId });
         const esimLink = await getEsimLinkByUuid(job.esimLinkUuid);
         if (!esimLink) throw new Error("Parent eSIM link not found");
-        // bappyPlanId はドキュメントIDではなくフィールドで検索（ID規約の二重化に依存しない）
-        const planQuery = await collections.plans.where("bappyPlanId", "==", job.bappyPlanId).limit(1).get();
+        // providerPlanId はドキュメントIDではなくフィールドで検索（ID規約の二重化に依存しない）
+        const planQuery = await collections.plans.where("providerPlanId", "==", job.providerPlanId).limit(1).get();
         const planData = planQuery.empty ? {} : planQuery.docs[0].data();
 
         await createEsimActivation({
           esimLinkId: esimLink.id,
           bappyActivationUuid: activation.providerRef,
-          bappyPlanId: job.bappyPlanId,
+          providerPlanId: job.providerPlanId,
           activationType: "topup",
           expiryDate: activation.expiryDate, // provider が epoch ms に正規化済み
           dataRemainingMb: activation.dataRemainingMb,
@@ -208,7 +208,7 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
         });
       } else {
         // New eSIM retry
-        const detail = await getProvider(job.provider).createEsim({ providerPlanId: job.bappyPlanId, orderId: job.orderId, transactionId: job.orderId });
+        const detail = await getProvider(job.provider).createEsim({ providerPlanId: job.providerPlanId, orderId: job.orderId, transactionId: job.orderId });
         installBy = detail.expiryDate; // インストール期限（発行完了メールに記載）
         await createEsimLink({
           orderId: job.orderId,
@@ -321,7 +321,7 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
                 <p>eSIM provisioning for Order #${job.orderId} failed after ${MAX_RETRIES} automatic retries.</p>
                 <table>
                   <tr><td><b>Order ID</b></td><td>${job.orderId}</td></tr>
-                  <tr><td><b>Bappy Plan ID</b></td><td>${job.bappyPlanId}</td></tr>
+                  <tr><td><b>Bappy Plan ID</b></td><td>${job.providerPlanId}</td></tr>
                   <tr><td><b>Attempts</b></td><td>${attemptNum}</td></tr>
                   <tr><td><b>Last Error</b></td><td>${errorMessage}</td></tr>
                 </table>

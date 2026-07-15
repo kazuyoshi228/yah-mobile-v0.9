@@ -263,7 +263,7 @@ async function handleCheckoutCompleted(session: Record<string, unknown>) {
 async function fulfillEsim(orderData: FsOrder) {
   const orderId = orderData.id;
   const userId = orderData.userId;
-  const bappyPlanId = orderData.bappyPlanId;
+  const providerPlanId = orderData.providerPlanId;
   const isTopup = orderData.orderType === "topup";
 
   const existingEsim = await getEsimLinkByOrderId(orderId);
@@ -280,17 +280,17 @@ async function fulfillEsim(orderData: FsOrder) {
     if (isTopup) {
       const parentLinkUuid = orderData.esimLinkUuid;
       if (!parentLinkUuid) throw new Error("Topup order missing esimLinkUuid");
-      await getProvider(provider).topup({ providerRef: parentLinkUuid, providerPlanId: bappyPlanId, transactionId: orderId });
+      await getProvider(provider).topup({ providerRef: parentLinkUuid, providerPlanId: providerPlanId, transactionId: orderId });
       linkUuid = parentLinkUuid;
       logger.info(`[fulfillEsim] Topup successful for link: ${linkUuid}`);
     } else {
-      const detail = await getProvider(provider).createEsim({ providerPlanId: bappyPlanId, orderId, transactionId: orderId });
+      const detail = await getProvider(provider).createEsim({ providerPlanId: providerPlanId, orderId, transactionId: orderId });
       linkUuid = detail.providerRef;
       installBy = detail.expiryDate; // 未有効化時の expiryDate ＝インストール期限（発行から約6ヶ月）
 
       // プランは管理画面から自動IDで作成されるため、ドキュメントIDではなく
-      // bappyPlanId フィールドで検索する（ID規約の二重化に依存しない）。
-      const planQuery = await collections.plans.where("bappyPlanId", "==", bappyPlanId).limit(1).get();
+      // providerPlanId フィールドで検索する（ID規約の二重化に依存しない）。
+      const planQuery = await collections.plans.where("providerPlanId", "==", providerPlanId).limit(1).get();
       const planDoc = planQuery.empty ? null : planQuery.docs[0];
       const planData = planDoc?.data() ?? {};
 
@@ -349,7 +349,7 @@ async function fulfillEsim(orderData: FsOrder) {
       orderId: orderId ?? "",
       amountJpy: orderData.amountJpy,
       planName: orderData.planName,
-      bappyPlanId: orderData.bappyPlanId,
+      providerPlanId: orderData.providerPlanId,
       gaClientId: orderData.gaClientId,
     });
   } catch (err) {
@@ -360,7 +360,7 @@ async function fulfillEsim(orderData: FsOrder) {
       {
         orderId,
         userId,
-        bappyPlanId,
+        providerPlanId,
         provider: orderData.provider ?? "bappy",
         stripeSessionId: orderData.stripeSessionId ?? "",
         isTopup,

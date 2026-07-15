@@ -17,7 +17,7 @@ export interface Ga4PurchaseInput {
   orderId: string;
   amountJpy: number;
   planName?: string | null;
-  bappyPlanId?: string | null;
+  providerPlanId?: string | null;
   gaClientId?: string | null;
 }
 
@@ -41,7 +41,7 @@ export async function sendGa4Purchase(o: Ga4PurchaseInput): Promise<void> {
           value: o.amountJpy,
           currency: "JPY",
           items: [{
-            item_id: o.bappyPlanId || o.orderId,
+            item_id: o.providerPlanId || o.orderId,
             item_name: o.planName || "Japan eSIM",
             price: o.amountJpy,
             quantity: 1,

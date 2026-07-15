@@ -52,13 +52,13 @@ export async function generateLlmsTxt(): Promise<string> {
         const popular = p.isPopular === true ? " ⭐" : "";
         // Buy URL: プラン確定済みで決済直前まで直行する共有リンク（design_share_links.md）
         const buyUrl = `https://yah.mobi/buy/${p.dataGb}gb`;
-        return `| ${p.dataGb}GB${popular} | ¥${p.priceJpy}${priceDiff} | ${p.bappyPlanId} | ${p.description ?? `${p.dataGb}GB data for ${days} days in Japan`} | ${buyUrl} |`;
+        return `| ${p.dataGb}GB${popular} | ¥${p.priceJpy}${priceDiff} | ${p.providerPlanId} | ${p.description ?? `${p.dataGb}GB data for ${days} days in Japan`} | ${buyUrl} |`;
       });
       return `### ${days}-Day Plans\n\n| Data | Price (JPY) | Plan ID | Description | Buy Link (direct checkout) |\n|------|-------------|---------|-------------|------|\n${rows.join("\n")}`;
     })
     .join("\n\n");
 
-  const samplePlanId = cheapestPlan?.bappyPlanId ?? "JP_3D_1GB";
+  const samplePlanId = cheapestPlan?.providerPlanId ?? "JP_3D_1GB";
   const sampleDays = cheapestPlan?.validityDays ?? 3;
   const totalPlans = activePlans.length;
   const minPrice = cheapestPlan?.priceJpy ?? 990;

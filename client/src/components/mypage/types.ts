@@ -17,7 +17,7 @@ export type EsimLink = {
 
 export type OrderRow = {
   id: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   planName?: string | null;
   status: string;
   amountJpy: number | null;

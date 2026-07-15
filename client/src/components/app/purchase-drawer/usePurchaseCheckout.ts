@@ -27,7 +27,7 @@ export function usePurchaseCheckout(currentOpt: PlanOption | null, user: Checkou
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const initCheckout = useCallableMutation<{
-    bappyPlanId: string;
+    providerPlanId: string;
     origin: string;
     termsConsented: boolean;
     privacyConsented: boolean;
@@ -48,7 +48,7 @@ export function usePurchaseCheckout(currentOpt: PlanOption | null, user: Checkou
     setPurchaseError(null);
     setIsPurchasing(true);
     trackEvent("checkout_start", {
-      bappyPlanId: currentOpt.bappyPlanId || currentOpt.planId,
+      providerPlanId: currentOpt.providerPlanId || currentOpt.planId,
       gb: currentOpt.gb,
       priceJpy: currentOpt.priceJpy,
     });
@@ -57,7 +57,7 @@ export function usePurchaseCheckout(currentOpt: PlanOption | null, user: Checkou
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const gaClientId = await getGaClientId(); // GA4のclient_id（サーバーpurchaseのセッション縫合用・取れなければnull）
       const res = await initCheckout.mutateAsync({
-        bappyPlanId: currentOpt.bappyPlanId || currentOpt.planId,
+        providerPlanId: currentOpt.providerPlanId || currentOpt.planId,
         origin: window.location.origin,
         termsConsented,
         privacyConsented,

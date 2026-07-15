@@ -15,7 +15,7 @@ import {
 } from "./types";
 
 interface PlansSectionProps {
-  onSelectPlan: (days: number, gb: string, priceJpy: number, bappyPlanId?: string) => void;
+  onSelectPlan: (days: number, gb: string, priceJpy: number, providerPlanId?: string) => void;
 }
 
 /**
@@ -190,7 +190,7 @@ export default function PlansSection({ onSelectPlan }: PlansSectionProps) {
                     </div>
                     <motion.button
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => onSelectPlan(selected.days, selected.gb, selected.priceJpy, selected.bappyPlanId)}
+                      onClick={() => onSelectPlan(selected.days, selected.gb, selected.priceJpy, selected.providerPlanId)}
                       className="text-label text-[0.75rem] bg-black text-white px-10 py-4 hover:bg-black/80 transition-colors duration-200 whitespace-nowrap"
                     >
                       {t("plans.buyCta")}

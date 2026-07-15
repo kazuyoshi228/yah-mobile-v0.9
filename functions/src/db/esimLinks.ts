@@ -42,7 +42,7 @@ export async function updateEsimLink(bappyLinkUuid: string, data: Partial<FsEsim
 export async function createEsimActivation(data: {
   esimLinkId: string;
   bappyActivationUuid: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   activationType: "initial" | "topup";
   expiryDate?: number | null;
   dataRemainingMb?: number | null;
@@ -61,7 +61,7 @@ export async function createEsimActivation(data: {
 
 export async function getActiveActivationByEsimLinkId(
   esimLinkId: string,
-): Promise<{ id: string; bappyActivationUuid: string; bappyPlanId: string; status: string } | null> {
+): Promise<{ id: string; bappyActivationUuid: string; providerPlanId: string; status: string } | null> {
   const snap = await collections.esimActivations
     .where("esimLinkId", "==", esimLinkId)
     .where("status", "==", "active")
@@ -70,5 +70,5 @@ export async function getActiveActivationByEsimLinkId(
     .get();
   if (snap.empty) return null;
   const d = snap.docs[0];
-  return { id: d.id, ...d.data() } as { id: string; bappyActivationUuid: string; bappyPlanId: string; status: string };
+  return { id: d.id, ...d.data() } as { id: string; bappyActivationUuid: string; providerPlanId: string; status: string };
 }

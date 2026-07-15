@@ -51,7 +51,7 @@ export const SubmitContactInquiryInput = z.object({
 });
 
 export const OrdersInitCheckoutInput = z.object({
-  bappyPlanId: z.string().min(1),
+  providerPlanId: z.string().min(1),
   origin: z.string().url(),
   termsConsented: z.boolean(),
   privacyConsented: z.boolean(),
@@ -63,7 +63,7 @@ export const OrdersInitCheckoutInput = z.object({
 
 export const OrdersInitTopupCheckoutInput = z.object({
   esimLinkUuid: z.string().min(1),
-  bappyPlanId: z.string().min(1),
+  providerPlanId: z.string().min(1),
   origin: z.string().url(),
   timezone: z.string().max(100).nullish(),
   language: z.string().max(20).nullish(),

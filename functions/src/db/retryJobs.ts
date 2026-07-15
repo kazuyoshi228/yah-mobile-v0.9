@@ -26,7 +26,7 @@ export async function updateEsimRetryJob(id: string, data: Partial<FsEsimRetryJo
 export async function createRetryJob(data: {
   orderId: string;
   userId: string;
-  bappyPlanId: string;
+  providerPlanId: string;
   provider?: "esimaccess" | "bappy" | null;
   stripeSessionId: string;
   isTopup: boolean;

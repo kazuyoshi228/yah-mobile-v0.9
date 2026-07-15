@@ -42,8 +42,8 @@ export async function getActivePlans(): Promise<FsPlan[]> {
 
 // NOTE: プランの作成・更新・削除は管理画面から Firestore へ直接書き込む（BaaS First）。
 // バックエンドは読み取り専用の getActivePlans（llms.txt 用）のみを保持する。
-// かつてドキュメントID == bappyPlanId を前提としたヘルパー群が存在したが、
-// 管理画面は自動IDで作成するため規約が二重化していた。全て bappyPlanId フィールド
+// かつてドキュメントID == providerPlanId を前提としたヘルパー群が存在したが、
+// 管理画面は自動IDで作成するため規約が二重化していた。全て providerPlanId フィールド
 // クエリに統一し、doc-ID 前提のヘルパーは削除した。
 
 export async function getStripeEvent(stripeEventId: string): Promise<FsStripeEvent | null> {

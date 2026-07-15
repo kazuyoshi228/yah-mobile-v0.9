@@ -38,7 +38,7 @@ vi.mock("@/_core/hooks/useAuth", () => ({
 // Firestore 直接購読は使わず、プランをテスト用に固定
 const testPlan = {
   id: "plan_doc_1",
-  bappyPlanId: "JP_7D_1GB",
+  providerPlanId: "JP_7D_1GB",
   name: "Japan 7 Days 1GB",
   dataGb: 1,
   validityDays: 7,
@@ -113,7 +113,7 @@ describe("PurchaseDrawer — 購入フロー", () => {
     await waitFor(() => expect(mockMutateAsync).toHaveBeenCalled());
     expect(mockMutateAsync).toHaveBeenCalledWith(
       expect.objectContaining({
-        bappyPlanId: "JP_7D_1GB",
+        providerPlanId: "JP_7D_1GB",
         termsConsented: true,
         privacyConsented: true,
         origin: "https://yah.mobi",

@@ -107,7 +107,7 @@ export default function AppPage({ buySlug }: { buySlug?: string } = {}) {
     );
     setBuyLinkHandled(true);
     if (!plan) return;
-    setDrawerPlanId(plan.bappyPlanId);
+    setDrawerPlanId(plan.providerPlanId);
     setDrawerInitialDays(plan.validityDays);
     setDrawerInitialGb(`${plan.dataGb}GB`);
     setDrawerInitialStep(undefined);
@@ -527,14 +527,14 @@ export default function AppPage({ buySlug }: { buySlug?: string } = {}) {
 
       {/* ─── PLANS ─── 最短動線v2: HERO直下へ移動（0スクロール強で価格・選択肢が見える） */}
       <Suspense fallback={<div className="py-24 bg-white" />}>
-        <PlansSection onSelectPlan={(days: number, gb: string, _priceJpy, bappyPlanId) => {
-          if (bappyPlanId) setDrawerPlanId(bappyPlanId);
+        <PlansSection onSelectPlan={(days: number, gb: string, _priceJpy, providerPlanId) => {
+          if (providerPlanId) setDrawerPlanId(providerPlanId);
           // 選択済みの日数・GBを直接引き継ぐ（Firestore依存なしで即Step2表示）
           setDrawerInitialDays(days);
           setDrawerInitialGb(gb);
           setDrawerInitialStep(undefined);
           setDrawerOpen(true);
-          trackEvent("plan_select", { planId: bappyPlanId, days, gb });
+          trackEvent("plan_select", { planId: providerPlanId, days, gb });
         }} />
       </Suspense>
 

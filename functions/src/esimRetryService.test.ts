@@ -66,7 +66,7 @@ describe("esimRetryService", () => {
       const ctx: ProvisioningContext = {
         orderId: "order_123",
         userId: "user_123",
-        bappyPlanId: "plan_123",
+        providerPlanId: "plan_123",
         stripeSessionId: "cs_test_123",
         isTopup: false,
       };
@@ -78,7 +78,7 @@ describe("esimRetryService", () => {
       expect(db.createRetryJob).toHaveBeenCalledWith({
         orderId: "order_123",
         userId: "user_123",
-        bappyPlanId: "plan_123",
+        providerPlanId: "plan_123",
         provider: "bappy", // ctx.provider 未設定時のフォールバック（柱2）
         stripeSessionId: "cs_test_123",
         isTopup: false,
@@ -109,7 +109,7 @@ describe("esimRetryService", () => {
       (db.createIncidentLog as any).mockResolvedValue("incident_ea");
 
       await handleProvisioningFailure(
-        { orderId: "o_ea", userId: "u", bappyPlanId: "PYTKZG843", provider: "esimaccess", stripeSessionId: "cs", isTopup: false },
+        { orderId: "o_ea", userId: "u", providerPlanId: "PYTKZG843", provider: "esimaccess", stripeSessionId: "cs", isTopup: false },
         new Error("timeout"),
       );
 
@@ -125,7 +125,7 @@ describe("esimRetryService", () => {
       id: "job_1",
       orderId: "order_1",
       userId: "user_1",
-      bappyPlanId: "plan_1",
+      providerPlanId: "plan_1",
       stripeSessionId: "cs_1",
       isTopup: false,
       parentOrderId: null,
@@ -191,7 +191,7 @@ describe("esimRetryService", () => {
 
     it("topupリトライ: esimLinkUuid で親eSIMを解決し topup→activation→fulfilled（旧バグの回帰防止）", async () => {
       const topupJob = {
-        id: "job_t", orderId: "order_t", userId: "user_1", bappyPlanId: "TOPUP_x",
+        id: "job_t", orderId: "order_t", userId: "user_1", providerPlanId: "TOPUP_x",
         provider: "bappy", esimLinkUuid: "parent_uuid", parentOrderId: null,
         isTopup: true, retryCount: 0, maxRetries: 3, status: "pending",
       };

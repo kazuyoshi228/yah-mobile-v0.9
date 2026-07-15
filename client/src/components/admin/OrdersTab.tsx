@@ -21,7 +21,7 @@ type Order = {
   id: string;
   userId: string;
   planId: string;
-  bappyPlanId?: string;
+  providerPlanId?: string;
   planName?: string | null;
   status: string;
   refundStatus?: string | null;
@@ -150,7 +150,7 @@ function OrderDetailPanel({
     { label: "Amount", value: order.amountJpy != null ? `¥${order.amountJpy.toLocaleString()}` : "—" },
     ...(order.discountPercentage ? [{ label: "Discount", value: `${order.discountPercentage}%` }] : []),
     { label: "Plan ID", value: <span className="font-mono text-[0.7rem]">{order.planId}</span> },
-    ...(order.bappyPlanId ? [{ label: "Bappy Plan ID", value: <span className="font-mono text-[0.7rem]">{order.bappyPlanId}</span> }] : []),
+    ...(order.providerPlanId ? [{ label: "Bappy Plan ID", value: <span className="font-mono text-[0.7rem]">{order.providerPlanId}</span> }] : []),
     ...(order.orderType ? [{ label: "Order Type", value: order.orderType }] : []),
     { label: "User ID", value: <span className="font-mono text-[0.7rem]">{order.userId}</span> },
     ...(order.userName ? [{ label: "User Name", value: order.userName }] : []),
@@ -342,7 +342,7 @@ export default function OrdersTab() {
     const q = search.trim().toLowerCase();
     if (q) {
       list = list.filter((o) =>
-        [o.id, o.userEmail, o.guestEmail, o.userName, o.userId, o.planId, o.bappyPlanId, o.planName]
+        [o.id, o.userEmail, o.guestEmail, o.userName, o.userId, o.planId, o.providerPlanId, o.planName]
           .some((v) => v?.toLowerCase().includes(q)),
       );
     }
