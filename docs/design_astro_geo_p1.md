@@ -71,5 +71,28 @@ hosting rewrite:
 - 将来: 現行 puppeteer prerender を Astro に段階置換（Product schema類のSEOバグを構造的に解消）。
 
 ## 6. 未確認・要ユーザー判断
-1. **framework追加（Astro）の可否**（Manus/配信制約）。← 着手前に確認。
+1. **framework追加（Astro）の可否**（Manus/配信制約）。← 着手前に確認。→ **承認済み（B・オリジン掃除込み）**。
 2. P1は ja 1言語のみ（feedがjaのみ）。多言語は translations 拡充待ち＝magazine側の担当。
+
+---
+
+## 7. 実装ログ（2026-07-15・ブランチ `feat/astro-migration`）
+
+### 済（コミット 152ffc3 ／ 依存土台 481a36a）
+- 依存: `astro@6.4.8`（内部Vite7）・`@astrojs/react@5.0.7`（React19/Vite7）・`marked@18`。**単一Vite7**を確認（Vite6/8混入なし）。
+- `astro.config.mjs`（専用 `srcDir: src-astro`／隔離 `outDir: dist/astro`／alias `@`・`@shared`／`@tailwindcss/vite`）。
+- `src-astro/pages/esim/[lang]/[slug].astro` ＋ `layouts/BaseLayout.astro` ＋ `lib/{esimGuides,plans,markdown}.ts`。
+- `.gitignore` に `.astro/`。ローカル起動: `.claude/launch.json` に `astro-dev`（:4331）。
+
+### 設計との差異（実コード優先で調整した点）
+- **プラン表SSOTの取得手段**: 設計§2.4の「firebase-admin(ADC)」→ **Firestore公開REST（公開apiKey）** に変更。`plans` は rules で `allow read: if true` のため admin/ADC 不要でビルドが軽く、CIで鍵配布も不要。docID・`providerPlanId` の**両方で照合**（feedの識別子ゆれに頑健）。実測で `PAK783GRS/PYTKZG843` → IIJ 10GB¥2,600 / 5GB¥1,800 に解決。
+- **CJK強調の追加対処**（設計に無かった実データ起因）: feed本文が「…」\*\* の形の和文強調を多用。CommonMarkの right-flanking 規則で和文約物直後の閉じ \*\* が強調化しないため、`lib/markdown.ts` で marked 前に「同一行で閉じた \*\*…\*\*」を `<strong>` へ正規化（表セル/リストは非破壊）。
+- **outDir を当面 `dist/astro` に隔離**: 設計§2は「outDir を dist/public にマージ」だが、SPAの `dist/public`（emptyOutDir）を壊さないため**P1では分離**。統合（§7残）で hosting へ寄せる。
+
+### P1残（次サブステップ／別途着手・要合意）
+- **配信統合**: `firebase.json` に `/esim/**` rewrite（実ファイル優先）＋ ビルドで astro 出力を `dist/public/esim/**` へ配置（build スクリプト連結 or postbuild コピー）。→ dev チャンネルへ deploy して**生HTMLのGEO確認＋SPA全機能の回帰**。
+- CI（firebase-hosting-dev.yml / merge）の build に astro build 追加。
+- 本番反映は上記 dev 確認後、**ユーザー明示指示**で。
+
+### 内容メモ（magazine側の担当）
+- feed本文に編集プレースホルダ（`〔要撮影: …〕`『要確認・編集: …』）が残存。公開前に magazine 側で確定が必要。
