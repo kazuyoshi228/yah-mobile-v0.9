@@ -4,6 +4,7 @@ const zhTW = {
     "home": "首頁",
     "buy": "購買",
     "plans": "方案",
+    "guide": "指南",
     "faq": "常見問題",
     "chat": "線上客服",
     "contact": "聯絡我們",

@@ -3,6 +3,7 @@ const zhCN = {
     home: "首页",
     buy: "购买",
     plans: "套餐",
+    guide: "指南",
     faq: "常见问题",
     chat: "在线客服",
     contact: "联系我们",

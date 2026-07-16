@@ -3,6 +3,7 @@ const en = {
     home: "HOME",
     buy: "BUY",
     plans: "PLANS",
+    guide: "GUIDE",
     faq: "FAQ",
     chat: "CHAT",
     contact: "CONTACT",

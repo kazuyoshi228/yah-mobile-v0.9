@@ -3,6 +3,7 @@ const ko = {
     home: "홈",
     buy: "구매",
     plans: "요금제",
+    guide: "가이드",
     faq: "자주 묻는 질문",
     chat: "채팅",
     contact: "문의",

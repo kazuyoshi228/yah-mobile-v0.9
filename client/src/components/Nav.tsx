@@ -178,10 +178,12 @@ export default function Nav() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const handleNavClick = useNavHandler();
 
-  const navLinks = [
+  // anchor=…/app#section へスクロール、href=別ページ（静的ガイド等）へ遷移
+  const navLinks: { label: string; anchor?: string; href?: string }[] = [
     { label: t("nav.home"),    anchor: "" },
     { label: t("nav.buy"),     anchor: "buy" },
     { label: t("nav.plans"),   anchor: "plans" },
+    { label: t("nav.guide"),   href: "/guides/esim/ja/esim-chatgpt" },
     { label: t("nav.faq"),     anchor: "faq" },
     { label: t("nav.chat"),    anchor: "chat" },
     { label: t("nav.contact"), anchor: "contact" },
@@ -226,17 +228,29 @@ export default function Nav() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => handleNavClick(link.anchor)}
-                className={`text-label transition-colors duration-300 hover:opacity-50 bg-transparent border-none cursor-pointer ${
-                  isLight ? "text-black" : "text-white"
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
+            {navLinks.map((link) =>
+              link.href ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className={`text-label no-underline transition-colors duration-300 hover:opacity-50 ${
+                    isLight ? "text-black" : "text-white"
+                  }`}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <button
+                  key={link.label}
+                  onClick={() => handleNavClick(link.anchor ?? "")}
+                  className={`text-label transition-colors duration-300 hover:opacity-50 bg-transparent border-none cursor-pointer ${
+                    isLight ? "text-black" : "text-white"
+                  }`}
+                >
+                  {link.label}
+                </button>
+              )
+            )}
             {!loading && <AuthButton {...authProps} />}
             <LanguageSwitcher />
           </nav>
@@ -280,12 +294,22 @@ export default function Nav() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                 >
-                  <button
-                    onClick={() => { handleNavClick(link.anchor); setMenuOpen(false); }}
-                    className="font-sans w-full text-left block py-5 border-b border-[#D7D7D7] text-black hover:opacity-40 transition-opacity bg-transparent border-x-0 border-t-0 cursor-pointer text-[1.125rem] tracking-[0.08em]"
-                  >
-                    {link.label}
-                  </button>
+                  {link.href ? (
+                    <a
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="font-sans w-full text-left block py-5 border-b border-[#D7D7D7] text-black no-underline hover:opacity-40 transition-opacity text-[1.125rem] tracking-[0.08em]"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => { handleNavClick(link.anchor ?? ""); setMenuOpen(false); }}
+                      className="font-sans w-full text-left block py-5 border-b border-[#D7D7D7] text-black hover:opacity-40 transition-opacity bg-transparent border-x-0 border-t-0 cursor-pointer text-[1.125rem] tracking-[0.08em]"
+                    >
+                      {link.label}
+                    </button>
+                  )}
                 </motion.div>
               ))}
 
