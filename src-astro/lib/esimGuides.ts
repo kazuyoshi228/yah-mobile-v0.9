@@ -2,6 +2,8 @@
  * esimGuides.ts — magazine の eSIM feed をビルド時に取得（design_astro_geo_p1.md）
  * feed = メタデータ＋translations（title/body(MD)/directAnswer/metaTitle/metaDescription/faq）。
  */
+import { assertGuidesIntegrity } from "./integrity";
+
 const FEED_URL = "https://magazine.yah.mobi/feeds/esim.json";
 
 export interface FaqItem { q: string; a: string; }
@@ -40,6 +42,7 @@ export async function getEsimGuides(): Promise<EsimGuide[]> {
   const res = await fetch(`${FEED_URL}?ts=${Math.floor(Date.now() / 60000)}`);
   if (!res.ok) throw new Error(`[esimGuides] feed fetch failed: ${res.status}`);
   _cache = (await res.json()) as EsimGuide[];
+  assertGuidesIntegrity(_cache); // 消えてはいけないデータ（author等）の欠落で公開をブロック
   return _cache;
 }
 
