@@ -179,7 +179,7 @@ const jsonLd = [articleLd, ...(faqLd ? [faqLd] : [])];
               <tr>
                 <td>{p.name}</td>
                 <td>{p.dataGb != null ? `${p.dataGb}GB` : "—"}</td>
-                <td>{p.validityDays != null ? `${p.validityDays}${lang === "ja" ? "日" : " days"}` : "—"}</td>
+                <td>{p.validityDays != null ? `${p.validityDays}${ui.daysUnit}` : "—"}</td>
                 <td class="plan-price">{yen(p.priceJpy)}</td>
                 <td><a class="buy-btn" href={buyHref(p.id)}>{ui.buy}</a></td>
               </tr>
