@@ -1,6 +1,6 @@
 # CLAUDE.md — yah.mobile 開発ガイド（AI/開発者向け）
 
-yah.mobile（日本旅行者向け eSIM 販売サイト）。フロント React 19 + Vite 7、バックエンド Firebase（Cloud Functions v2 / Firestore / Auth / Storage / Hosting）。GitHub: `kazuyoshi228/yah-mobile-v0.9`（リモート `origin` の実体。旧名 `yah-mobile-v0.51` / `yah-mobile-v5` は自動リダイレクトされる）。
+yah.mobile（日本旅行者向け eSIM 販売サイト）。フロント React 19 + Vite 7、バックエンド Firebase（Cloud Functions v2 / Firestore / Auth / Storage / Hosting）。GitHub: `kazuyoshi228/yah-mobile-v1.2`（リモート `origin` の実体。2026-07-16 に旧 `yah-mobile-v0.9` から移行）。旧リポ `yah-mobile-v0.9` はローカルで `origin-v09` として温存（バックアップ）。
 
 ---
 
