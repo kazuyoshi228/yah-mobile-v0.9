@@ -88,7 +88,7 @@ const ko = {
     disclaimer: "타사의 가격 및 사양은 변경될 수 있습니다. 최신 정보는 각 사 웹사이트에서 확인해 주세요.",
     sectionLabel: "가격 비교",
     title: "타사와 비교해보세요.",
-    subtitle: "주요 일본 eSIM 서비스의 '10GB / 30일' 요금제를 비교했습니다. 2026년 4월 기준 공식 가격.",
+    subtitle: "주요 일본 eSIM 서비스의 '10GB / 30일' 요금제를 비교했습니다.",
     bestValue: "최고 가성비",
     scroll: "스크롤",
     headers: {

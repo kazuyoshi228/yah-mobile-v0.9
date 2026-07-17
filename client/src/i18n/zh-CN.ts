@@ -88,7 +88,7 @@ const zhCN = {
     disclaimer: "各家价格与规格可能变动，最新信息请以各官方网站为准。",
     sectionLabel: "价格对比",
     title: "我们的优势。",
-    subtitle: "对比主要日本eSIM服务商的'10GB / 30天'套餐。价格为2026年4月官方价格。",
+    subtitle: "对比主要日本eSIM服务商的'10GB / 30天'套餐。",
     bestValue: "最超值",
     scroll: "滑动查看",
     headers: {

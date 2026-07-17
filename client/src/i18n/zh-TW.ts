@@ -116,7 +116,7 @@ const zhTW = {
     "disclaimer": "各家價格與規格可能變動，最新資訊請以各官方網站為準。",
     "sectionLabel": "價格比較",
     "title": "我們的優勢。",
-    "subtitle": "以相同「10GB / 30 天」方案比較主要赴日 eSIM 服務商。價格為 2026 年 4 月官方價格。",
+    "subtitle": "以相同「10GB / 30 天」方案比較主要赴日 eSIM 服務商。",
     "bestValue": "最超值",
     "scroll": "滑動查看",
     "headers": {

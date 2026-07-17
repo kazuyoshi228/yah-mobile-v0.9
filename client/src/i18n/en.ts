@@ -88,7 +88,7 @@ const en = {
     disclaimer: "Competitor prices and specifications may change. Please check each provider's website for the latest information.",
     sectionLabel: "Price Comparison",
     title: "How we compare.",
-    subtitle: "Comparing leading Japan-bound eSIM services on the same \"10GB / 30-day\" tier. Official prices as of April 2026.",
+    subtitle: "Comparing leading Japan-bound eSIM services on the same \"10GB / 30-day\" tier.",
     bestValue: "BEST VALUE",
     scroll: "Scroll",
     headers: {
