@@ -132,8 +132,12 @@ service cloud.firestore {
 
     // ─── promotions ──────────────────────────────────────────────────────────────
     match /promotions/{promoId} {
-      // ユーザーは存在確認や内容の読み取りが可能
-      allow read: if isAuthenticated();
+      // クーポンは Stripe の allow_promotion_codes で処理しており、このコレクションを読む
+      // クライアントは存在しない（client/functions/admin いずれも利用0・本番データ0件）。
+      // isAuthenticated() だと chat が自動サインインさせる「匿名ユーザー」を含む全認証ユーザーに
+      // コード・割引率を列挙されるため admin 限定にする（将来 promo を入れても漏れない）。
+      // クライアント検証が必要になったら callable でコードの可否だけ返す設計にすること。
+      allow read: if isAdmin();
       allow write: if isAdmin();
     }
 

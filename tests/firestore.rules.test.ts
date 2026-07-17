@@ -55,6 +55,12 @@ const alice = () => testEnv.authenticatedContext("alice", { email: "alice@exampl
 const bob = () => testEnv.authenticatedContext("bob", { email: "bob@example.com" }).firestore();
 const admin = () => testEnv.authenticatedContext("admin_user", { email: "owner@example.com", admin: true }).firestore();
 const anon = () => testEnv.unauthenticatedContext().firestore();
+/**
+ * Firebase の匿名認証ユーザー。chat(chat.yah.mobi) が同一プロジェクトで訪問者全員を
+ * signInAnonymously させるため実在する。「認証はあるが email クレームが無い」のが特徴で、
+ * isAuthenticated() だけの条件は通ってしまう点に注意。
+ */
+const anonAuthUser = () => testEnv.authenticatedContext("anon_chat_visitor").firestore();
 
 // ─── users ──────────────────────────────────────────────────────────────────
 describe("users", () => {
@@ -285,6 +291,44 @@ describe("log collections", () => {
     await assertFails(getDoc(doc(admin(), "recommend_logs/rc1")));
     await assertFails(getDoc(doc(alice(), "recommend_logs/rc1")));
     await assertFails(setDoc(doc(alice(), "recommend_logs/rc2"), { sessionId: "s" }));
+  });
+});
+
+// ─── promotions ───────────────────────────────────────────────────────────────
+// クーポンは Stripe の allow_promotion_codes で処理しており、このコレクションを読む
+// クライアントは存在しない。isAuthenticated() だと chat 由来の匿名ユーザーを含む全認証
+// ユーザーにコード・割引率を列挙されるため admin 限定であることを担保する。
+describe("promotions", () => {
+  beforeEach(async () => {
+    await seed("promotions/SUMMER30", {
+      code: "SUMMER30",
+      discountType: "percentage",
+      discountValue: 30,
+      isActive: true,
+      currentUses: 0,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+  });
+
+  it("匿名認証ユーザー（chat由来）はクーポンを読めない", async () => {
+    await assertFails(getDoc(doc(anonAuthUser(), "promotions/SUMMER30")));
+  });
+
+  it("一般ログインユーザーもクーポンを読めない（列挙防止）", async () => {
+    await assertFails(getDoc(doc(alice(), "promotions/SUMMER30")));
+  });
+
+  it("未認証はクーポンを読めない", async () => {
+    await assertFails(getDoc(doc(anon(), "promotions/SUMMER30")));
+  });
+
+  it("admin はクーポンを読める", async () => {
+    await assertSucceeds(getDoc(doc(admin(), "promotions/SUMMER30")));
+  });
+
+  it("一般ログインユーザーはクーポンを書き込めない", async () => {
+    await assertFails(setDoc(doc(alice(), "promotions/HACK"), { code: "HACK", discountValue: 99 }));
   });
 });
 
