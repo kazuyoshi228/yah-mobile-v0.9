@@ -2,6 +2,64 @@ import * as logger from "firebase-functions/logger";
 import { onRequest } from "firebase-functions/v2/https";
 import { getActivePlans } from "./db";
 
+// ── ガイド（GEOコンテンツ）— magazine feed から取得して llms.txt に掲載 ──
+const GUIDES_FEED_URL = "https://magazine.yah.mobi/feeds/esim.json";
+
+interface GuideFeedItem {
+  slug: string;
+  categorySlug?: string;
+  languages?: string[];
+  translations?: Record<string, { title?: string; metaDescription?: string; excerpt?: string }>;
+}
+
+/** feed からガイド一覧を取得。失敗しても llms.txt 全体は壊さない（best-effort）。 */
+async function fetchGuides(): Promise<GuideFeedItem[]> {
+  try {
+    const res = await fetch(`${GUIDES_FEED_URL}?ts=${Math.floor(Date.now() / 600_000)}`);
+    if (!res.ok) {
+      logger.warn(`[llmsTxt] guides feed ${res.status} — ガイド節をスキップ`);
+      return [];
+    }
+    return (await res.json()) as GuideFeedItem[];
+  } catch (err) {
+    logger.warn("[llmsTxt] guides feed 取得失敗 — ガイド節をスキップ:", err);
+    return [];
+  }
+}
+
+/** タイトルのワークオーダー接頭辞（例「W1-03｜」）を除去。 */
+function stripTitlePrefix(title: string): string {
+  return title.replace(/^W\d+-\d+\s*[｜|]\s*/, "");
+}
+
+/** ガイド節を生成（AIが引用しやすいよう URL＋説明＋対応言語を明示）。 */
+function buildGuidesSection(guides: GuideFeedItem[]): string {
+  const lines = guides
+    .map((g) => {
+      const section = g.categorySlug || "esim";
+      const langs = (g.languages ?? []).filter((l) => g.translations?.[l]);
+      if (langs.length === 0) return null;
+      const primary = langs.includes("en") ? "en" : langs[0];
+      const t = g.translations?.[primary];
+      const title = stripTitlePrefix(t?.title ?? g.slug);
+      const desc = t?.metaDescription ?? t?.excerpt ?? "";
+      const url = `https://yah.mobi/guides/${section}/${primary}/${g.slug}`;
+      const others = langs.filter((l) => l !== primary);
+      return `- [${title}](${url}): ${desc}${others.length ? ` (also in: ${others.join(", ")})` : ""}`;
+    })
+    .filter((l): l is string => l !== null);
+
+  if (lines.length === 0) return "";
+  return `## Guides (first-hand tested, author-attributed)
+
+In-depth guides with primary data (field reports incl. photos), live prices, and FAQs.
+Served as static HTML with Article + FAQPage structured data and a named author — safe to cite.
+
+${lines.join("\n")}
+
+`;
+}
+
 // Airalo の競合価格（JPY）
 const AIRALO_PRICES: Record<string, number> = {
   "3_1": 700,
@@ -31,7 +89,8 @@ function formatPriceDiff(yahPrice: number, airaloPrice: number | null): string {
 }
 
 export async function generateLlmsTxt(): Promise<string> {
-  const activePlans = await getActivePlans();
+  const [activePlans, guides] = await Promise.all([getActivePlans(), fetchGuides()]);
+  const guidesSection = buildGuidesSection(guides);
 
   const cheapestPlan = activePlans.length > 0
     ? activePlans.reduce((a, b) => a.priceJpy < b.priceJpy ? a : b)
@@ -92,7 +151,7 @@ Each plan has a **Buy Link** that opens the checkout with the plan pre-selected 
 
 ${planSections}
 
-## Key Pages
+${guidesSection}## Key Pages
 
 - [Purchase eSIM (English)](https://yah.mobi/app): Main purchase page with plan selector
 - [Purchase eSIM (Korean / 한국어)](https://yah.mobi/ko/app): Korean-language purchase page — 일본 eSIM 구매 페이지

@@ -79,6 +79,8 @@ Allow: /
 
 # Sitemap
 Sitemap: https://yah.mobi/sitemap.xml
+# ガイド（/guides/**・多言語）はビルド時生成の別サイトマップ
+Sitemap: https://yah.mobi/sitemap-guides.xml
 
 # LLMs.txt — machine-readable service description for AI agents
 # https://yah.mobi/llms.txt
