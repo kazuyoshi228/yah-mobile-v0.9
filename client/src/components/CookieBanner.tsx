@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { loadUmamiIfConsented } from "@/lib/analytics";
+import { loadClarityIfConsented, loadUmamiIfConsented } from "@/lib/analytics";
 import { ga4GrantConsent } from "@/lib/ga4";
 
 const COOKIE_CONSENT_KEY = "yah_cookie_consent";
@@ -40,6 +40,7 @@ export default function CookieBanner() {
     setVisible(false);
     // 同意直後にサードパーティ解析を動的ロード
     loadUmamiIfConsented();
+    loadClarityIfConsented();
     // GA4 Consent Mode を granted に更新（Cookieベースのフル計測を許可）
     ga4GrantConsent();
   };

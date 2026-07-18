@@ -43,7 +43,8 @@ export function Step3Login() {
         </div>
       ) : isAuthenticated && user ? (
         <div>
-          <div className="border border-[#D7D7D7] p-5 mb-6 flex items-center gap-4">
+          {/* data-clarity-mask: Clarity のセッション録画に氏名・メールを残さない */}
+          <div data-clarity-mask="true" className="border border-[#D7D7D7] p-5 mb-6 flex items-center gap-4">
             <div className="font-sans font-semibold w-10 h-10 rounded-full bg-black flex items-center justify-center text-white text-[0.8125rem] shrink-0">
               {(user.name ?? user.email ?? "?").slice(0, 2).toUpperCase()}
             </div>

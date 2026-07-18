@@ -33,6 +33,13 @@ const cookies = [
     duration: "Up to 26 months",
     canOptOut: "Yes — decline via cookie banner or browser settings",
   },
+  {
+    category: "Analytics We use Microsoft Clarity (cookies such as _clck, _clsk) to understand how the page is used; it is loaded only after you accept cookies.",
+    name: "Microsoft Clarity",
+    purpose: "Records anonymised session replays, scroll heatmaps and interaction signals (e.g. repeated clicks) to help us find usability problems. On-screen personal details are masked.",
+    duration: "Up to 12 months",
+    canOptOut: "Yes — decline via cookie banner or browser settings",
+  },
 ];
 
 export default function CookiePolicy() {

@@ -92,6 +92,36 @@ export function loadUmamiIfConsented(): void {
   document.head.appendChild(script);
 }
 
+// Clarity プロジェクトID は GA 測定ID と同様の公開値（シークレットではない）
+const CLARITY_PROJECT_ID = "xog2mdmmmn";
+
+let clarityLoaded = false;
+/**
+ * Microsoft Clarity（セッション録画・スクロールヒートマップ）を Cookie 同意後にのみ
+ * 動的ロードする。同意前・拒否時には一切ロードしない（umami と同じ方針）。
+ * 画面上の個人情報はダッシュボード側の Strict masking ＋ data-clarity-mask で除外する。
+ */
+export function loadClarityIfConsented(): void {
+  if (clarityLoaded) return;
+  if (typeof document === "undefined") return;
+  if (!hasCookieConsent()) return;
+
+  clarityLoaded = true;
+  // 公式スニペット同等: ロード完了前の呼び出しをキューする stub を先に用意
+  type ClarityFn = { (...args: unknown[]): void; q?: unknown[][] };
+  const w = window as unknown as { clarity?: ClarityFn };
+  if (!w.clarity) {
+    const stub: ClarityFn = (...args: unknown[]) => {
+      (stub.q = stub.q || []).push(args);
+    };
+    w.clarity = stub;
+  }
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.clarity.ms/tag/${CLARITY_PROJECT_ID}`;
+  document.head.appendChild(script);
+}
+
 /** イベントをキューに追加し、バッチ送信をスケジュールする */
 export function trackEvent(
   eventName: string,

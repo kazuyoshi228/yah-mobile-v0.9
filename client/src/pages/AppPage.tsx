@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import Nav from "@/components/Nav";
 import { useIsMobile } from "@/hooks/useMobile";
+import { useSectionViews } from "@/hooks/useSectionViews";
 import Footer from "@/components/Footer";
 import { ASSETS } from "@/lib/assets";
 import { activeInitialPlansQuery } from "@/lib/queries";
@@ -48,6 +49,7 @@ const NATURE_IMG = ASSETS.NATURE_IMG;
 export default function AppPage({ buySlug }: { buySlug?: string } = {}) {
   const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
+  useSectionViews(); // GA4 view_section（セクション到達のページ内ファネル）
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerPlanId, setDrawerPlanId] = useState<string | undefined>(undefined);
   // プラン選択の引き継ぎ用（PlansSection選択／ログイン往復のURLパラメータから復元）
