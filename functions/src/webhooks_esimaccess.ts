@@ -3,7 +3,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import { db, collections, updateEsimLink, getEsimLinkByOrderId, createNotification } from "./db";
 import { esimaccessProvider } from "./providers/esimaccess";
 // シークレット宣言は secrets.ts に一元化（P1-1）
-import { esimAccessCode, esimSecretKey, esimaccessWebhookToken, forgeApiKey, slackWebhookUrl } from "./secrets";
+import { esimAccessCode, esimSecretKey, esimaccessWebhookToken, forgeApiKey, slackWebhookUrl, gmailUser, gmailPass, ownerEmail } from "./secrets";
 import { notifyOwner } from "./adapters/notify";
 import type { FsEsimLink } from "../../shared/types";
 
@@ -89,7 +89,8 @@ export const esimaccessWebhook = onRequest(
   {
     region: "asia-northeast1",
     timeoutSeconds: 30,
-    secrets: [esimaccessWebhookToken, esimAccessCode, esimSecretKey, forgeApiKey, slackWebhookUrl],
+    // gmailUser/gmailPass/ownerEmail: notifyOwner のメールフォールバックに必須（未バインドだと通知が全滅する）
+    secrets: [esimaccessWebhookToken, esimAccessCode, esimSecretKey, forgeApiKey, slackWebhookUrl, gmailUser, gmailPass, ownerEmail],
   },
   async (req, res) => {
     if (req.method !== "POST") {

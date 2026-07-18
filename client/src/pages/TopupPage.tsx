@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useRoute } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "wouter";
+import { motion } from "framer-motion";
 import { onSnapshot, doc, collection, query, where, orderBy } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { activeTopupPlansQuery } from "@/lib/queries";
@@ -18,7 +18,7 @@ import type { FsEsimLink, FsPlan } from "../../../shared/types";
 export default function TopupPage({ params }: { params: { esimLinkId: string } }) {
   const { t, i18n } = useTranslation();
   const { esimLinkId } = params;
-  const { user, isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchasingPlanId, setPurchasingPlanId] = useState<string | null>(null);
@@ -28,13 +28,24 @@ export default function TopupPage({ params }: { params: { esimLinkId: string } }
 
   // eSIM取得
   useEffect(() => {
-    if (!isAuthenticated) return;
-    const unsub = onSnapshot(doc(getFirebaseDb(), "esim_links", esimLinkId), (snap) => {
-      setEsimLink(snap.exists() ? ({ id: snap.id, ...snap.data() } as FsEsimLink) : null);
-      setEsimLoading(false);
-    });
+    if (loading) return;
+    // 未ログイン確定時はローディングを解除（旧実装は解除されず無限スピナー）
+    if (!isAuthenticated) { setEsimLoading(false); return; }
+    const unsub = onSnapshot(
+      doc(getFirebaseDb(), "esim_links", esimLinkId),
+      (snap) => {
+        setEsimLink(snap.exists() ? ({ id: snap.id, ...snap.data() } as FsEsimLink) : null);
+        setEsimLoading(false);
+      },
+      (err) => {
+        // 他人の esimLinkId は permission-denied になる。エラーで止めず not-found 表示へ
+        console.error("[Topup] esim_links onSnapshot error:", err);
+        setEsimLink(null);
+        setEsimLoading(false);
+      },
+    );
     return unsub;
-  }, [esimLinkId, isAuthenticated]);
+  }, [esimLinkId, isAuthenticated, loading]);
 
   // トップアッププラン取得 (Firestoreから直接)
   const [plans, setPlans] = useState<FsPlan[] | null>(null);
@@ -47,19 +58,27 @@ export default function TopupPage({ params }: { params: { esimLinkId: string } }
       where("isActive", "==", true),
       orderBy("sortOrder", "asc") // Needs index? Will handle if index error
     );
+    let fbUnsub: (() => void) | null = null;
     const unsub = onSnapshot(q, (snap) => {
       setPlans(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as FsPlan));
       setPlansLoading(false);
     }, (error) => {
       console.error("Failed to fetch topup plans", error);
       // Fallback without sortOrder if index is missing（クエリ本体は lib/queries.ts に集約・P4-1）
+      // 旧実装は unsubscribe を破棄（購読リーク）し、フォールバック側のエラーも未処理だった
       const qFallback = activeTopupPlansQuery();
-      onSnapshot(qFallback, (snapFb) => {
-        setPlans(snapFb.docs.map(doc => ({ id: doc.id, ...doc.data() }) as FsPlan));
+      fbUnsub = onSnapshot(qFallback, (snapFb) => {
+        const list = snapFb.docs.map(doc => ({ id: doc.id, ...doc.data() }) as FsPlan);
+        list.sort((a, b) => ((a as { sortOrder?: number }).sortOrder ?? 0) - ((b as { sortOrder?: number }).sortOrder ?? 0));
+        setPlans(list);
+        setPlansLoading(false);
+      }, (fbErr) => {
+        console.error("[Topup] fallback plans onSnapshot error:", fbErr);
+        setPlans([]);
         setPlansLoading(false);
       });
     });
-    return unsub;
+    return () => { unsub(); fbUnsub?.(); };
   }, []);
 
   const handleBuy = useCallback(async (plan: FsPlan) => {
@@ -96,7 +115,7 @@ export default function TopupPage({ params }: { params: { esimLinkId: string } }
       setIsPurchasing(false);
       setPurchasingPlanId(null);
     }
-  }, [esimLink]);
+  }, [esimLink, t]);
 
   if (loading || esimLoading) {
     return (

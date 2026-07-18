@@ -465,6 +465,7 @@ const zhTW = {
     "loginFailed": "登入失敗，請再試一次。",
     "paymentFailed": "付款失敗，請再試一次。",
     "saveFailed": "儲存失敗，請再試一次。",
+    "signingIn": "登入中...",
     "fetchFailed": "載入資料失敗，請再試一次。"
   },
   "seo": {

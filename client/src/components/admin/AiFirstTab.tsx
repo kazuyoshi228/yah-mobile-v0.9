@@ -28,16 +28,26 @@ export function AiFirstTab({ period, onPeriodChange }: { period: Period; onPerio
       setError(false);
       try {
         const sinceMs = periodSinceMs(period);
-        const [refSnap, recSnap] = await Promise.all([
+        // allSettled: 片方が permission-denied でも読めた方は表示する（旧実装は Promise.all で全滅）
+        const [refRes, recRes] = await Promise.allSettled([
           getDocs(query(collection(getFirebaseDb(), "ai_referrer_logs"), where("createdAt", ">=", sinceMs))),
           getDocs(query(collection(getFirebaseDb(), "recommend_logs"), where("createdAt", ">=", sinceMs))),
         ]);
         if (!mounted) return;
-        const rLogs = refSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        // Sorting locally to avoid needing a composite index
-        rLogs.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
-        setRefLogs(rLogs);
-        setRecLogs(recSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        if (refRes.status === "fulfilled") {
+          const rLogs = refRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+          // Sorting locally to avoid needing a composite index
+          rLogs.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
+          setRefLogs(rLogs);
+        } else {
+          console.error("[AiFirstTab] ai_referrer_logs:", refRes.reason);
+        }
+        if (recRes.status === "fulfilled") {
+          setRecLogs(recRes.value.docs.map(d => ({ id: d.id, ...d.data() })));
+        } else {
+          console.error("[AiFirstTab] recommend_logs:", recRes.reason);
+        }
+        if (refRes.status === "rejected" && recRes.status === "rejected") setError(true);
       } catch (err) {
         console.error(err);
         if (mounted) setError(true);

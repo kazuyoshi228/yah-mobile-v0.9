@@ -180,6 +180,21 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
     const attemptNum = job.retryCount + 1;
     logger.info(`[RetryService] Processing retry job ${job.id} (attempt ${attemptNum}/${job.maxRetries}) for order ${job.orderId}`);
 
+    // 返金/取消済み・履行済みの注文には絶対に再発行しない（返金との競合・二重発行ガード）
+    const currentOrder = await getOrderById(job.orderId);
+    const orderStatus = currentOrder?.status ?? "missing";
+    const refundStatus = (currentOrder as { refundStatus?: string } | null)?.refundStatus;
+    if (!currentOrder || ["refunded", "cancelled", "fulfilled"].includes(orderStatus)
+      || refundStatus === "processing" || refundStatus === "refunded") {
+      logger.warn(`[RetryService] Skipping job ${job.id}: order ${job.orderId} status=${orderStatus} refund=${refundStatus ?? "-"}`);
+      await updateRetryJob(job.id, {
+        status: "cancelled",
+        resolvedAt: Date.now(),
+        lastError: `retry aborted: order status=${orderStatus} refundStatus=${refundStatus ?? "-"}`,
+      });
+      continue;
+    }
+
     try {
       await updateRetryJob(job.id, { status: "retrying", retryCount: attemptNum });
 
@@ -231,22 +246,29 @@ export async function processPendingRetries(): Promise<{ processed: number; succ
       });
       succeeded++;
 
-      // Notify owner of recovery (only if it took more than 1 retry)
-      if (attemptNum > 1) {
-        await notifyOwner({
-          title: `✅ eSIM発行 自動回復 — 注文 #${job.orderId}（${attemptNum}回目で成功）`,
-          content: `**注文ID:** ${job.orderId}\n**試行回数:** ${attemptNum}回目で成功\n\nユーザーへのeSIM配信が完了しました。`,
-        });
-      }
+      // 通知系の副作用は個別に握りつぶす。
+      // ここで例外を外側 catch に到達させると「発行成功」が「最終失敗→自動返金」に転化する
+      // （発行済みなのに返金される最悪パターン）ため、成功確定後の失敗は記録のみとする。
+      try {
+        // Notify owner of recovery (only if it took more than 1 retry)
+        if (attemptNum > 1) {
+          await notifyOwner({
+            title: `✅ eSIM発行 自動回復 — 注文 #${job.orderId}（${attemptNum}回目で成功）`,
+            content: `**注文ID:** ${job.orderId}\n**試行回数:** ${attemptNum}回目で成功\n\nユーザーへのeSIM配信が完了しました。`,
+          });
+        }
 
-      // Notify user in-app
-      await createNotification({
-        userId: job.userId,
-        title: "eSIMの発行が完了しました",
-        body: "eSIMが正常に発行されました。マイページからご確認ください。",
-        type: "order_fulfilled",
-        orderId: job.orderId,
-      });
+        // Notify user in-app
+        await createNotification({
+          userId: job.userId,
+          title: "eSIMの発行が完了しました",
+          body: "eSIMが正常に発行されました。マイページからご確認ください。",
+          type: "order_fulfilled",
+          orderId: job.orderId,
+        });
+      } catch (sideErr) {
+        logger.error("[RetryService] post-success notification failed (ignored):", sideErr);
+      }
 
       // Send user email (recovery success)
       try {

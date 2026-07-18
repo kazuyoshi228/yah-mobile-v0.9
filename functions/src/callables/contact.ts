@@ -19,7 +19,8 @@ export const submitContactInquiry = onCall({ region: REGION, enforceAppCheck: tr
   }
 
   const data = parsed.data;
-  logger.info("[Contact] Input parsed successfully", data);
+  // PII（氏名・メール・本文）はログに残さない
+  logger.info("[Contact] Input parsed successfully", { category: data.category, language: data.language });
 
   // 1. Honeypot Check
   if (data._hp && data._hp.length > 0) {
@@ -36,7 +37,7 @@ export const submitContactInquiry = onCall({ region: REGION, enforceAppCheck: tr
 
   // 3. Rate Limiting Check (IP based, max 3 per hour)
   const ipAddress = request.rawRequest?.ip ?? "unknown";
-  logger.info(`[Contact] Checking rate limit for IP: ${ipAddress}`);
+  logger.info("[Contact] Checking rate limit");
   if (ipAddress !== "unknown") {
     // 件数取得だけを try/catch する。超過時の throw を catch の外に置かないと、
     // resource-exhausted が自分の catch に捕まって internal(500) に化ける。
@@ -98,7 +99,8 @@ export const submitContactInquiry = onCall({ region: REGION, enforceAppCheck: tr
       createdAt: now,
       updatedAt: now,
     };
-    logger.info("[Contact] Firestore payload:", payload);
+    // PII（氏名・メール・本文・IP）を含む payload 全体はログに残さない
+    logger.info("[Contact] Saving inquiry", { category: payload.category, language: payload.language });
 
     await collections.contactInquiries.add(payload);
 

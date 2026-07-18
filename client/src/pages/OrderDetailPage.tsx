@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useRoute } from "wouter";
-import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "wouter";
+import { motion } from "framer-motion";
 import { onSnapshot, doc, getDoc, collection, query, where, updateDoc, serverTimestamp, QuerySnapshot, DocumentData } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { safeUrl } from "@/lib/utils";
+import { toMillis } from "@/lib/format";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -38,7 +39,9 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
   const [orderLoading, setOrderLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (loading) return;
+    // 未ログイン確定時はローディングを解除（旧実装は解除されず無限スピナー→not-found表示へ）
+    if (!isAuthenticated) { setOrderLoading(false); setEsimLoading(false); return; }
     const unsub = onSnapshot(
       doc(getFirebaseDb(), "orders", orderId),
       (snap) => {
@@ -207,7 +210,8 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
     );
   }
 
-  const date = new Date(order.createdAt).toLocaleDateString("en-US", {
+  // toMillis: 旧注文の Timestamp 型 createdAt で Invalid Date になるのを防ぐ
+  const date = new Date(toMillis(order.createdAt)).toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
   // 期限は常に表示。有効化済み→実期限「Expires」、未有効化→「Validity（N days · from activation）」＋「Install by <日付>」。

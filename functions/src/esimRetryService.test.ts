@@ -56,6 +56,9 @@ vi.mock("./mailer", () => ({
 describe("esimRetryService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // リトライ処理は冒頭で注文の status/refundStatus を確認する（返金との競合ガード）。
+    // 既定は「処理してよい注文」を返す。ガード自体のテストは個別に上書きする。
+    (db.getOrderById as any).mockResolvedValue({ id: "order_1", status: "pending_retry" });
   });
 
   describe("handleProvisioningFailure", () => {
@@ -134,6 +137,22 @@ describe("esimRetryService", () => {
       maxRetries: 3,
       status: "pending",
       ...overrides,
+    });
+
+    it("返金済み注文のリトライは発行せず job を cancelled にする（返金との競合ガード）", async () => {
+      (db.getPendingEsimRetryJobs as any).mockResolvedValue([newEsimJob({ retryCount: 0 })]);
+      (db.getOrderById as any).mockResolvedValue({ id: "order_1", status: "refunded" });
+
+      const result = await processPendingRetries();
+
+      expect(result.succeeded).toBe(0);
+      expect(result.failed).toBe(0);
+      expect(bappy.createLink as any).not.toHaveBeenCalled();
+      expect(db.createEsimLink as any).not.toHaveBeenCalled();
+      expect(db.updateOrder as any).not.toHaveBeenCalled();
+      expect((db.updateRetryJob as any).mock.calls.some(
+        (c: any[]) => c[1]?.status === "cancelled"
+      )).toBe(true);
     });
 
     it("最終試行(3回目)で失敗したらオーナー通知・失敗メール・失敗通知を出し注文をfailedにする", async () => {

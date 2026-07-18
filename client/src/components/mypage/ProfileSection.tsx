@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { NATIONALITIES } from "@shared/const";
 import { getFirebaseDb } from "@/lib/firebase";
 import { useTranslation } from "react-i18next";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useState, useEffect } from "react";
 
 export function ProfileSection() {
@@ -39,7 +39,8 @@ export function ProfileSection() {
     if (!user?.uid) { setError("Not authenticated."); return; }
     setIsSaving(true);
     try {
-      const updates: Record<string, unknown> = { updatedAt: Date.now() };
+      // ルールは updatedAt == request.time（Timestamp）を要求。Date.now() だと全ユーザー permission-denied
+      const updates: Record<string, unknown> = { updatedAt: serverTimestamp() };
       if (fullName.trim()) updates.fullName = fullName.trim();
       if (nationality) updates.nationality = nationality;
       if (ageNum !== undefined) updates.age = ageNum;

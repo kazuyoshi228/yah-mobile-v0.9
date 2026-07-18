@@ -150,7 +150,9 @@ export const onContactCreated = onDocumentCreated(
 
     await notifyOwner({
       title: `新しいお問い合わせ: ${safeName}`,
-      content: `カテゴリ: ${safeCategory || "未設定"}\nメール: ${safeEmail}\n\n${message}`, // Slack/Discord notifications might not need HTML escaping, but using raw message is fine since it's text.
+      // content は notifyViaEmail で HTML に埋め込まれるため、本文も必ずエスケープする
+      // （旧実装は safeMessage を定義しながら生 message を注入＝HTMLインジェクション可能だった）
+      content: `カテゴリ: ${safeCategory || "未設定"}\nメール: ${safeEmail}\n\n${safeMessage}`,
     }).catch((err) =>
       logger.error("[onContactCreated] notify error:", err)
     );

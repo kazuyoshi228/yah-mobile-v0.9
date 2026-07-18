@@ -2,7 +2,7 @@ import { getFirebaseDb } from "@/lib/firebase";
 import { callFunction, CALLABLE } from "@/lib/callable";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { useState, useCallback } from "react";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -166,13 +166,21 @@ export function OrderList({
   onSelect: (id: string) => void;
   esimByOrderId: EsimPreviewMap;
 }) {
+  const { t } = useTranslation();
   // BaaSネイティブ: ordersHide Callable を廃止し Firestore 直接 updateDoc に移行
+  // ルールは updatedAt == request.time（Timestamp）を要求するため serverTimestamp() 必須。
+  // Date.now()（number）だと一般ユーザーは常に permission-denied（admin は素通りで発見不能だった）
   const handleHideOrder = useCallback(async (id: string) => {
-    await updateDoc(doc(getFirebaseDb(), "orders", id), {
-      hiddenByUser: true,
-      updatedAt: Date.now(),
-    });
-  }, []);
+    try {
+      await updateDoc(doc(getFirebaseDb(), "orders", id), {
+        hiddenByUser: true,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error("[OrderList] hide order failed:", err);
+      toast.error(t("common.saveFailed"));
+    }
+  }, [t]);
 
   return (
     <div className="flex flex-col gap-4">

@@ -6,7 +6,7 @@
 import { useLocation } from "wouter";
 
 export default function Unauthorized() {
-  const [location] = useLocation();
+  const [_location] = useLocation();
 
   // URLパラメータからエラー情報を取得
   const params = new URLSearchParams(window.location.search);

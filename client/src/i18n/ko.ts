@@ -378,6 +378,7 @@ const ko = {
     loginFailed: "로그인에 실패했습니다. 다시 시도해 주세요.",
     paymentFailed: "결제에 실패했습니다. 다시 시도해 주세요.",
     saveFailed: "저장에 실패했습니다. 다시 시도해 주세요.",
+    signingIn: "로그인 중...",
     fetchFailed: "데이터를 불러오는 데 실패했습니다. 다시 시도해 주세요.",
   },
   seo: {

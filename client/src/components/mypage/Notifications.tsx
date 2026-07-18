@@ -31,9 +31,11 @@ export function NotificationBell({ onOpen }: { onOpen: () => void }) {
       where("isRead", "==", "false"),
       orderBy("createdAt", "desc"),
     );
-    const unsub = onSnapshot(q, (snap: QuerySnapshot<DocumentData>) => {
-      setCount(snap.size);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap: QuerySnapshot<DocumentData>) => setCount(snap.size),
+      (err) => { console.error("[Notifications] badge onSnapshot error:", err); setCount(0); },
+    );
     return unsub;
   }, [user?.id]);
   return (
@@ -83,7 +85,9 @@ export function NotificationPanel({ onClose }: { onClose: () => void }) {
     const ref = doc(getFirebaseDb(), "notifications", notifId);
     // isRead は functions 側（db/notifications.ts）と同じ文字列 "true"/"false" 規約に揃える
     // （boolean を書くと型混在データが増える。全面 boolean 化は移行を伴うためバックログ）
-    await updateDoc(ref, { isRead: "true", readAt: Date.now() });
+    await updateDoc(ref, { isRead: "true", readAt: Date.now() }).catch((err) =>
+      console.error("[Notifications] markRead failed:", err)
+    );
   }, [user?.id]);
 
   useEffect(() => {
@@ -94,10 +98,18 @@ export function NotificationPanel({ onClose }: { onClose: () => void }) {
       where("isRead", "==", "false"),
       orderBy("createdAt", "desc"),
     );
-    const unsub = onSnapshot(q, (snap: QuerySnapshot<DocumentData>) => {
-      setUnread(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FsNotif)));
-      setIsLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap: QuerySnapshot<DocumentData>) => {
+        setUnread(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FsNotif)));
+        setIsLoading(false);
+      },
+      (err) => {
+        console.error("[Notifications] panel onSnapshot error:", err);
+        setUnread([]);
+        setIsLoading(false);
+      },
+    );
     return unsub;
   }, [user?.id]);
 

@@ -378,6 +378,7 @@ const en = {
     loginFailed: "Login failed. Please try again.",
     paymentFailed: "Payment failed. Please try again.",
     saveFailed: "Failed to save. Please try again.",
+    signingIn: "Signing in...",
     fetchFailed: "Failed to fetch data. Please try again.",
   },
   seo: {

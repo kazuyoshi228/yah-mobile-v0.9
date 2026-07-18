@@ -291,11 +291,12 @@ describe("log collections", () => {
     await assertFails(setDoc(doc(admin(), "audit_logs/a2"), { action: "y" }));
   });
 
-  it("recommend_logs: 誰も読めない・書けない（Cloud Functions 専用）", async () => {
+  it("recommend_logs: admin のみ読める・書き込みは誰も不可（2026-07-19 に AI First タブ用に read を admin 開放）", async () => {
     await seed("recommend_logs/rc1", { sessionId: "s", createdAt: 1 });
-    await assertFails(getDoc(doc(admin(), "recommend_logs/rc1")));
+    await assertSucceeds(getDoc(doc(admin(), "recommend_logs/rc1")));
     await assertFails(getDoc(doc(alice(), "recommend_logs/rc1")));
     await assertFails(setDoc(doc(alice(), "recommend_logs/rc2"), { sessionId: "s" }));
+    await assertFails(setDoc(doc(admin(), "recommend_logs/rc2"), { sessionId: "s" }));
   });
 });
 
@@ -385,5 +386,35 @@ describe("esim_links list query shapes", () => {
         where("orderId", "==", "order1"),
       ))
     );
+  });
+});
+
+// ─── 2026-07-19 全域レビューの回帰テスト ────────────────────────────────────────
+describe("review regressions (2026-07-19)", () => {
+  it("recommend_logs は admin が読める（AI First タブの集計）", async () => {
+    await seed("recommend_logs/r1", { createdAt: Date.now(), planId: "p1" });
+    await assertSucceeds(getDoc(doc(admin(), "recommend_logs/r1")));
+  });
+
+  it("recommend_logs は一般ユーザー・未認証には読めない", async () => {
+    await seed("recommend_logs/r1", { createdAt: Date.now(), planId: "p1" });
+    await assertFails(getDoc(doc(alice(), "recommend_logs/r1")));
+    await assertFails(getDoc(doc(anon(), "recommend_logs/r1")));
+  });
+
+  it("plans は providerPlanId のみ（bappyPlanId 無し）でも admin が作成できる", async () => {
+    await assertSucceeds(setDoc(doc(admin(), "plans/pnew"), {
+      providerPlanId: "PK3VHQ9T6",
+      name: "Japan / 1GB / 7days",
+      priceJpy: 550,
+      validityDays: 7,
+      isActive: true,
+    }));
+  });
+
+  it("orders の hiddenByUser 更新は serverTimestamp なら本人が可能・number の updatedAt は拒否", async () => {
+    await seed("orders/oh1", { userId: "alice", amountJpy: 550, status: "fulfilled", hiddenByUser: false });
+    await assertFails(updateDoc(doc(alice(), "orders/oh1"), { hiddenByUser: true, updatedAt: Date.now() }));
+    await assertSucceeds(updateDoc(doc(alice(), "orders/oh1"), { hiddenByUser: true, updatedAt: serverTimestamp() }));
   });
 });

@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { useState, useEffect, useMemo } from "react";
 import { activePlansQuery } from "@/lib/queries";
+import { toMillis } from "@/lib/format";
 import type { EsimLink, OrderRow, EsimPreview, EsimPreviewMap } from "./types";
 
 /**
@@ -19,20 +20,7 @@ import type { EsimLink, OrderRow, EsimPreview, EsimPreviewMap } from "./types";
 // plan（providerPlanId / doc.id）→ { validityDays, name } の索引
 type PlanInfo = { validityDays?: number | null; name?: string | null };
 
-/**
- * createdAt の型ゆらぎをミリ秒に正規化する。
- * 現行の注文は number だが、旧経路の注文に Firestore Timestamp 型が実在し、
- * (a) new Date(Timestamp) が Invalid Date になる
- * (b) Firestore の型順序（number < Timestamp）により orderBy desc で旧注文が常に最上位に来る
- * の2つの表示バグを起こしていた（docs/design_esim_visibility_fix.md）。
- */
-function toMillis(v: unknown): number {
-  if (typeof v === "number") return v;
-  const ts = v as { toMillis?: () => number } | null | undefined;
-  if (ts && typeof ts.toMillis === "function") return ts.toMillis();
-  const t = v ? new Date(v as string | Date).getTime() : NaN;
-  return Number.isFinite(t) ? t : 0;
-}
+// createdAt の型ゆらぎ正規化は lib/format.ts の toMillis に共有化（OrderDetailPage と共用）
 
 export function useMyPageData(uid: string | undefined) {
   const [orders, setOrders] = useState<OrderRow[] | null>(null);

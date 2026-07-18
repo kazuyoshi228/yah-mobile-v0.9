@@ -27,3 +27,18 @@ export function formatTimestampJa(
     ...(opts.withSeconds ? { second: "2-digit" as const } : {}),
   });
 }
+
+/**
+ * createdAt 等の型ゆらぎをミリ秒に正規化する。
+ * 現行データは number だが、旧経路のドキュメントに Firestore Timestamp 型が実在し、
+ * (a) new Date(Timestamp) が Invalid Date になる
+ * (b) Firestore の型順序（number < Timestamp）で orderBy の並びが崩れる
+ * の2つの表示バグを起こす（docs/design_esim_visibility_fix.md）。
+ */
+export function toMillis(v: unknown): number {
+  if (typeof v === "number") return v;
+  const ts = v as { toMillis?: () => number } | null | undefined;
+  if (ts && typeof ts.toMillis === "function") return ts.toMillis();
+  const t = v ? new Date(v as string | Date).getTime() : NaN;
+  return Number.isFinite(t) ? t : 0;
+}

@@ -3,7 +3,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import { collections, updateEsimLink } from "./db";
 import { notifyOwner } from "./adapters/notify";
 // シークレット宣言は secrets.ts に一元化（P1-1）
-import { forgeApiKey, slackWebhookUrl } from "./secrets";
+import { forgeApiKey, slackWebhookUrl, gmailUser, gmailPass, ownerEmail } from "./secrets";
 
 // 受理する eventType の許可リスト（未知のイベントは無視してログのみ）
 const KNOWN_EVENT_TYPES = new Set([
@@ -29,7 +29,7 @@ export const bappyWebhook = onRequest(
   {
     region: "asia-northeast1",
     timeoutSeconds: 30,
-    secrets: [forgeApiKey, slackWebhookUrl],
+    secrets: [forgeApiKey, slackWebhookUrl, gmailUser, gmailPass, ownerEmail],
   },
   async (req, res) => {
     if (req.method !== "POST") {

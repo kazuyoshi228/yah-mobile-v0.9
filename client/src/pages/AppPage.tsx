@@ -7,7 +7,7 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { trackEvent, trackPageView } from "@/lib/analytics";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import Nav from "@/components/Nav";
 import { useIsMobile } from "@/hooks/useMobile";
@@ -317,7 +317,7 @@ export default function AppPage({ buySlug }: { buySlug?: string } = {}) {
 
     // C-1: reviewItems(架空レビュー)は実在レビュー収集まで削除。JSON-LDにも出力しない。
 
-    const minPrice = (allDbPlans as (FsPlan & { description?: string | null })[]).reduce(
+    const _minPrice = (allDbPlans as (FsPlan & { description?: string | null })[]).reduce(
       (min, p) => (p.priceJpy < min ? p.priceJpy : min),
       Infinity
     );

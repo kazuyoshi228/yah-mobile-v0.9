@@ -319,21 +319,26 @@ async function fulfillEsim(orderData: FsOrder) {
 
     await updateOrder(orderId, { status: "fulfilled", esimLinkUuid: linkUuid });
 
-    // Update user metrics
-    const userRef = collections.users.doc(userId);
-    await db.runTransaction(async (t) => {
-      const uSnap = await t.get(userRef);
-      if (!uSnap.exists) return;
-      const uData = uSnap.data() as FsUser;
-      const currentMetrics = uData.metrics || { ltvJpy: 0, orderCount: 0 };
-      t.update(userRef, {
-        metrics: {
-          ltvJpy: (currentMetrics.ltvJpy || 0) + orderData.amountJpy,
-          orderCount: (currentMetrics.orderCount || 0) + 1,
-          lastPurchaseDate: Date.now()
-        }
+    // Update user metrics — best-effort に隔離。ここで例外を投げると fulfilled 済みの注文が
+    // 外側で pending_retry に降格し再発行ループへ入るため、失敗は記録のみとする
+    try {
+      const userRef = collections.users.doc(userId);
+      await db.runTransaction(async (t) => {
+        const uSnap = await t.get(userRef);
+        if (!uSnap.exists) return;
+        const uData = uSnap.data() as FsUser;
+        const currentMetrics = uData.metrics || { ltvJpy: 0, orderCount: 0 };
+        t.update(userRef, {
+          metrics: {
+            ltvJpy: (currentMetrics.ltvJpy || 0) + orderData.amountJpy,
+            orderCount: (currentMetrics.orderCount || 0) + 1,
+            lastPurchaseDate: Date.now()
+          }
+        });
       });
-    });
+    } catch (metricsErr) {
+      logger.error("[fulfillEsim] metrics update failed (ignored):", metricsErr);
+    }
 
     const user = await getUserByUid(userId);
     if (user?.email) {

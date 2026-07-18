@@ -89,7 +89,9 @@ function formatPriceDiff(yahPrice: number, airaloPrice: number | null): string {
 }
 
 export async function generateLlmsTxt(): Promise<string> {
-  const [activePlans, guides] = await Promise.all([getActivePlans(), fetchGuides()]);
+  const [activeAll, guides] = await Promise.all([getActivePlans(), fetchGuides()]);
+  // topup 専用プランは初期購入できないため「購入可能プラン」一覧から除外する
+  const activePlans = activeAll.filter((p) => (p as { planType?: string }).planType !== "topup");
   const guidesSection = buildGuidesSection(guides);
 
   const cheapestPlan = activePlans.length > 0
@@ -117,8 +119,6 @@ export async function generateLlmsTxt(): Promise<string> {
     })
     .join("\n\n");
 
-  const samplePlanId = cheapestPlan?.providerPlanId ?? "JP_3D_1GB";
-  const sampleDays = cheapestPlan?.validityDays ?? 3;
   const totalPlans = activePlans.length;
   const minPrice = cheapestPlan?.priceJpy ?? 990;
   const updatedAt = new Date().toISOString();
@@ -168,9 +168,11 @@ ${guidesSection}## Key Pages
 ## Multilingual Support
 
 - English: https://yah.mobi/app
-- Korean (한국어): https://yah.mobi/app/ko — Full Korean-language page including FAQ, plans, and contact form
-- Simplified Chinese (简体中文): https://yah.mobi/app/zh — Full Simplified Chinese page including FAQ, plans, and contact form
-- hreflang annotations: hreflang="ko", hreflang="zh-CN", hreflang="zh-Hans" are present on all pages
+- Korean (한국어): https://yah.mobi/ko/app
+- Simplified Chinese (简体中文): https://yah.mobi/zh-CN/app
+- Traditional Chinese (繁體中文): https://yah.mobi/zh-TW/app
+- Thai (ภาษาไทย): https://yah.mobi/th/app
+- hreflang annotations: en, ko, zh-CN, zh-TW and th are present on all pages
 
 ## Frequently Asked Questions
 
@@ -204,12 +206,8 @@ NTT docomo (via IIJ) — Japan's largest mobile carrier with excellent 4G/LTE co
 ## Pricing Context
 
 yah.mobile runs on NTT docomo network and offers competitive pricing with Japanese-language support and live chat.
-
-| Plan | yah.mobile | Airalo | Difference |
-|------|-----------|--------|------------|
-| 3 days 1GB | ¥990 | ¥700 | Airalo cheaper |
-| 7 days 5GB | ¥1,790 | ¥1,700 | Airalo cheaper |
-| 30 days 10GB | ¥3,490 | ¥3,000 | Airalo cheaper |
+For a live, regularly-checked price comparison against other Japan eSIM providers, see https://yah.mobi/app#price-comparison
+(competitor prices are checked daily; the table is updated whenever a competitor's price changes).
 
 **Why choose yah.mobile over Airalo?**
 - NTT docomo network — Japan's largest carrier, reliable nationwide coverage

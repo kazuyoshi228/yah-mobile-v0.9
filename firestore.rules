@@ -74,7 +74,9 @@ service cloud.firestore {
         && request.resource.data.validityDays > 0
         && request.resource.data.validityDays <= 3650
         && request.resource.data.isActive is bool
-        && request.resource.data.bappyPlanId is string
+        // 現行の admin UI（PlanFormModal）は providerPlanId を書く。旧フィールド bappyPlanId
+        // だけを要求すると新規プラン作成が常に permission-denied になるため両対応にする
+        && (request.resource.data.bappyPlanId is string || request.resource.data.providerPlanId is string)
         && request.resource.data.name is string;
     }
 
@@ -215,7 +217,10 @@ service cloud.firestore {
       allow write: if false;
     }
     match /recommend_logs/{docId} {
-      allow read, write: if false;
+      // /admin の AI First タブが集計のため読む（read: false のままだと Promise の連鎖で
+      // タブ全体が常時エラーだった）。書き込みは Cloud Functions のみ。
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     // ─── System collections (Cloud Functions only) ───────────────────────────────

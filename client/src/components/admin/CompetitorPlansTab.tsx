@@ -7,9 +7,9 @@
 import { useFirestoreDoc } from "@/hooks/useFirestoreCollection";
 import { getFirebaseDb } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import type { ComparisonColumn, ComparisonEditingCell } from "./types";
+import type { ComparisonEditingCell } from "./types";
 
 const FIXED_COL_KEY = "service";
 
