@@ -19,6 +19,21 @@ import type { EsimLink, OrderRow, EsimPreview, EsimPreviewMap } from "./types";
 // plan（providerPlanId / doc.id）→ { validityDays, name } の索引
 type PlanInfo = { validityDays?: number | null; name?: string | null };
 
+/**
+ * createdAt の型ゆらぎをミリ秒に正規化する。
+ * 現行の注文は number だが、旧経路の注文に Firestore Timestamp 型が実在し、
+ * (a) new Date(Timestamp) が Invalid Date になる
+ * (b) Firestore の型順序（number < Timestamp）により orderBy desc で旧注文が常に最上位に来る
+ * の2つの表示バグを起こしていた（docs/design_esim_visibility_fix.md）。
+ */
+function toMillis(v: unknown): number {
+  if (typeof v === "number") return v;
+  const ts = v as { toMillis?: () => number } | null | undefined;
+  if (ts && typeof ts.toMillis === "function") return ts.toMillis();
+  const t = v ? new Date(v as string | Date).getTime() : NaN;
+  return Number.isFinite(t) ? t : 0;
+}
+
 export function useMyPageData(uid: string | undefined) {
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -28,16 +43,20 @@ export function useMyPageData(uid: string | undefined) {
   // 有効期間（validityDays）等を注文の providerPlanId / planId から引くための plans 索引
   useEffect(() => {
     const q = activePlansQuery();
-    const unsub = onSnapshot(q, (snap: QuerySnapshot<DocumentData>) => {
-      const m = new Map<string, PlanInfo>();
-      snap.docs.forEach((d) => {
-        const p = d.data() as { providerPlanId?: string; validityDays?: number; name?: string };
-        const info: PlanInfo = { validityDays: p.validityDays ?? null, name: p.name ?? null };
-        m.set(d.id, info);
-        if (p.providerPlanId) m.set(p.providerPlanId, info);
-      });
-      setPlanMap(m);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap: QuerySnapshot<DocumentData>) => {
+        const m = new Map<string, PlanInfo>();
+        snap.docs.forEach((d) => {
+          const p = d.data() as { providerPlanId?: string; validityDays?: number; name?: string };
+          const info: PlanInfo = { validityDays: p.validityDays ?? null, name: p.name ?? null };
+          m.set(d.id, info);
+          if (p.providerPlanId) m.set(p.providerPlanId, info);
+        });
+        setPlanMap(m);
+      },
+      (err) => console.error("[useMyPageData] plans onSnapshot error:", err),
+    );
     return unsub;
   }, []);
 
@@ -53,23 +72,43 @@ export function useMyPageData(uid: string | undefined) {
       where("userId", "==", uid),
       orderBy("createdAt", "desc"),
     );
-    const unsubOrders = onSnapshot(ordersQuery, (snap: QuerySnapshot<DocumentData>) => {
-      // hiddenByUser フィールドが存在しない古い注文も含めてクライアント側でフィルタリング
-      setOrders(
-        snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as OrderRow))
-          .filter((o) => (o as unknown as { hiddenByUser?: boolean }).hiddenByUser !== true)
-      );
-      setOrdersLoading(false);
-    });
+    const unsubOrders = onSnapshot(
+      ordersQuery,
+      (snap: QuerySnapshot<DocumentData>) => {
+        // hiddenByUser フィールドが存在しない古い注文も含めてクライアント側でフィルタリング。
+        // createdAt はミリ秒に正規化し、Firestore の型順序に依存せずクライアント側で降順ソートする。
+        setOrders(
+          snap.docs
+            .map((d) => {
+              const raw = d.data();
+              return { id: d.id, ...raw, createdAt: toMillis(raw.createdAt) } as OrderRow;
+            })
+            .filter((o) => (o as unknown as { hiddenByUser?: boolean }).hiddenByUser !== true)
+            .sort((a, b) => b.createdAt - a.createdAt)
+        );
+        setOrdersLoading(false);
+      },
+      (err) => {
+        console.error("[useMyPageData] orders onSnapshot error:", err);
+        setOrders([]);
+        setOrdersLoading(false);
+      },
+    );
     const esimQuery = query(
       collection(getFirebaseDb(), "esim_links"),
       where("userId", "==", uid),
       orderBy("createdAt", "desc"),
     );
-    const unsubEsim = onSnapshot(esimQuery, (snap: QuerySnapshot<DocumentData>) => {
-      setEsimLinks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EsimLink)));
-    });
+    const unsubEsim = onSnapshot(
+      esimQuery,
+      (snap: QuerySnapshot<DocumentData>) => {
+        setEsimLinks(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EsimLink)));
+      },
+      (err) => {
+        console.error("[useMyPageData] esim_links onSnapshot error:", err);
+        setEsimLinks([]);
+      },
+    );
     return () => { unsubOrders(); unsubEsim(); };
   }, [uid]);
 

@@ -39,10 +39,21 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    const unsub = onSnapshot(doc(getFirebaseDb(), "orders", orderId), (snap) => {
-      setOrder(snap.exists() ? ({ id: snap.id, ...snap.data() } as FsOrder) : null);
-      setOrderLoading(false);
-    });
+    const unsub = onSnapshot(
+      doc(getFirebaseDb(), "orders", orderId),
+      (snap) => {
+        setOrder(snap.exists() ? ({ id: snap.id, ...snap.data() } as FsOrder) : null);
+        setOrderLoading(false);
+        // 注文が存在しない場合は eSIM 購読も走らないため、ここでローディングを解除する
+        if (!snap.exists()) setEsimLoading(false);
+      },
+      (err) => {
+        console.error("[OrderDetail] order onSnapshot error:", err);
+        setOrder(null);
+        setOrderLoading(false);
+        setEsimLoading(false);
+      },
+    );
     return unsub;
   }, [orderId, isAuthenticated]);
 
@@ -50,14 +61,29 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
   const [esimLoading, setEsimLoading] = useState(true);
 
   useEffect(() => {
-    if (!order) return;
-    const q = query(collection(getFirebaseDb(), "esim_links"), where("orderId", "==", orderId));
-    const unsub = onSnapshot(q, (snap: QuerySnapshot<DocumentData>) => {
-      setEsimLink(snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as FsEsimLink));
-      setEsimLoading(false);
-    });
+    if (!order || !user) return;
+    // ルールは「userId==自分」を保証するクエリのみ許可する。orderId 単独だと一般ユーザーで
+    // permission-denied になり、エラーハンドラも無かったため esimLoading が永遠に true
+    // （＝注文詳細が無限スピナー）だった。docs/design_esim_visibility_fix.md
+    const q = query(
+      collection(getFirebaseDb(), "esim_links"),
+      where("userId", "==", user.uid),
+      where("orderId", "==", orderId),
+    );
+    const unsub = onSnapshot(
+      q,
+      (snap: QuerySnapshot<DocumentData>) => {
+        setEsimLink(snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as FsEsimLink));
+        setEsimLoading(false);
+      },
+      (err) => {
+        console.error("[OrderDetail] esim_links onSnapshot error:", err);
+        setEsimLink(null);
+        setEsimLoading(false);
+      },
+    );
     return unsub;
-  }, [orderId, order]);
+  }, [orderId, order, user]);
 
   // 期限「常に表示」用：未有効化時は plan.validityDays を表示するため注文の planId から取得
   // （topup注文では dataGb を「Data added」表示に使う）

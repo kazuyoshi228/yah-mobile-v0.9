@@ -105,11 +105,18 @@ export default function PurchaseDrawer({ open, onOpenChange, initialPlanId, init
   const { user, isAuthenticated, loading } = useAuth();
 
   // eSIMデータ取得（Step 7用）— BaaSネイティブ: Firestore 直接購読
+  // ルールは「userId==自分」を保証するクエリのみ許可する（orderId 単独は一般ユーザーで
+  // permission-denied になり、購入直後に QR が表示されない。admin ではテストで気づけない）
   const esimQuery = useMemo(
-    () => esimOrderId
-      ? query(collection(getFirebaseDb(), "esim_links"), where("orderId", "==", esimOrderId), limit(1))
+    () => esimOrderId && user
+      ? query(
+          collection(getFirebaseDb(), "esim_links"),
+          where("userId", "==", user.uid),
+          where("orderId", "==", esimOrderId),
+          limit(1),
+        )
       : null,
-    [esimOrderId]
+    [esimOrderId, user]
   );
   const { data: esimLinks, isLoading: esimLoading } = useFirestoreCollection<FsEsimLink>(
     () => esimQuery!,

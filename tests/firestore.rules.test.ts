@@ -17,10 +17,15 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
   updateDoc,
   deleteDoc,
   serverTimestamp,
   Timestamp,
+  collection,
+  query,
+  where,
+  limit,
 } from "firebase/firestore";
 
 let testEnv: RulesTestEnvironment;
@@ -337,5 +342,48 @@ describe("default deny", () => {
   it("ルール未定義のコレクションは読み書きできない", async () => {
     await assertFails(getDoc(doc(alice(), "secret_stuff/x")));
     await assertFails(setDoc(doc(alice(), "secret_stuff/x"), { foo: "bar" }));
+  });
+});
+
+// ─── esim_links のクエリ形状（P0 回帰）──────────────────────────────────────────
+// 2026-07-19: クライアントが esim_links を orderId だけで購読しており、ルール
+// （list は「userId==自分」をクエリで保証する必要がある）に拒否されて購入者に
+// QR が表示されなかった。admin claim 付きテストでは isAdmin() で通ってしまい
+// 発見できなかった。クエリ形状そのものを固定する（docs/design_esim_visibility_fix.md）。
+describe("esim_links list query shapes", () => {
+  beforeEach(async () => {
+    await seed("esim_links/link1", {
+      userId: "alice",
+      orderId: "order1",
+      status: "active",
+      createdAt: Date.now(),
+    });
+  });
+
+  it("orderId のみのクエリは拒否される（旧実装のバグ形）", async () => {
+    await assertFails(
+      getDocs(query(collection(alice(), "esim_links"), where("orderId", "==", "order1")))
+    );
+  });
+
+  it("userId==自分 + orderId のクエリは許可される（修正後の形）", async () => {
+    await assertSucceeds(
+      getDocs(query(
+        collection(alice(), "esim_links"),
+        where("userId", "==", "alice"),
+        where("orderId", "==", "order1"),
+        limit(1),
+      ))
+    );
+  });
+
+  it("他人の userId を指定したクエリは拒否される", async () => {
+    await assertFails(
+      getDocs(query(
+        collection(bob(), "esim_links"),
+        where("userId", "==", "alice"),
+        where("orderId", "==", "order1"),
+      ))
+    );
   });
 });

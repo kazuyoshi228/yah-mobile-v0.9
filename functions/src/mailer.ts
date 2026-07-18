@@ -49,18 +49,40 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
     },
   });
 
-  try {
-    await transporter.sendMail({
-      from: ENV.mailFrom || user,
-      to,
-      subject,
-      html,
-    });
-    logger.info(`[Mailer] Email successfully sent to ${to}`);
-  } catch (error: any) {
-    logger.error(`[Mailer] Failed to send email to ${to}:`, error);
-    throw new Error(`Gmail (nodemailer) failed: ${error.message}`);
+  // 421 "Try again later"（Gmail relay の一時スロットリング）等は数秒後の再試行で成功する
+  // ことが多い。恒久エラー（認証失敗・550等）は再試行せず即時throw する。
+  // 実例: 2026-07-19 01:13 の発行メールが 421×連続で欠落（docs/design_esim_visibility_fix.md）。
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await transporter.sendMail({
+        from: ENV.mailFrom || user,
+        to,
+        subject,
+        html,
+      });
+      logger.info(`[Mailer] Email successfully sent to ${to}${attempt > 1 ? ` (attempt ${attempt})` : ""}`);
+      return;
+    } catch (error: any) {
+      if (isTransientSmtpError(error) && attempt < maxAttempts) {
+        const waitMs = attempt === 1 ? 2000 : 8000;
+        logger.warn(`[Mailer] Transient SMTP error (attempt ${attempt}/${maxAttempts}), retrying in ${waitMs}ms: ${error?.message}`);
+        await new Promise((r) => setTimeout(r, waitMs));
+        continue;
+      }
+      logger.error(`[Mailer] Failed to send email to ${to}:`, error);
+      throw new Error(`Gmail (nodemailer) failed: ${error.message}`);
+    }
   }
+}
+
+/** 一時的な SMTP 障害（再試行に意味があるもの）かどうか。 */
+function isTransientSmtpError(error: any): boolean {
+  const responseCode = String(error?.responseCode ?? "");
+  if (responseCode === "421" || responseCode === "450" || responseCode === "451") return true;
+  if (error?.code === "ECONNECTION" || error?.code === "ETIMEDOUT" || error?.code === "ECONNRESET") return true;
+  const text = `${error?.message ?? ""} ${error?.response ?? ""}`;
+  return /\b421\b|try again later/i.test(text);
 }
 
 // ─── ユーザー向けメールテンプレート ──────────────────────────────────────────
