@@ -21,6 +21,7 @@ import {
   slackWebhookUrl,
   esimAccessCode,
   esimSecretKey,
+  ownerEmail,
 } from "./secrets";
 
 const REGION = "asia-northeast1";
@@ -127,7 +128,9 @@ function escapeHtml(str: string | null | undefined): string {
 // ─── 4. Firestore Contact Create Trigger (onContactCreated) ───────────────────
 
 export const onContactCreated = onDocumentCreated(
-  { document: "contact_inquiries/{inquiryId}", region: REGION, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl] },
+  // ownerEmail: オーナー向け新規問い合わせ通知に必須（未バインドだと OWNER_EMAIL is not set で
+  // 通知が全チャネル失敗する。2026-07-19 に実発生）
+  { document: "contact_inquiries/{inquiryId}", region: REGION, secrets: [gmailUser, gmailPass, forgeApiKey, slackWebhookUrl, ownerEmail] },
   async (event) => {
     const data = event.data?.data();
     if (!data) return;

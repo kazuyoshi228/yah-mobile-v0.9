@@ -38,40 +38,66 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
     return;
   }
 
-  const transporter = nodemailer.createTransport({
+  const auth = { user, pass };
+  const mail = { from: ENV.mailFrom || user, to, subject, html };
+
+  const relay = nodemailer.createTransport({
     host: "smtp-relay.gmail.com",
     port: 587,
     secure: false,       // STARTTLS（下の requireTLS で強制）
     requireTLS: true,
-    auth: {
-      user,
-      pass,
-    },
+    auth,
   });
 
-  // 421 "Try again later"（Gmail relay の一時スロットリング）等は数秒後の再試行で成功する
-  // ことが多い。恒久エラー（認証失敗・550等）は再試行せず即時throw する。
-  // 実例: 2026-07-19 01:13 の発行メールが 421×連続で欠落（docs/design_esim_visibility_fix.md）。
+  try {
+    await sendWithRetry(relay, mail, "relay");
+  } catch (relayErr: any) {
+    // relay 全滅時の保険: 旧経路 smtp.gmail.com（~2,000通/日）で最後に1回試す。
+    // 実例: 2026-07-19 に Google が Cloud Functions の送信元IPを 421(EHLO) で
+    // 90分以上拒否し続け、発行メール・問い合わせ自動返信が全滅した（relay 設定は正常・
+    // ローカルIPからの EHLO は 250 だったため Google 側のIP評価と断定）。
+    // 注: From が send-as エイリアス未登録の場合 Gmail が認証ユーザーに書き換えるが、不達よりよい。
+    logger.warn(`[Mailer] relay failed for ${to} — falling back to smtp.gmail.com: ${relayErr?.message}`);
+    const direct = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth,
+    });
+    try {
+      await direct.sendMail(mail);
+      logger.info(`[Mailer] Email sent to ${to} via fallback smtp.gmail.com`);
+    } catch (error: any) {
+      logger.error(`[Mailer] Fallback smtp.gmail.com also failed for ${to}:`, error);
+      throw new Error(`Gmail (nodemailer) failed: ${error.message}`);
+    }
+  }
+}
+
+/**
+ * 421 "Try again later" 等の一時エラーを 2s/8s バックオフで最大3試行する。
+ * 恒久エラー（認証失敗・550等）は再試行せず即時 throw。
+ */
+async function sendWithRetry(
+  transporter: nodemailer.Transporter,
+  mail: { from: string; to: string; subject: string; html: string },
+  label: string,
+): Promise<void> {
   const maxAttempts = 3;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      await transporter.sendMail({
-        from: ENV.mailFrom || user,
-        to,
-        subject,
-        html,
-      });
-      logger.info(`[Mailer] Email successfully sent to ${to}${attempt > 1 ? ` (attempt ${attempt})` : ""}`);
+      await transporter.sendMail(mail);
+      logger.info(`[Mailer] Email successfully sent to ${mail.to} via ${label}${attempt > 1 ? ` (attempt ${attempt})` : ""}`);
       return;
     } catch (error: any) {
       if (isTransientSmtpError(error) && attempt < maxAttempts) {
         const waitMs = attempt === 1 ? 2000 : 8000;
-        logger.warn(`[Mailer] Transient SMTP error (attempt ${attempt}/${maxAttempts}), retrying in ${waitMs}ms: ${error?.message}`);
+        logger.warn(`[Mailer] Transient SMTP error on ${label} (attempt ${attempt}/${maxAttempts}), retrying in ${waitMs}ms: ${error?.message}`);
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
-      logger.error(`[Mailer] Failed to send email to ${to}:`, error);
-      throw new Error(`Gmail (nodemailer) failed: ${error.message}`);
+      throw error;
     }
   }
 }
