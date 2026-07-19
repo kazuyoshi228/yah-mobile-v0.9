@@ -10,7 +10,7 @@
     "dev": "vite",
     "build:client": "vite build",
     "build:astro": "astro build && node scripts/merge_astro_dist.mjs",
-    "build": "npm run build:client && npm run build:astro",
+    "build": "npm run build:client && npm run build:astro && node scripts/prerender.mjs",
     "dev:astro": "astro dev --port 4331",
     "check": "tsc --noEmit",
     "lint": "eslint .",
