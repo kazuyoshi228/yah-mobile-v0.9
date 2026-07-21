@@ -169,6 +169,7 @@ export PATH="$HOME/node22/bin:$PATH"
 - **rules の `updatedAt == request.time` 契約**：クライアント updateDoc は **`serverTimestamp()` 必須**（`Date.now()` は number で型不一致→一般ユーザーのみ permission-denied）。
 - **admin アカウントでのテストは `isAdmin()` 分岐が穴を隠す**（eSIM非表示・注文詳細スピナーの実障害の根因）→ **購入系 QA は非 admin アカウント（gmail）で行う**。
 - **多言語プリレンダは build に内蔵**（2026-07-19〜）。素の vite 出力だけをデプロイすると /ko/app 等の SEO メタが英語に剥がれる（同日実発生→build へ統合済み。スモークの各言語 title 検査が最後の砦）。
+- **GA計測はオプトアウト方式**（2026-07-21〜・analytics_storage default granted・ad系denied維持）。理由: 未同意ping(gcs=G100)は小規模プロパティのレポートに一切出ず「広告流入が全て不可視」になる実障害が発生。同意まわりを denied に戻すと計測が即死する — 変更時は新規セッションで /g/collect の gcs=G101 を必ず確認。
 - **プラン仕様の正本**：テザリング不可（上流仕様）・データ専用・**起算はアクティベート（回線ON）時点**。文言修正は **chat（RAG/プロンプト）と Web（FAQ/llms.txt）の両方**を必ず揃える（2026-07-19 に正反対の案内で発覚）。
 
 ---
