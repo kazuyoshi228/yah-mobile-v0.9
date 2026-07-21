@@ -56,14 +56,15 @@ const LANGS = alternates.map((a) => ({
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+      // analytics はオプトアウト方式（SPA 側 index.html と同一方針・2026-07-21）
       gtag('consent', 'default', {
         ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
-        analytics_storage: 'denied', wait_for_update: 500
+        analytics_storage: 'granted'
       });
       try {
         var c = JSON.parse(localStorage.getItem('yah_cookie_consent') || 'null');
-        if (c && c.value === 'accepted' && c.version === '1') {
-          gtag('consent', 'update', { analytics_storage: 'granted' });
+        if (c && c.value === 'declined') {
+          gtag('consent', 'update', { analytics_storage: 'denied' });
         }
       } catch (e) {}
       gtag('config', 'G-DVVQ3D5M6Z', { anonymize_ip: true });

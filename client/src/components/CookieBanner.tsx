@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { loadClarityIfConsented, loadUmamiIfConsented } from "@/lib/analytics";
-import { ga4GrantConsent } from "@/lib/ga4";
+import { ga4GrantConsent, ga4DenyConsent } from "@/lib/ga4";
 
 const COOKIE_CONSENT_KEY = "yah_cookie_consent";
 const COOKIE_CONSENT_VERSION = "1";
@@ -50,6 +50,8 @@ export default function CookieBanner() {
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(record));
     setConsent("declined");
     setVisible(false);
+    // オプトアウト方式（default granted）のため、拒否は明示的に denied へ更新する
+    ga4DenyConsent();
   };
 
   if (!visible || consent !== null) return null;

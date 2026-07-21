@@ -203,7 +203,7 @@ const zhTW = {
     "cta": "開始對話"
   },
   "cookie": {
-    "message": "我們使用可選的分析 Cookie 來改進服務。登入由 Google 安全處理，不依賴這些 Cookie。",
+    "message": "我們使用分析 Cookie 來改進服務，您可以在此拒絕。登入由 Google 安全處理，不依賴這些 Cookie。",
     "policyLink": "Cookie 政策",
     "decline": "拒絕",
     "acceptAll": "全部接受"

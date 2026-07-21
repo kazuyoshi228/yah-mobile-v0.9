@@ -12,15 +12,18 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+      // analytics はオプトアウト方式（主要市場 TW/JP/KR は GDPR 圏外・anonymize_ip 維持）。
+      // デフォルト denied だと未同意訪問者が Cookie なし ping (gcs=G100) になり、小規模
+      // プロパティではレポートに一切表示されず「広告流入が全て不可視」になる（2026-07-21 実障害）。
       gtag('consent', 'default', {
         ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
-        analytics_storage: 'denied', wait_for_update: 500
+        analytics_storage: 'granted'
       });
-      // 既に Cookie 同意済みなら即 granted（起動時同期）
+      // 過去に「拒否」を選んだ訪問者のオプトアウトを起動時に尊重
       try {
         var c = JSON.parse(localStorage.getItem('yah_cookie_consent') || 'null');
-        if (c && c.value === 'accepted' && c.version === '1') {
-          gtag('consent', 'update', { analytics_storage: 'granted' });
+        if (c && c.value === 'declined') {
+          gtag('consent', 'update', { analytics_storage: 'denied' });
         }
       } catch (e) {}
       gtag('config', 'G-DVVQ3D5M6Z', { anonymize_ip: true });

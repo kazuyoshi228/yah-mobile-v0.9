@@ -130,7 +130,7 @@ const zhCN = {
     cta: "开始聊天",
   },
   cookie: {
-    message: "我们使用可选的分析 Cookie 来改进服务。登录由 Google 安全处理，不依赖这些 Cookie。",
+    message: "我们使用分析 Cookie 来改进服务，您可以在此拒绝。登录由 Google 安全处理，不依赖这些 Cookie。",
     policyLink: "Cookie 政策",
     decline: "拒绝",
     acceptAll: "全部接受",

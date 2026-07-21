@@ -26,6 +26,11 @@ export function ga4GrantConsent(): void {
   gtag()?.("consent", "update", { analytics_storage: "granted" });
 }
 
+/** バナーで「拒否」時に呼ぶ：analytics_storage を denied に（オプトアウト方式の実効化）。 */
+export function ga4DenyConsent(): void {
+  gtag()?.("consent", "update", { analytics_storage: "denied" });
+}
+
 /**
  * GA4 の client_id を取得（注文へ添付し、サーバー purchase をセッションへ縫合するため）。
  * denied（Cookieなし）や未ロード時は null を返す。

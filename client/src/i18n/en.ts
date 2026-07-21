@@ -130,7 +130,7 @@ const en = {
     cta: "Start a chat",
   },
   cookie: {
-    message: "We use optional analytics cookies to improve our service. Sign-in is handled securely by Google and does not rely on these cookies.",
+    message: "We use analytics cookies to improve our service — you can opt out here. Sign-in is handled securely by Google and does not rely on these cookies.",
     policyLink: "Cookie Policy",
     decline: "Decline",
     acceptAll: "Accept All",
